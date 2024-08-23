@@ -12,6 +12,8 @@
         })(document);
         smartlook('init', 'fc507c6c142f4b8145920d567d98930697c82076', { region: 'eu' });
     </script>
+
+    
     <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
@@ -30,14 +32,7 @@
             <div class="container">
                 <h1>Welcome to UA DBD Website</h1>
                 <p>This is a sample website created to demonstrate a beautiful layout with multiple components.</p>
-                <button class="button">Click Me</button>
-            </div>
-        </section>
-        <section id="about">
-            <div class="container">
-                <h2>About Us</h2>
-                <p>This is a sample website created to demonstrate a beautiful layout with multiple components.</p>
-                <button class="button">Click Me</button>
+                <button class="button" onclick="showAlert()">Click Me</button>
             </div>
         </section>
     </main>
@@ -45,5 +40,10 @@
         <p>© 2024 My Beautiful Website. All rights reserved.</p>
     </footer>
     <script src="js/script.js"></script>
+    <script>
+        function showAlert() {
+            alert("Thank you!");
+        }
+    </script>
 </body>
 </html>
