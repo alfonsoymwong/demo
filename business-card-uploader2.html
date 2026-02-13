@@ -13,6 +13,7 @@
       --bg: #f8fafc;
       --card: #ffffff;
       --border: #e5e7eb;
+      --dify: #7c3aed; /* violet */
     }
     body {
       font-family: system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji";
@@ -25,7 +26,7 @@
       padding: 18px 18px; margin-bottom: 16px;
       box-shadow: 0 1px 2px rgba(0,0,0,0.03);
     }
-    .panel h2 { font-size: 1.05rem; margin: 0 0 12px; }
+    .panel h2 { font-size: 1.05rem; margin: 0 0 12px; display: flex; align-items: center; gap: 8px; }
     .row { display: grid; grid-template-columns: 1fr 2fr; gap: 10px; align-items: center; margin: 8px 0; }
     label { color: var(--muted); font-size: .92rem; }
     input[type="text"], input[type="email"], textarea {
@@ -47,6 +48,12 @@
     .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
     .small { font-size: .85rem; color: var(--muted); }
     code { background: #f3f4f6; padding: 2px 6px; border-radius: 6px; }
+
+    /* Badge for Dify origin */
+    .badge {
+      display: inline-block; font-size: .75rem; line-height: 1; padding: 4px 8px;
+      border-radius: 999px; color: #fff; background: var(--dify); vertical-align: middle;
+    }
 
     /* ===== Loading overlay & spinner ===== */
     .overlay {
@@ -129,10 +136,30 @@
       <div class="small">This shows the JSON returned by your Power Automate API.</div>
     </div>
 
+    <!-- New: Dify output panel -->
+    <div class="panel">
+      <h2>4) Structure Address ( <span class="badge">Dify AI</span>)</h2>
+      <div class="row"><label for="difyFlat">Flat / Unit <span class="badge">Dify</span></label><input id="difyFlat" type="text" /></div>
+      <div class="row"><label for="difyFloor">Floor <span class="badge">Dify</span></label><input id="difyFloor" type="text" /></div>
+      <div class="row"><label for="difyBlock">Block <span class="badge">Dify</span></label><input id="difyBlock" type="text" /></div>
+      <div class="row"><label for="difyStreetNumber">Street Number <span class="badge">Dify</span></label><input id="difyStreetNumber" type="text" /></div>
+      <div class="row"><label for="difyStreetName">Street Name <span class="badge">Dify</span></label><input id="difyStreetName" type="text" /></div>
+      <div class="row"><label for="difyBuildingName">Building Name <span class="badge">Dify</span></label><input id="difyBuildingName" type="text" /></div>
+      <div class="row"><label for="difyDistrict">District <span class="badge">Dify</span></label><input id="difyDistrict" type="text" /></div>
+      <div class="row"><label for="difyCountry">Country <span class="badge">Dify</span></label><input id="difyCountry" type="text" /></div>
+    </div>
+
+    <div class="panel">
+      <h2>5) Dify raw response (debug) <span class="badge">Dify</span></h2>
+      <textarea id="rawDify" readonly></textarea>
+      <div class="small">This shows the response from Dify <code>/v1/workflows/run</code>. The address components above are parsed from <code>data.outputs.text</code>.</div>
+    </div>
+
     <div class="panel">
       <h2>Notes</h2>
       <ul class="small">
-        <li><strong>Security:</strong> This sample calls your flow directly from the browser with a signed URL (<code>sig=...</code>). For production, consider routing via a secure backend or enabling OAuth on the flow trigger.</li>
+        <li><strong>Security:</strong> This sample calls your flow directly from the browser with a signed URL (<code>sig=...</code>). For production, route via a secure backend or enable OAuth on the flow trigger.</li>
+        <li><strong>Dify key:</strong> Do not embed secrets in client-side code in production. Call Dify from a secure backend and return only the needed data.</li>
         <li>If your flow expects only Base64 (no data URI), this page strips the prefix automatically.</li>
       </ul>
     </div>
@@ -141,6 +168,12 @@
   <script>
     // === CONFIG: your Power Automate HTTP endpoint ===
     const FLOW_URL = "https://default82d66b598a9149e39d76abcd7c3c6f.5b.environment.api.powerplatform.com:443/powerautomate/automations/direct/workflows/8db621c1e5b8442f92d1e793bc9802fe/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=q7N6_FOUNYdAUCLL7UdnxcGNHbIjJRWfHzUeGM2zfkk";
+
+    // === CONFIG: Dify workflow endpoint & API key ===
+    // SECURITY WARNING: Do NOT ship real API keys in client-side code in production.
+    const DIFY_URL = "https://api.dify.ai/v1/workflows/run";
+    const DIFY_API_KEY = "app-ZIfddptOdaACbwlqSM4Dkwjm"; // <-- move to server-side in production
+    const DIFY_USER_ID = "abc-123";
 
     // === UI elements ===
     const fileInput = document.getElementById('fileInput');
@@ -155,7 +188,7 @@
     const loaderText = document.getElementById('loaderText');
     const loaderLive = document.getElementById('loaderLive');
 
-    // output fields
+    // output fields (flow)
     const fields = {
       fullName: document.getElementById('fullName'),
       firstName: document.getElementById('firstName'),
@@ -171,11 +204,28 @@
       country: document.getElementById('country')
     };
 
+    // output fields (Dify)
+    const difyFields = {
+      flat: document.getElementById('difyFlat'),
+      floor: document.getElementById('difyFloor'),
+      block: document.getElementById('difyBlock'),
+      streetNumber: document.getElementById('difyStreetNumber'),
+      streetName: document.getElementById('difyStreetName'),
+      buildingName: document.getElementById('difyBuildingName'),
+      district: document.getElementById('difyDistrict'),
+      country: document.getElementById('difyCountry')
+    };
+    const rawDify = document.getElementById('rawDify');
+
     // enable/disable button + reset preview/raw
     fileInput.addEventListener('change', () => {
       analyzeBtn.disabled = !fileInput.files || fileInput.files.length === 0;
       msg.textContent = '';
       raw.value = '';
+      rawDify.value = '';
+      clearFields();
+      clearDifyFields();
+
       // preview if image
       const f = fileInput.files && fileInput.files[0];
       if (!f) { preview.src = ''; return; }
@@ -191,7 +241,9 @@
     analyzeBtn.addEventListener('click', async () => {
       msg.textContent = '';
       raw.value = '';
+      rawDify.value = '';
       clearFields();
+      clearDifyFields();
 
       const file = fileInput.files && fileInput.files[0];
       if (!file) { msg.innerHTML = '<span class="err">Please choose a file.</span>'; return; }
@@ -201,7 +253,7 @@
         const base64 = await fileToBase64(file);
         const pureBase64 = (base64.includes(',')) ? base64.split(',')[1] : base64;
 
-        setBusy(true, 'Calling API…');
+        setBusy(true, 'Calling Power Automate…');
         const payload = { fileName: file.name, fileContent: pureBase64 };
 
         const res = await fetch(FLOW_URL, {
@@ -215,14 +267,32 @@
           throw new Error(`HTTP ${res.status}${t ? ': ' + t : ''}`);
         }
 
-        // Expecting JSON response
+        // Expecting JSON response from Flow
         let data = null;
         try { data = await res.json(); }
         catch { throw new Error('The flow did not return JSON. Ensure the flow ends with a Response action.'); }
 
         raw.value = JSON.stringify(data, null, 2);
         populateFields(data);
-        msg.innerHTML = '<span class="ok">Analysis completed.</span>';
+
+        // Determine the best full address to send to Dify
+        const address = chooseFullAddressForDify(data);
+        if (!address) {
+          msg.innerHTML = '<span class="ok">Flow analysis completed.</span> <span class="err">But no full address available to send to Dify.</span>';
+          return;
+        }
+
+        setBusy(true, 'Calling Dify…');
+        const difyResponse = await callDifyAddressParser(address);
+        rawDify.value = JSON.stringify(difyResponse, null, 2);
+
+        const parsed = parseDifyTextToJson(difyResponse?.data?.outputs?.text);
+        if (!parsed) {
+          msg.innerHTML = '<span class="ok">Flow analysis completed.</span> <span class="err">Dify returned no parsable JSON.</span>';
+        } else {
+          populateDifyFields(parsed);
+          msg.innerHTML = '<span class="ok">Analysis completed (Power Automate + Dify).</span>';
+        }
       } catch (e) {
         console.error(e);
         msg.innerHTML = `<span class="err">Error: ${escapeHtml(e.message)}</span>`;
@@ -263,6 +333,84 @@
 
     function clearFields() {
       Object.values(fields).forEach(el => el.value = '');
+    }
+
+    // === Dify helpers ===
+    function chooseFullAddressForDify(flowData) {
+      // Prefer flowData.fullAddress; fallback to concatenation if available
+      const fa = (flowData && typeof flowData.fullAddress === 'string' && flowData.fullAddress.trim()) ? flowData.fullAddress.trim() : '';
+      if (fa) return fa;
+
+      // Optional simple fallback (customize if your flow uses different keys)
+      const parts = [
+        flowData?.addressStreet,
+        flowData?.country
+      ].filter(Boolean);
+      return parts.length ? parts.join(', ') : '';
+    }
+
+    async function callDifyAddressParser(address) {
+      // Build the Dify request body to match your provided schema
+      const body = {
+        inputs: {
+          user_query: `Parse this address: ${address}`
+        },
+        response_mode: "blocking",
+        user: DIFY_USER_ID
+      };
+
+      const resp = await fetch(DIFY_URL, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${DIFY_API_KEY}`, // <-- move to server-side in production
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(body)
+      });
+
+      if (!resp.ok) {
+        const txt = await resp.text().catch(() => '');
+        throw new Error(`Dify error ${resp.status}${txt ? ': ' + txt : ''}`);
+      }
+      return resp.json();
+    }
+
+    function parseDifyTextToJson(text) {
+      if (!text || typeof text !== 'string') return null;
+
+      // The sample shows JSON embedded as string in outputs.text (with leading newlines).
+      // Extract the first {...} block and parse it safely.
+      const start = text.indexOf('{');
+      const end = text.lastIndexOf('}');
+      if (start === -1 || end === -1 || end <= start) return null;
+
+      const jsonSlice = text.slice(start, end + 1);
+      try {
+        return JSON.parse(jsonSlice);
+      } catch {
+        return null;
+      }
+    }
+
+    function populateDifyFields(obj) {
+      setDifyField('flat', obj.flat);
+      setDifyField('floor', obj.floor);
+      setDifyField('block', obj.block);
+      setDifyField('streetNumber', obj.streetNumber);
+      setDifyField('streetName', obj.streetName);
+      setDifyField('buildingName', obj.buildingName);
+      setDifyField('district', obj.district);
+      setDifyField('country', obj.country);
+    }
+
+    function setDifyField(key, val) {
+      if (!(key in difyFields)) return;
+      if (val == null) return;
+      difyFields[key].value = String(val);
+    }
+
+    function clearDifyFields() {
+      Object.values(difyFields).forEach(el => el.value = '');
     }
 
     // === Updated setBusy: controls button text AND the overlay spinner ===
