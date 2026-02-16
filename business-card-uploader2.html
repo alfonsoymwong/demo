@@ -141,6 +141,7 @@
 
     <div class="panel">
       <h2>2) Extracted fields</h2>
+      <!-- English set -->
       <div class="row"><label for="fullName">Full name</label><input id="fullName" type="text" /></div>
       <div class="row"><label for="firstName">First name</label><input id="firstName" type="text" /></div>
       <div class="row"><label for="lastName">Last name</label><input id="lastName" type="text" /></div>
@@ -153,6 +154,16 @@
       <div class="row"><label for="fullAddress">Full address</label><textarea id="fullAddress"></textarea></div>
       <div class="row"><label for="addressStreet">Street</label><input id="addressStreet" type="text" /></div>
       <div class="row"><label for="country">Country</label><input id="country" type="text" /></div>
+
+      <!-- NEW: Chinese set -->
+      <hr style="border:none;border-top:1px solid var(--border);margin:14px 0;">
+      <div class="small" style="margin-bottom:6px;color:#374151;">Chinese fields (中文)</div>
+      <div class="row"><label for="fullName_chi">Full name (Chinese)</label><input id="fullName_chi" type="text" /></div>
+      <div class="row"><label for="firstName_chi">First name (Chinese)</label><input id="firstName_chi" type="text" /></div>
+      <div class="row"><label for="lastName_chi">Last name (Chinese)</label><input id="lastName_chi" type="text" /></div>
+      <div class="row"><label for="title_chi">Title (Chinese)</label><input id="title_chi" type="text" /></div>
+      <div class="row"><label for="company_chi">Company (Chinese)</label><input id="company_chi" type="text" /></div>
+      <div class="row"><label for="department_chi">Department (Chinese)</label><input id="department_chi" type="text" /></div>
     </div>
 
     <div class="panel">
@@ -161,7 +172,7 @@
       <div class="small">This shows the JSON returned by your Power Automate API.</div>
     </div>
 
-    <!-- New: Dify output panel -->
+    <!-- Dify output panel (unchanged) -->
     <div class="panel">
       <h2>4) Structure Address ( <span class="badge">Dify AI</span>)</h2>
       <div class="row"><label for="difyFlat">Flat / Unit <span class="badge">Dify</span></label><input id="difyFlat" type="text" /></div>
@@ -231,7 +242,15 @@
       website: document.getElementById('website'),
       fullAddress: document.getElementById('fullAddress'),
       addressStreet: document.getElementById('addressStreet'),
-      country: document.getElementById('country')
+      country: document.getElementById('country'),
+
+      // NEW: Chinese fields
+      fullName_chi: document.getElementById('fullName_chi'),
+      firstName_chi: document.getElementById('firstName_chi'),
+      lastName_chi: document.getElementById('lastName_chi'),
+      title_chi: document.getElementById('title_chi'),
+      company_chi: document.getElementById('company_chi'),
+      department_chi: document.getElementById('department_chi')
     };
 
     // output fields (Dify)
@@ -382,6 +401,14 @@
       setField('fullAddress', d.fullAddress);
       setField('addressStreet', d.addressStreet);
       setField('country', d.country);
+
+      // NEW: Chinese fields
+      setField('fullName_chi', d.fullName_chi);
+      setField('firstName_chi', d.firstName_chi);
+      setField('lastName_chi', d.lastName_chi);
+      setField('title_chi', d.title_chi);
+      setField('company_chi', d.company_chi);
+      setField('department_chi', d.department_chi);
     }
 
     function setField(id, val) {
@@ -393,22 +420,15 @@
       Object.values(fields).forEach(el => el.value = '');
     }
 
-    // === Dify helpers ===
+    // === Dify helpers (unchanged) ===
     function chooseFullAddressForDify(flowData) {
-      // Prefer flowData.fullAddress; fallback to concatenation if available
       const fa = (flowData && typeof flowData.fullAddress === 'string' && flowData.fullAddress.trim()) ? flowData.fullAddress.trim() : '';
       if (fa) return fa;
-
-      // Optional simple fallback (customize if your flow uses different keys)
-      const parts = [
-        flowData?.addressStreet,
-        flowData?.country
-      ].filter(Boolean);
+      const parts = [ flowData?.addressStreet, flowData?.country ].filter(Boolean);
       return parts.length ? parts.join(', ') : '';
     }
 
     async function callDifyAddressParser(address) {
-      // Build the Dify request body to match your provided schema
       const body = {
         inputs: {
           user_query: `Parse this address: ${address}`
@@ -420,7 +440,7 @@
       const resp = await fetch(DIFY_URL, {
         method: 'POST',
         headers: {
-          'Authorization': `Bearer ${DIFY_API_KEY}`, // <-- move to server-side in production
+          'Authorization': `Bearer ${DIFY_API_KEY}`,
           'Content-Type': 'application/json'
         },
         body: JSON.stringify(body)
@@ -435,19 +455,11 @@
 
     function parseDifyTextToJson(text) {
       if (!text || typeof text !== 'string') return null;
-
-      // The sample shows JSON embedded as string in outputs.text (with leading newlines).
-      // Extract the first {...} block and parse it safely.
       const start = text.indexOf('{');
       const end = text.lastIndexOf('}');
       if (start === -1 || end === -1 || end <= start) return null;
-
       const jsonSlice = text.slice(start, end + 1);
-      try {
-        return JSON.parse(jsonSlice);
-      } catch {
-        return null;
-      }
+      try { return JSON.parse(jsonSlice); } catch { return null; }
     }
 
     function populateDifyFields(obj) {
@@ -471,17 +483,14 @@
       Object.values(difyFields).forEach(el => el.value = '');
     }
 
-    // === Updated setBusy: controls button text AND the overlay spinner ===
+    // === Busy overlay ===
     function setBusy(isBusy, text) {
       analyzeBtn.disabled = isBusy;
       busy.textContent = isBusy ? (text || 'Processing…') : '';
-
-      // Update overlay & accessible live region
       overlay.setAttribute('aria-hidden', String(!isBusy));
       if (isBusy) {
         loaderText.textContent = text || 'Processing…';
         loaderLive.textContent = text || 'Processing…';
-        // prevent accidental scroll interactions while overlay is visible
         document.body.style.pointerEvents = 'none';
       } else {
         loaderText.textContent = '';
