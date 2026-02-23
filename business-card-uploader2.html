@@ -110,7 +110,7 @@
 
     <!-- 2) Extracted fields (multi-column) -->
     <div class="panel">
-      <h2>2) Extracted fields</h2>
+      <h2>2) Extracted fields ( <span class="badge">Power Automate</span>)</h2>
 
       <div class="form-grid">
         <!-- English set -->
@@ -170,15 +170,7 @@
       <div class="subtle">This shows the response from Dify <code>/v1/workflows/run</code>. The address components above are parsed from <code>data.outputs.text</code>.</div>
     </div>
 
-    <div class="panel">
-      <h2>Notes</h2>
-      <ul class="subtle" style="margin:6px 0 0 18px">
-        <li><strong>Security:</strong> This sample calls your flow directly from the browser with a signed URL (<code>sig=...</code>). For production, route via a secure backend or enable OAuth on the flow trigger.</li>
-        <li><strong>Dify key:</strong> Do not embed secrets in client-side code in production. Call Dify from a secure backend and return only the needed data.</li>
-        <li>If your flow expects only Base64 (no data URI), this page strips the prefix automatically.</li>
-      </ul>
-    </div>
-  </div>
+
 
   <script>
     // === CONFIG: your Power Automate HTTP endpoint ===
@@ -360,6 +352,7 @@
   </script>
 </body>
 </html>
+
 
 
 
