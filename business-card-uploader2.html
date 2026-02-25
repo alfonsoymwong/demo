@@ -239,8 +239,10 @@
     function clearFields(){ Object.values(fields).forEach(el=> el.value=''); }
     function setDifyField(key,val){ if(!(key in difyFields) || val==null) return; difyFields[key].value=String(val); }
     function clearDifyFields(){ Object.values(difyFields).forEach(el=> el.value=''); }
-    function escapeHtml(s){ return String(s).replace(/[&<>\"'`]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;','`':'&#96;'}[c])); }
-    function formatMs(ms){ return `${Math.round(ms)} ms`; } // change to seconds if preferred
+    function escapeHtml(s){ return String(s).replace(/[&<>\"'`]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;','\'':'&#39;','`':'&#96;'}[c])); }
+
+    // Return seconds (fixed to 2 decimals)
+    function toSec(ms){ return (ms/1000).toFixed(2); }
 
     // ---------- Populate ----------
     function populateFields(d){
@@ -303,7 +305,7 @@
     imgLightbox.addEventListener('click',(e)=>{ if(e.target===imgLightbox) closeLightbox(); });
     document.addEventListener('keydown',(e)=>{ if(e.key==='Escape' && imgLightbox.getAttribute('aria-hidden')==='false') closeLightbox(); });
 
-    // ---------- Main click handler with timing ----------
+    // ---------- Main click handler with timing in SECONDS ----------
     analyzeBtn.addEventListener('click',async()=>{
       msg.textContent=''; raw.value=''; rawDify.value=''; clearFields(); clearDifyFields();
 
@@ -337,9 +339,10 @@
         const address=chooseFullAddressForDify(data);
         if(!address){
           const tEnd = performance.now();
-          const paMs = tPAEnd - tPAStart;
-          const totalMs = tEnd - t0;
-          msg.innerHTML = `<span class="ok">Analysis completed (Power Automate only).</span> <span class="subtle">PA: ${formatMs(paMs)} · Total: ${formatMs(totalMs)}</span>`;
+          const paSec = Number(toSec(tPAEnd - tPAStart));
+          const difySec = 0.00;
+          const totalSec = Number(toSec(tEnd - t0)); // equals paSec when Dify not called
+          msg.innerHTML = `<span class="ok">Analysis completed (Power Automate only).</span> <span class="subtle">Total: 1) ${totalSec.toFixed(2)} s  |  PA: 2) ${paSec.toFixed(2)} s  |  Dify: 3) ${difySec.toFixed(2)} s  (1 = 2 + 3)</span>`;
           return;
         }
 
@@ -354,25 +357,98 @@
         const parsed=parseDifyTextToJson(difyResponse?.data?.outputs?.text);
         const tEnd = performance.now();
 
-        const paMs = tPAEnd - tPAStart;
-        const difyMs = tDifyEnd - tDifyStart;
-        const totalMs = tEnd - t0;
+        const paSec = Number(toSec(tPAEnd - tPAStart));
+        const difySec = Number(toSec(tDifyEnd - tDifyStart));
+        const totalSec = Number(toSec(tEnd - t0));
+        // Force the displayed equality (1 = 2 + 3) by recomputing total as sum if you prefer strict display:
+        // const totalSec = Number((paSec + difySec).toFixed(2));
 
         if(!parsed){
-          msg.innerHTML = `<span class="ok">Analysis completed.</span> <span class="err">Dify returned no parsable JSON.</span> <span class="subtle">PA: ${formatMs(paMs)} · Dify: ${formatMs(difyMs)} · Total: ${formatMs(totalMs)}</span>`;
+          msg.innerHTML = `<span class="ok">Analysis completed.</span> <span class="err">Dify returned no parsable JSON.</span> <span class="subtle">Total: 1) ${totalSec.toFixed(2)} s  |  PA: 2) ${paSec.toFixed(2)} s  |  Dify: 3) ${difySec.toFixed(2)} s  (1 = 2 + 3)</span>`;
         } else {
           populateDifyFields(parsed);
-          msg.innerHTML = `<span class="ok">Analysis completed (Power Automate + Dify).</span> <span class="subtle">PA: ${formatMs(paMs)} · Dify: ${formatMs(difyMs)} · Total: ${formatMs(totalMs)}</span>`;
+          msg.innerHTML = `<span class="ok">Analysis completed (Power Automate + Dify).</span> <span class="subtle">Total: 1) ${totalSec.toFixed(2)} s  |  PA: 2) ${paSec.toFixed(2)} s  |  Dify: 3) ${difySec.toFixed(2)} s  (1 = 2 + 3)</span>`;
         }
       }catch(e){
         const tEnd = performance.now();
-        const totalMs = tEnd - t0;
+        const totalSec = Number(toSec(tEnd - t0));
+        // Best-effort segment times if PA/Dify had started
+        const paSec = (typeof tPAStart==='number' && typeof tPAEnd==='number') ? Number(toSec(tPAEnd - tPAStart)) : 0.00;
+        const difySec = (typeof tDifyStart==='number' && typeof tDifyEnd==='number') ? Number(toSec(tDifyEnd - tDifyStart)) : 0.00;
+
         console.error(e);
-        msg.innerHTML=`<span class="err">Error: ${escapeHtml(e.message)}</span> <span class="subtle">Total: ${formatMs(totalMs)}</span>`;
+        msg.innerHTML=`<span class="err">Error: ${escapeHtml(e.message)}</span> <span class="subtle">Total: 1) ${totalSec.toFixed(2)} s  |  PA: 2) ${paSec.toFixed(2)} s  |  Dify: 3) ${difySec.toFixed(2)} s  (1 = 2 + 3)</span>`;
       }finally{
         setBusy(false);
       }
     });
+
+    /**
+     * Robustly extract and parse JSON from an LLM/Dify text response.
+     * Accepts objects { ... } or arrays [ ... ].
+     */
+    function parseDifyTextToJson(text) {
+      if (!text || typeof text !== 'string') return null;
+      let s = text.replace(/^\uFEFF/, '').trim();
+      try { return JSON.parse(s); } catch (_) {}
+      s = s.replace(/```(?:json|JSON)?\s*([\s\S]*?)\s*```/g, '$1').trim();
+      s = s
+        .replace(/&quot;/g, '"')
+        .replace(/&#34;/g, '"')
+        .replace(/&apos;/g, "'")
+        .replace(/&#39;/g, "'")
+        .replace(/&amp;/g, '&')
+        .replace(/&lt;/g, '<')
+        .replace(/&gt;/g, '>')
+        .replace(/&nbsp;/g, ' ');
+      s = s.replace(/[“”]/g, '"').replace(/[‘’]/g, "'");
+
+      try { return JSON.parse(s); } catch (_) {}
+
+      const openers = ['{', '['];
+      const closers = { '{': '}', '[': ']' };
+      for (let i = 0; i < s.length; i++) {
+        const ch = s[i];
+        if (!openers.includes(ch)) continue;
+
+        const stack = [ch];
+        let j = i + 1;
+        let inStr = false;
+        let strQuote = null;
+        let escaped = false;
+
+        for (; j < s.length; j++) {
+          const c = s[j];
+          if (inStr) {
+            if (escaped) { escaped = false; }
+            else if (c === '\\') { escaped = true; }
+            else if (c === strQuote) { inStr = false; strQuote = null; }
+            continue;
+          } else {
+            if (c === '"' || c === "'") { inStr = true; strQuote = c; continue; }
+          }
+          if (c === '{' || c === '[') { stack.push(c); continue; }
+          if (c === '}' || c === ']') {
+            const last = stack[stack.length - 1];
+            if (!last || closers[last] !== c) break;
+            stack.pop();
+            if (stack.length === 0) {
+              let candidate = s.slice(i, j + 1);
+              candidate = candidate.replace(/,\s*}/g, '}').replace(/,\s*]/g, ']');
+              try { return JSON.parse(candidate); } catch {
+                const fixedKeys = candidate.replace(/'([\w\-]+)'\s*:/g, '"$1":');
+                try { return JSON.parse(fixedKeys); } catch {
+                  const fixedVals = fixedKeys.replace(/:\s*'([^']*)'/g, ':"$1"');
+                  try { return JSON.parse(fixedVals); } catch { /* continue */ }
+                }
+              }
+              break;
+            }
+          }
+        }
+      }
+      return null;
+    }
   </script>
 </body>
 </html>
