@@ -587,7 +587,7 @@
           const tEnd = performance.now();
           const paSec = Number(toSec(tPAEnd - tPAStart));
           const totalSec = Number(toSec(tEnd - t0)); // equals paSec here
-          msg.innerHTML = `<span class="ok">Analysis completed (Power Automate only).</span> <span class="subtle">Total: ${totalSec.toFixed(2)} s  ||  PA: ${paSec.toFixed(2)} s  ||  Dify: 0.00 s</span>`;
+          msg.innerHTML = `<span class="ok">Analysis completed (Power Automate only).</span> <br> <span class="subtle">Total: ${totalSec.toFixed(2)} s  ||  PA: ${paSec.toFixed(2)} s  ||  Dify: 0.00 s</span>`;
           return;
         }
 
@@ -606,10 +606,10 @@
         const totalSec = Number(toSec(tEnd - t0));
 
         if(!parsed){
-          msg.innerHTML = `<span class="ok">Analysis completed.</span> <span class="err">Dify returned no parsable JSON.</span> <span class="subtle">Total: ${totalSec.toFixed(2)} s  ||  PA: ${paSec.toFixed(2)} s  ||  Dify: ${difySec.toFixed(2)} s</span>`;
+          msg.innerHTML = `<span class="ok">Analysis completed.</span> <span class="err">Dify returned no parsable JSON.</span> <br> <span class="subtle">Total: ${totalSec.toFixed(2)} s  ||  PA: ${paSec.toFixed(2)} s  ||  Dify: ${difySec.toFixed(2)} s</span>`;
         } else {
           populateDifyFields(parsed);
-          msg.innerHTML = `<span class="ok">Analysis completed (Power Automate + Dify).</span> <span class="subtle">Total: ${totalSec.toFixed(2)} s  ||  PA: ${paSec.toFixed(2)} s  ||  Dify: ${difySec.toFixed(2)} s</span>`;
+          msg.innerHTML = `<span class="ok">Analysis completed (Power Automate + Dify).</span> <br> <span class="subtle">Total: ${totalSec.toFixed(2)} s  ||  PA: ${paSec.toFixed(2)} s  ||  Dify: ${difySec.toFixed(2)} s</span>`;
         }
       }catch(e){
         const tEnd = performance.now();
@@ -617,7 +617,7 @@
         const paSec = (typeof tPAStart==='number' && typeof tPAEnd==='number') ? Number(toSec(tPAEnd - tPAStart)) : 0.00;
         const difySec = (typeof tDifyStart==='number' && typeof tDifyEnd==='number') ? Number(toSec(tDifyEnd - tDifyStart)) : 0.00;
         console.error(e);
-        msg.innerHTML=`<span class="err">Error: ${escapeHtml(e.message)}</span> <span class="subtle">Total: ${totalSec.toFixed(2)} s  ||  PA: ${paSec.toFixed(2)} s  ||  Dify: ${difySec.toFixed(2)} s</span>`;
+        msg.innerHTML=`<span class="err">Error: ${escapeHtml(e.message)}</span> <br> <span class="subtle">Total: ${totalSec.toFixed(2)} s  ||  PA: ${paSec.toFixed(2)} s  ||  Dify: ${difySec.toFixed(2)} s</span>`;
       }finally{
         setBusy(false);
       }
@@ -671,3 +671,4 @@
   </script>
 </body>
 </html>
+
