@@ -18,7 +18,7 @@
     .subtle{color:var(--muted);font-size:.9rem}
     /* Default badge (kept for Dify) */
     .badge{display:inline-block;font-size:.72rem;line-height:1;padding:3px 8px;border-radius:999px;color:#fff;background:var(--dify);vertical-align:middle}
-    /* NEW: Power Automate badge in RED */
+    /* Power Automate badge in RED */
     .badge-pa{display:inline-block;font-size:.72rem;line-height:1;padding:3px 8px;border-radius:999px;color:#fff;background:#DC2626;vertical-align:middle}
 
     .row-2col{display:grid;grid-template-columns:1fr 1fr;gap:12px}
@@ -61,6 +61,32 @@
 
     .section-caption{grid-column:1 / -1;color:#374151;font-size:.9rem;margin-top:6px}
     hr.hr{grid-column:1 / -1;border:none;border-top:1px solid var(--border);margin:6px 0}
+
+    /* === Derived fields container (rectangle box) === */
+    .box-derived{
+      grid-column: 1 / -1;                 /* span full width of the grid */
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      background: #fff7f7;                 /* light red to match PA accent */
+      padding: 12px;
+    }
+    .box-derived__title{
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: .92rem;
+      font-weight: 600;
+      color: #7f1d1d;                      /* dark red text */
+      margin: 0 0 8px 0;
+    }
+    .box-derived__grid{
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0,1fr));
+      gap: 12px;
+    }
+    @media (max-width: 767px){
+      .box-derived__grid{ grid-template-columns: 1fr; }
+    }
   </style>
 </head>
 <body>
@@ -115,10 +141,27 @@
         <div class="field"><label for="company">Company <span class="badge-pa">PA</span></label><input id="company" type="text" /></div>
         <div class="field"><label for="department">Department <span class="badge-pa">PA</span></label><input id="department" type="text" /></div>
 
-        <!-- Derived fields -->
-        <div class="field"><label for="industry">Industry (derived) <span class="badge-pa">PA</span></label><input id="industry" type="text" readonly /></div>
-        <div class="field"><label for="occupation">Occupation (derived) <span class="badge-pa">PA</span></label><input id="occupation" type="text" readonly /></div>
-        <div class="field"><label for="position">Position (derived) <span class="badge-pa">PA</span></label><input id="position" type="text" readonly /></div>
+        <!-- Derived fields (boxed) -->
+        <div class="box-derived">
+          <div class="box-derived__title">
+            <span class="badge-pa">PA</span>
+            Derived (from PA): Industry / Occupation / Position
+          </div>
+          <div class="box-derived__grid">
+            <div class="field">
+              <label for="industry">Industry (derived) <span class="badge-pa">PA</span></label>
+              <input id="industry" type="text" readonly />
+            </div>
+            <div class="field">
+              <label for="occupation">Occupation (derived) <span class="badge-pa">PA</span></label>
+              <input id="occupation" type="text" readonly />
+            </div>
+            <div class="field">
+              <label for="position">Position (derived) <span class="badge-pa">PA</span></label>
+              <input id="position" type="text" readonly />
+            </div>
+          </div>
+        </div>
 
         <div class="field"><label for="workPhone">Work phone <span class="badge-pa">PA</span></label><input id="workPhone" type="text" /></div>
         <div class="field"><label for="email">Email <span class="badge-pa">PA</span></label><input id="email" type="email" /></div>
@@ -360,8 +403,7 @@
         const paSec = Number(toSec(tPAEnd - tPAStart));
         const difySec = Number(toSec(tDifyEnd - tDifyStart));
         const totalSec = Number(toSec(tEnd - t0));
-        // Force the displayed equality (1 = 2 + 3) by recomputing total as sum if you prefer strict display:
-        // const totalSec = Number((paSec + difySec).toFixed(2));
+        // If you want to show strict equality (Total = PA + Dify), you could replace totalSec with (paSec + difySec).
 
         if(!parsed){
           msg.innerHTML = `<span class="ok">Analysis completed.</span> <span class="err">Dify returned no parsable JSON.</span> <span class="subtle">Total: ${totalSec.toFixed(2)} s  ||  PA: ${paSec.toFixed(2)} s  ||  Dify: ${difySec.toFixed(2)} s </span>`;
@@ -377,7 +419,7 @@
         const difySec = (typeof tDifyStart==='number' && typeof tDifyEnd==='number') ? Number(toSec(tDifyEnd - tDifyStart)) : 0.00;
 
         console.error(e);
-        msg.innerHTML=`<span class="err">Error: ${escapeHtml(e.message)}</span> <span class="subtle">Total: 1) ${totalSec.toFixed(2)} s  |  PA: 2) ${paSec.toFixed(2)} s  |  Dify: 3) ${difySec.toFixed(2)} s </span>`;
+        msg.innerHTML=`<span class="err">Error: ${escapeHtml(e.message)}</span> <span class="subtle">Total: ${totalSec.toFixed(2)} s  ||  PA: ${paSec.toFixed(2)} s  ||  Dify: ${difySec.toFixed(2)} s </span>`;
       }finally{
         setBusy(false);
       }
@@ -452,4 +494,3 @@
   </script>
 </body>
 </html>
-
