@@ -13,9 +13,20 @@
     body{font-family:system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,"Apple Color Emoji","Segoe UI Emoji";margin:0;background:var(--bg);color:#111827}
     .wrap{max-width:1200px;margin:24px auto;padding:0 16px}
     h1{font-size:1.2rem;margin:0 0 12px}
+
+    /* Page grid: sidebar (features) + main content */
+    .layout{
+      display:grid;gap:14px;
+      grid-template-columns: 1fr;         /* mobile: single column */
+    }
+    @media (min-width: 992px){
+      .layout{ grid-template-columns: 280px 1fr; }  /* desktop: sidebar + main */
+    }
+
     .panel{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:14px 14px;margin-bottom:12px;box-shadow:0 1px 2px rgba(0,0,0,.03)}
     .panel h2{font-size:1rem;margin:0 0 10px;display:flex;align-items:center;gap:8px}
     .subtle{color:var(--muted);font-size:.9rem}
+
     /* Default badge (kept for Dify) */
     .badge{display:inline-block;font-size:.72rem;line-height:1;padding:3px 8px;border-radius:999px;color:#fff;background:var(--dify);vertical-align:middle}
     /* Power Automate badge in RED */
@@ -87,6 +98,11 @@
     @media (max-width: 767px){
       .box-derived__grid{ grid-template-columns: 1fr; }
     }
+
+    /* Sidebar features list */
+    .feat-list{margin:0;padding-left:18px}
+    .feat-list li{margin:6px 0}
+    .feat-dim{color:var(--muted)}
   </style>
 </head>
 <body>
@@ -108,110 +124,129 @@
   <div class="wrap">
     <h1>AI Business Card Application Form Filling</h1>
 
-    <!-- 1) Upload -->
-    <div class="panel">
-      <h2>1) Upload Business Card</h2>
-      <div class="row-2col">
-        <div>
-          <input id="fileInput" type="file" accept="image/*,.pdf" />
-          <div class="hint">Supported: JPG/JPEG, PNG, BMP, PDF. (Max size depends on your flow limits.)</div>
-          <div class="actions" style="margin-top:8px">
-            <button id="analyzeBtn" disabled>Upload</button>
-            <span id="busy" class="status"></span>
-          </div>
-          <div id="msg" class="status" aria-live="polite"></div>
-        </div>
-        <div>
-          <img id="preview" class="preview" alt="Preview" role="button" tabindex="0" aria-label="Open enlarged preview" />
-          <div class="subtle" style="margin-top:4px">Preview (images only)</div>
-        </div>
-      </div>
-    </div>
+    <!-- Two-column layout: LEFT = features, RIGHT = app panels -->
+    <div class="layout">
+      <!-- LEFT: Features panel -->
+      <aside class="panel" aria-labelledby="featuresTitle">
+        <h2 id="featuresTitle">Features</h2>
+        <ul class="feat-list">
+          <li>Use web search to complete missing address components, such as district</li>
+          <li>Use web search to retrieve the English version when the input address is in Chinese</li>
+          <li>Split both English and Chinese name into First Name and Last Name</li>
+          <li>Capture Name, Title, Company, Department in both Chinese and English</li>
+          <li class="feat-dim">Derive Industry, Occupation and Position from Company, Department and Title (To be refined)</li>
+        </ul>
+      </aside>
 
-    <!-- 2) Extracted fields -->
-    <div class="panel">
-      <h2>2) Extracted fields ( <span class="badge-pa">Power Automate</span> )</h2>
-
-      <div class="form-grid">
-        <!-- English set -->
-        <div class="field"><label for="fullName">Full name <span class="badge-pa">PA</span></label><input id="fullName" type="text" /></div>
-        <div class="field"><label for="firstName">First name <span class="badge-pa">PA</span></label><input id="firstName" type="text" /></div>
-        <div class="field"><label for="lastName">Last name <span class="badge-pa">PA</span></label><input id="lastName" type="text" /></div>
-        <div class="field"><label for="title">Title <span class="badge-pa">PA</span></label><input id="title" type="text" /></div>
-        <div class="field"><label for="company">Company <span class="badge-pa">PA</span></label><input id="company" type="text" /></div>
-        <div class="field"><label for="department">Department <span class="badge-pa">PA</span></label><input id="department" type="text" /></div>
-
-        <!-- Derived fields (boxed) -->
-        <div class="box-derived">
-          <div class="box-derived__title">
-            <span class="badge-pa">PA</span>
-            Derived (from PA): Industry / Occupation / Position
-          </div>
-          <div class="box-derived__grid">
-            <div class="field">
-              <label for="industry">Industry (derived) <span class="badge-pa">PA</span></label>
-              <input id="industry" type="text" readonly />
+      <!-- RIGHT: Application panels -->
+      <main>
+        <!-- 1) Upload -->
+        <div class="panel">
+          <h2>1) Upload Business Card</h2>
+          <div class="row-2col">
+            <div>
+              <input id="fileInput" type="file" accept="image/*,.pdf" />
+              <div class="hint">Supported: JPG/JPEG, PNG, BMP, PDF. (Max size depends on your flow limits.)</div>
+              <div class="actions" style="margin-top:8px">
+                <button id="analyzeBtn" disabled>Upload</button>
+                <span id="busy" class="status"></span>
+              </div>
+              <div id="msg" class="status" aria-live="polite"></div>
             </div>
-            <div class="field">
-              <label for="occupation">Occupation (derived) <span class="badge-pa">PA</span></label>
-              <input id="occupation" type="text" readonly />
-            </div>
-            <div class="field">
-              <label for="position">Position (derived) <span class="badge-pa">PA</span></label>
-              <input id="position" type="text" readonly />
+            <div>
+              <img id="preview" class="preview" alt="Preview" role="button" tabindex="0" aria-label="Open enlarged preview" />
+              <div class="subtle" style="margin-top:4px">Preview (images only)</div>
             </div>
           </div>
         </div>
 
-        <div class="field"><label for="workPhone">Work phone <span class="badge-pa">PA</span></label><input id="workPhone" type="text" /></div>
-        <div class="field"><label for="email">Email <span class="badge-pa">PA</span></label><input id="email" type="email" /></div>
-        <div class="field"><label for="website">Website <span class="badge-pa">PA</span></label><input id="website" type="text" /></div>
-        <div class="field" style="grid-column:1 / -1"><label for="fullAddress">Full address <span class="badge-pa">PA</span></label><textarea id="fullAddress"></textarea></div>
+        <!-- 2) Extracted fields -->
+        <div class="panel">
+          <h2>2) Extracted fields ( <span class="badge-pa">Power Automate</span> )</h2>
 
-        <div style="display:none;">
-          <div class="field"><label for="addressStreet">Street <span class="badge-pa">PA</span></label><input id="addressStreet" type="text" /></div>
-          <div class="field"><label for="country">Country <span class="badge-pa">PA</span></label><input id="country" type="text" /></div>
+          <div class="form-grid">
+            <!-- English set -->
+            <div class="field"><label for="fullName">Full name <span class="badge-pa">PA</span></label><input id="fullName" type="text" /></div>
+            <div class="field"><label for="firstName">First name <span class="badge-pa">PA</span></label><input id="firstName" type="text" /></div>
+            <div class="field"><label for="lastName">Last name <span class="badge-pa">PA</span></label><input id="lastName" type="text" /></div>
+            <div class="field"><label for="title">Title <span class="badge-pa">PA</span></label><input id="title" type="text" /></div>
+            <div class="field"><label for="company">Company <span class="badge-pa">PA</span></label><input id="company" type="text" /></div>
+            <div class="field"><label for="department">Department <span class="badge-pa">PA</span></label><input id="department" type="text" /></div>
+
+            <!-- Derived fields (boxed) -->
+            <div class="box-derived">
+              <div class="box-derived__title">
+                <span class="badge-pa">PA</span>
+                Derived (from PA): Industry / Occupation / Position
+              </div>
+              <div class="box-derived__grid">
+                <div class="field">
+                  <label for="industry">Industry (derived) <span class="badge-pa">PA</span></label>
+                  <input id="industry" type="text" readonly />
+                </div>
+                <div class="field">
+                  <label for="occupation">Occupation (derived) <span class="badge-pa">PA</span></label>
+                  <input id="occupation" type="text" readonly />
+                </div>
+                <div class="field">
+                  <label for="position">Position (derived) <span class="badge-pa">PA</span></label>
+                  <input id="position" type="text" readonly />
+                </div>
+              </div>
+            </div>
+
+            <div class="field"><label for="workPhone">Work phone <span class="badge-pa">PA</span></label><input id="workPhone" type="text" /></div>
+            <div class="field"><label for="email">Email <span class="badge-pa">PA</span></label><input id="email" type="email" /></div>
+            <div class="field"><label for="website">Website <span class="badge-pa">PA</span></label><input id="website" type="text" /></div>
+            <div class="field" style="grid-column:1 / -1"><label for="fullAddress">Full address <span class="badge-pa">PA</span></label><textarea id="fullAddress"></textarea></div>
+
+            <div style="display:none;">
+              <div class="field"><label for="addressStreet">Street <span class="badge-pa">PA</span></label><input id="addressStreet" type="text" /></div>
+              <div class="field"><label for="country">Country <span class="badge-pa">PA</span></label><input id="country" type="text" /></div>
+            </div>
+
+            <hr class="hr">
+            <div class="section-caption">Chinese fields (中文)</div>
+            <div class="field"><label for="fullName_chi">Full name (Chinese)</label><input id="fullName_chi" type="text" /></div>
+            <div class="field"><label for="firstName_chi">First name (Chinese)</label><input id="firstName_chi" type="text" /></div>
+            <div class="field"><label for="lastName_chi">Last name (Chinese)</label><input id="lastName_chi" type="text" /></div>
+            <div class="field"><label for="title_chi">Title (Chinese)</label><input id="title_chi" type="text" /></div>
+            <div class="field"><label for="company_chi">Company (Chinese)</label><input id="company_chi" type="text" /></div>
+            <div class="field"><label for="department_chi">Department (Chinese)</label><input id="department_chi" type="text" /></div>
+          </div>
         </div>
 
-        <hr class="hr">
-        <div class="section-caption">Chinese fields (中文)</div>
-        <div class="field"><label for="fullName_chi">Full name (Chinese)</label><input id="fullName_chi" type="text" /></div>
-        <div class="field"><label for="firstName_chi">First name (Chinese)</label><input id="firstName_chi" type="text" /></div>
-        <div class="field"><label for="lastName_chi">Last name (Chinese)</label><input id="lastName_chi" type="text" /></div>
-        <div class="field"><label for="title_chi">Title (Chinese)</label><input id="title_chi" type="text" /></div>
-        <div class="field"><label for="company_chi">Company (Chinese)</label><input id="company_chi" type="text" /></div>
-        <div class="field"><label for="department_chi">Department (Chinese)</label><input id="department_chi" type="text" /></div>
-      </div>
-    </div>
+        <!-- 3) Raw response (debug) -->
+        <div class="panel">
+          <h2>3) Raw response (debug)</h2>
+          <textarea id="raw" readonly></textarea>
+          <div class="subtle">This shows the JSON returned by your Power Automate API.</div>
+        </div>
 
-    <!-- 3) Raw response (debug) -->
-    <div class="panel">
-      <h2>3) Raw response (debug)</h2>
-      <textarea id="raw" readonly></textarea>
-      <div class="subtle">This shows the JSON returned by your Power Automate API.</div>
-    </div>
+        <!-- 4) Dify output panel -->
+        <div class="panel">
+          <h2>4) Structure Address ( <span class="badge">Dify AI</span> )</h2>
+          <div class="form-grid">
+            <div class="field"><label for="difyFlat">Flat / Unit <span class="badge">Dify</span></label><input id="difyFlat" type="text" /></div>
+            <div class="field"><label for="difyFloor">Floor <span class="badge">Dify</span></label><input id="difyFloor" type="text" /></div>
+            <div class="field"><label for="difyBlock">Block <span class="badge">Dify</span></label><input id="difyBlock" type="text" /></div>
+            <div class="field"><label for="difyStreetNumber">Street Number <span class="badge">Dify</span></label><input id="difyStreetNumber" type="text" /></div>
+            <div class="field"><label for="difyStreetName">Street Name <span class="badge">Dify</span></label><input id="difyStreetName" type="text" /></div>
+            <div class="field"><label for="difyBuildingName">Building Name <span class="badge">Dify</span></label><input id="difyBuildingName" type="text" /></div>
+            <div class="field"><label for="difyDistrict">District <span class="badge">Dify</span></label><input id="difyDistrict" type="text" /></div>
+            <div class="field"><label for="difyCountry">Country <span class="badge">Dify</span></label><input id="difyCountry" type="text" /></div>
+          </div>
+        </div>
 
-    <!-- 4) Dify output panel -->
-    <div class="panel">
-      <h2>4) Structure Address ( <span class="badge">Dify AI</span> )</h2>
-      <div class="form-grid">
-        <div class="field"><label for="difyFlat">Flat / Unit <span class="badge">Dify</span></label><input id="difyFlat" type="text" /></div>
-        <div class="field"><label for="difyFloor">Floor <span class="badge">Dify</span></label><input id="difyFloor" type="text" /></div>
-        <div class="field"><label for="difyBlock">Block <span class="badge">Dify</span></label><input id="difyBlock" type="text" /></div>
-        <div class="field"><label for="difyStreetNumber">Street Number <span class="badge">Dify</span></label><input id="difyStreetNumber" type="text" /></div>
-        <div class="field"><label for="difyStreetName">Street Name <span class="badge">Dify</span></label><input id="difyStreetName" type="text" /></div>
-        <div class="field"><label for="difyBuildingName">Building Name <span class="badge">Dify</span></label><input id="difyBuildingName" type="text" /></div>
-        <div class="field"><label for="difyDistrict">District <span class="badge">Dify</span></label><input id="difyDistrict" type="text" /></div>
-        <div class="field"><label for="difyCountry">Country <span class="badge">Dify</span></label><input id="difyCountry" type="text" /></div>
-      </div>
+        <!-- 5) Dify raw response -->
+        <div class="panel">
+          <h2>5) Dify raw response (debug) <span class="badge">Dify</span></h2>
+          <textarea id="rawDify" readonly></textarea>
+          <div class="subtle">This shows the response from Dify <code>/v1/workflows/run</code>. The address components above are parsed from <code>data.outputs.text</code>.</div>
+        </div>
+      </main>
     </div>
-
-    <!-- 5) Dify raw response -->
-    <div class="panel">
-      <h2>5) Dify raw response (debug) <span class="badge">Dify</span></h2>
-      <textarea id="rawDify" readonly></textarea>
-      <div class="subtle">This shows the response from Dify <code>/v1/workflows/run</code>. The address components above are parsed from <code>data.outputs.text</code>.</div>
-    </div>
+  </div>
 
   <script>
     // === CONFIG: endpoints & keys (move sensitive keys server-side in production) ===
