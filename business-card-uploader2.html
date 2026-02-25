@@ -31,9 +31,16 @@
       --input-focus-ring:rgba(34,211,238,.25);
       --panel-shadow: 0 10px 30px rgba(0,0,0,.25);
 
-      /* PA/Dify accents */
-      --pa:#ef4444;
-      --dify:#7c3aed;
+      /* Accents */
+      --pa:#ef4444;             /* PA red */
+      --pa-weak: rgba(239,68,68,.18);
+      --dify:#7c3aed;           /* Dify purple */
+      --dify-weak: rgba(124,58,237,.16);
+      --total:#22d3ee;          /* total cyan */
+      --total-weak: rgba(34,211,238,.16);
+      --step-done:#10b981;      /* green-500 */
+      --step-active:#22d3ee;    /* cyan-400 */
+      --step-muted:#64748b;     /* slate-500 */
     }
 
     /* ================= THEME: LIGHT OVERRIDES ================= */
@@ -52,6 +59,10 @@
       --input-border:rgba(17,24,39,.12);
       --input-focus-ring:rgba(34,211,238,.35);
       --panel-shadow: 0 10px 30px rgba(2,6,23,.10);
+
+      --pa-weak: rgba(239,68,68,.10);
+      --dify-weak: rgba(124,58,237,.08);
+      --total-weak: rgba(34,211,238,.10);
     }
 
     *{box-sizing:border-box}
@@ -169,7 +180,6 @@
       background:rgba(255,255,255,.07);
     }
     [data-theme="light"] input:focus,[data-theme="light"] textarea:focus{ background:#ffffff }
-
     textarea{min-height:86px;resize:vertical}
 
     .actions{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
@@ -242,6 +252,51 @@
     }
     .feature-text{font-size:.94rem;line-height:1.35}
     .muted{opacity:.68}
+
+    /* ======= NEW: PROGRESS STEPPER ======= */
+    .stepper{
+      display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-top:10px
+    }
+    .step{
+      display:flex;align-items:center;gap:8px;
+      background:var(--glass);border:1px solid var(--border);
+      border-radius:999px;padding:6px 10px;font-size:.86rem
+    }
+    .step__icon{width:20px;height:20px;display:inline-grid;place-items:center;border-radius:6px;background:rgba(255,255,255,.08)}
+    .step--active{box-shadow:0 0 0 2px var(--step-active) inset}
+    .step--done{box-shadow:0 0 0 2px var(--step-done) inset; opacity:.9}
+    .sep{opacity:.4}
+
+    /* ======= NEW: TIMING BADGES/PANEL ======= */
+    .timing-panel{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-top:10px}
+    .chip-time{
+      display:inline-flex;align-items:center;gap:8px;
+      padding:6px 10px;border-radius:999px;font-weight:700;font-size:.86rem;color:#0b1020
+    }
+    .chip-time .dot{width:8px;height:8px;border-radius:50%}
+    .chip-pa{background:var(--pa-weak);outline:1px solid rgba(239,68,68,.35)}
+    .chip-pa .dot{background:var(--pa)}
+    .chip-dify{background:var(--dify-weak);outline:1px solid rgba(124,58,237,.35)}
+    .chip-dify .dot{background:var(--dify)}
+    .chip-total{background:var(--total-weak);outline:1px solid rgba(34,211,238,.35)}
+    .chip-total .dot{background:var(--total)}
+
+    /* Inline badges for message line */
+    .badge-time-pa{
+      display:inline-flex;align-items:center;gap:6px;
+      font-size:.80rem;line-height:1;
+      padding:4px 8px;border-radius:999px;color:#fff;background:var(--pa)
+    }
+    .badge-time-dify{
+      display:inline-flex;align-items:center;gap:6px;
+      font-size:.80rem;line-height:1;
+      padding:4px 8px;border-radius:999px;color:#fff;background:var(--dify)
+    }
+    .badge-time-total{
+      display:inline-flex;align-items:center;gap:6px;
+      font-size:.80rem;line-height:1;
+      padding:4px 8px;border-radius:999px;color:#06202a;background:var(--total)
+    }
   </style>
 </head>
 <body>
@@ -312,8 +367,43 @@
                 <button id="analyzeBtn" disabled>Upload</button>
                 <span id="busy" class="status"></span>
               </div>
-              <div id="msg" class="status" aria-live="polite"></div>
+
+              <!-- NEW: Progress Stepper -->
+              <div id="stepper" class="stepper" aria-label="Progress">
+                <div class="step step--active" data-step="ocr">
+                  <span class="step__icon">🧾</span><span>OCR</span>
+                </div>
+                <span class="sep">→</span>
+                <div class="step" data-step="pa">
+                  <span class="step__icon">🛠️</span><span>PA</span>
+                </div>
+                <span class="sep">→</span>
+                <div class="step" data-step="dify">
+                  <span class="step__icon">🤖</span><span>Dify</span>
+                </div>
+                <span class="sep">→</span>
+                <div class="step" data-step="done">
+                  <span class="step__icon">✅</span><span>Done</span>
+                </div>
+              </div>
+
+              <!-- Message -->
+              <div id="msg" class="status" aria-live="polite" style="margin-top:8px"></div>
+
+              <!-- NEW: Mini timing panel -->
+              <div id="timingPanel" class="timing-panel" aria-label="Timings">
+                <span class="chip-time chip-pa" title="Power Automate time">
+                  <span class="dot"></span> PA: <span id="timPa">0.00</span>s
+                </span>
+                <span class="chip-time chip-dify" title="Dify time">
+                  <span class="dot"></span> Dify: <span id="timDify">0.00</span>s
+                </span>
+                <span class="chip-time chip-total" title="Total time">
+                  <span class="dot"></span> Total: <span id="timTotal">0.00</span>s
+                </span>
+              </div>
             </div>
+
             <div>
               <img id="preview" class="preview" alt="Preview" role="button" tabindex="0" aria-label="Open enlarged preview" />
               <div class="subtle" style="margin-top:6px">Click to enlarge (images only)</div>
@@ -376,7 +466,7 @@
           </div>
         </div>
 
-        <!-- 3) Raw response -->
+        <!-- 3) Raw response (debug) -->
         <div class="panel">
           <h2><span class="bar"></span>3) Raw Response (debug)</h2>
           <textarea id="raw" readonly></textarea>
@@ -494,7 +584,34 @@
     function escapeHtml(s){ return String(s).replace(/[&<>\"'`]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;','\'':'&#39;','`':'&#96;'}[c])); }
     function toSec(ms){ return (ms/1000).toFixed(2); }
 
-    /* ========= FIX: populateFields (now defined) ========= */
+    /* ========= UI UPDATERS ========= */
+    const timPaEl=document.getElementById('timPa');
+    const timDifyEl=document.getElementById('timDify');
+    const timTotalEl=document.getElementById('timTotal');
+
+    function updateTimes(pa, dify, total){
+      if(typeof pa==='number') timPaEl.textContent = pa.toFixed(2);
+      if(typeof dify==='number') timDifyEl.textContent = dify.toFixed(2);
+      if(typeof total==='number') timTotalEl.textContent = total.toFixed(2);
+    }
+
+    function setStepState(step, state){
+      // state: 'active' | 'done' | 'idle'
+      const el = document.querySelector(`.step[data-step="${step}"]`);
+      if(!el) return;
+      el.classList.remove('step--active','step--done');
+      if(state==='active') el.classList.add('step--active');
+      if(state==='done') el.classList.add('step--done');
+    }
+
+    function resetStepper(){
+      setStepState('ocr','active');
+      setStepState('pa','idle');
+      setStepState('dify','idle');
+      setStepState('done','idle');
+    }
+
+    /* ========= FIX: populateFields ========= */
     function populateFields(d){
       setField('fullName',d.fullName); setField('firstName',d.firstName); setField('lastName',d.lastName);
       setField('title',d.title); setField('company',d.company); setField('department',d.department);
@@ -545,6 +662,7 @@
     fileInput.addEventListener('change',()=>{
       analyzeBtn.disabled=!fileInput.files||fileInput.files.length===0;
       msg.textContent=''; raw.value=''; rawDify.value=''; clearFields(); clearDifyFields();
+      updateTimes(0,0,0); resetStepper();
       const f=fileInput.files && fileInput.files[0];
       if(!f){ preview.src=''; return; }
       if(f.type.startsWith('image/')){
@@ -555,6 +673,7 @@
     /* ========= Main handler with timings ========= */
     analyzeBtn.addEventListener('click',async()=>{
       msg.textContent=''; raw.value=''; rawDify.value=''; clearFields(); clearDifyFields();
+      updateTimes(0,0,0); resetStepper();
 
       const file=fileInput.files && fileInput.files[0];
       if(!file){ msg.innerHTML='<span class="err">Please choose a file.</span>'; return; }
@@ -563,8 +682,12 @@
       let tPAStart, tPAEnd, tDifyStart, tDifyEnd;
 
       try{
+        // OCR step (local conversion) -> mark done
         setBusy(true,'Converting to Base64…');
-        const base64=await fileToBase64(file);
+        const base64=await fileToBase64(file); // "OCR" placeholder stage
+        setStepState('ocr','done');
+        setStepState('pa','active');
+
         const pureBase64=(base64.includes(','))? base64.split(',')[1] : base64;
 
         // Power Automate
@@ -581,17 +704,33 @@
         raw.value=JSON.stringify(data,null,2);
         populateFields(data);
 
+        const paSec = Number(toSec(tPAEnd - tPAStart));
+        updateTimes(paSec, undefined, Number(toSec(performance.now()-t0)));
+        setStepState('pa','done');
+
         // Address to Dify?
         const address=chooseFullAddressForDify(data);
         if(!address){
           const tEnd = performance.now();
-          const paSec = Number(toSec(tPAEnd - tPAStart));
-          const totalSec = Number(toSec(tEnd - t0)); // equals paSec here
-          msg.innerHTML = `<span class="ok">Analysis completed (Power Automate only).</span> <br> <span class="subtle">Total: ${totalSec.toFixed(2)} s  ||  PA: ${paSec.toFixed(2)} s  ||  Dify: 0.00 s</span>`;
+          const totalSec = Number(toSec(tEnd - t0));
+          updateTimes(paSec, 0, totalSec);
+
+          setStepState('dify','done'); // treated as skipped
+          setStepState('done','done');
+
+          msg.innerHTML = `
+            <span class="ok">Analysis completed (Power Automate only).</span>
+            <br>
+            <span class="badge-time-total">⏱ Total: ${totalSec.toFixed(2)} s</span>
+            &nbsp;&nbsp;<span class="badge-time-pa">🅿️ PA: ${paSec.toFixed(2)} s</span>
+            &nbsp;&nbsp;<span class="badge-time-dify">🤖 Dify: 0.00 s</span>
+          `;
+          setBusy(false);
           return;
         }
 
         // Dify
+        setStepState('dify','active');
         setBusy(true,'Calling Dify…');
         tDifyStart = performance.now();
         const difyResponse=await callDifyAddressParser(address);
@@ -601,23 +740,47 @@
 
         const parsed=parseDifyTextToJson(difyResponse?.data?.outputs?.text);
         const tEnd = performance.now();
-        const paSec = Number(toSec(tPAEnd - tPAStart));
+
         const difySec = Number(toSec(tDifyEnd - tDifyStart));
         const totalSec = Number(toSec(tEnd - t0));
+        updateTimes(paSec, difySec, totalSec);
 
         if(!parsed){
-          msg.innerHTML = `<span class="ok">Analysis completed.</span> <span class="err">Dify returned no parsable JSON.</span> <br> <span class="subtle">Total: ${totalSec.toFixed(2)} s  ||  PA: ${paSec.toFixed(2)} s  ||  Dify: ${difySec.toFixed(2)} s</span>`;
+          msg.innerHTML = `
+            <span class="ok">Analysis completed.</span> <span class="err">Dify returned no parsable JSON.</span>
+            <br>
+            <span class="badge-time-total">⏱ Total: ${totalSec.toFixed(2)} s</span>
+            &nbsp;&nbsp;<span class="badge-time-pa">🅿️ PA: ${paSec.toFixed(2)} s</span>
+            &nbsp;&nbsp;<span class="badge-time-dify">🤖 Dify: ${difySec.toFixed(2)} s</span>
+          `;
         } else {
           populateDifyFields(parsed);
-          msg.innerHTML = `<span class="ok">Analysis completed (Power Automate + Dify).</span> <br> <span class="subtle">Total: ${totalSec.toFixed(2)} s  ||  PA: ${paSec.toFixed(2)} s  ||  Dify: ${difySec.toFixed(2)} s</span>`;
+          msg.innerHTML = `
+            <span class="ok">Analysis completed (Power Automate + Dify).</span>
+            <br>
+            <span class="badge-time-total">⏱ Total: ${totalSec.toFixed(2)} s</span>
+            &nbsp;&nbsp;<span class="badge-time-pa">🅿️ PA: ${paSec.toFixed(2)} s</span>
+            &nbsp;&nbsp;<span class="badge-time-dify">🤖 Dify: ${difySec.toFixed(2)} s</span>
+          `;
         }
+        setStepState('dify','done');
+        setStepState('done','done');
+
       }catch(e){
         const tEnd = performance.now();
         const totalSec = Number(toSec(tEnd - t0));
         const paSec = (typeof tPAStart==='number' && typeof tPAEnd==='number') ? Number(toSec(tPAEnd - tPAStart)) : 0.00;
         const difySec = (typeof tDifyStart==='number' && typeof tDifyEnd==='number') ? Number(toSec(tDifyEnd - tDifyStart)) : 0.00;
+        updateTimes(paSec, difySec, totalSec);
+
         console.error(e);
-        msg.innerHTML=`<span class="err">Error: ${escapeHtml(e.message)}</span> <br> <span class="subtle">Total: ${totalSec.toFixed(2)} s  ||  PA: ${paSec.toFixed(2)} s  ||  Dify: ${difySec.toFixed(2)} s</span>`;
+        msg.innerHTML=`
+          <span class="err">Error: ${escapeHtml(e.message)}</span>
+          <br>
+          <span class="badge-time-total">⏱ Total: ${totalSec.toFixed(2)} s</span>
+          &nbsp;&nbsp;<span class="badge-time-pa">🅿️ PA: ${paSec.toFixed(2)} s</span>
+          &nbsp;&nbsp;<span class="badge-time-dify">🤖 Dify: ${difySec.toFixed(2)} s</span>
+        `;
       }finally{
         setBusy(false);
       }
@@ -671,4 +834,3 @@
   </script>
 </body>
 </html>
-
