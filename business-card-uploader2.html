@@ -16,31 +16,18 @@
     .panel{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:14px 14px;margin-bottom:12px;box-shadow:0 1px 2px rgba(0,0,0,.03)}
     .panel h2{font-size:1rem;margin:0 0 10px;display:flex;align-items:center;gap:8px}
     .subtle{color:var(--muted);font-size:.9rem}
+    /* Default badge (kept for Dify) */
     .badge{display:inline-block;font-size:.72rem;line-height:1;padding:3px 8px;border-radius:999px;color:#fff;background:var(--dify);vertical-align:middle}
-.badge-pa {
-  display:inline-block;
-  font-size:.72rem;
-  line-height:1;
-  padding:3px 8px;
-  border-radius:999px;
-  color:#fff;
-  background:#0EA5E9; /* cyan-blue */
-  vertical-align:middle;
-}
+    /* NEW: Power Automate badge in RED */
+    .badge-pa{display:inline-block;font-size:.72rem;line-height:1;padding:3px 8px;border-radius:999px;color:#fff;background:#DC2626;vertical-align:middle}
+
     .row-2col{display:grid;grid-template-columns:1fr 1fr;gap:12px}
     @media (max-width:767px){.row-2col{grid-template-columns:1fr}}
-    .form-grid{
-      display:grid;gap:12px;
-      grid-template-columns:1fr; /* default mobile */
-    }
-    @media (min-width:768px){
-      .form-grid{grid-template-columns:repeat(2, minmax(0,1fr))}
-    }
-    @media (min-width:1200px){
-      .form-grid{grid-template-columns:repeat(3, minmax(0,1fr))}
-    }
+    .form-grid{display:grid;gap:12px;grid-template-columns:1fr}
+    @media (min-width:768px){.form-grid{grid-template-columns:repeat(2, minmax(0,1fr))}}
+    @media (min-width:1200px){.form-grid{grid-template-columns:repeat(3, minmax(0,1fr))}}
     .field{display:flex;flex-direction:column;gap:6px}
-    .field label{color:var(--muted);font-size:.86rem}
+    .field label{color:var(--muted);font-size:.86rem;display:flex;align-items:center;gap:6px;flex-wrap:wrap}
     input[type="text"],input[type="email"],textarea{
       width:100%;padding:9px 10px;border:1px solid var(--border);border-radius:8px;font-size:.95rem;background:#fff
     }
@@ -54,6 +41,8 @@
     .preview{
       width:100%;max-width:320px;max-height:180px;border:1px dashed var(--border);border-radius:8px;display:block;object-fit:contain;cursor:zoom-in;background:#fff
     }
+
+    /* Loading overlay & spinner */
     .overlay{position:fixed;inset:0;background:rgba(255,255,255,.75);backdrop-filter:blur(2px);
       display:none;align-items:center;justify-content:center;z-index:9999}
     .overlay[aria-hidden="false"]{display:flex}
@@ -62,11 +51,14 @@
     @keyframes spin{to{transform:rotate(360deg)}}
     .loader-text{font-size:.95rem;color:#374151;text-align:center}
     .sr-only{position:absolute!important;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
+
+    /* Image Lightbox */
     .img-lightbox{position:fixed;inset:0;background:rgba(0,0,0,.88);display:none;align-items:center;justify-content:center;z-index:10000}
     .img-lightbox[aria-hidden="false"]{display:flex}
     .img-lightbox__img{max-width:92vw;max-height:92vh;object-fit:contain;border-radius:4px;box-shadow:0 10px 30px rgba(0,0,0,.4);background:#111}
     .img-lightbox__close{position:absolute;top:12px;right:16px;color:#fff;font-size:28px;line-height:1;cursor:pointer;background:transparent;border:0;padding:6px;border-radius:6px}
     .img-lightbox__close:focus{outline:2px solid #fff;outline-offset:2px}
+
     .section-caption{grid-column:1 / -1;color:#374151;font-size:.9rem;margin-top:6px}
     hr.hr{grid-column:1 / -1;border:none;border-top:1px solid var(--border);margin:6px 0}
   </style>
@@ -101,7 +93,7 @@
             <button id="analyzeBtn" disabled>Upload</button>
             <span id="busy" class="status"></span>
           </div>
-          <div id="msg" class="status"></div>
+          <div id="msg" class="status" aria-live="polite"></div>
         </div>
         <div>
           <img id="preview" class="preview" alt="Preview" role="button" tabindex="0" aria-label="Open enlarged preview" />
@@ -110,36 +102,36 @@
       </div>
     </div>
 
-    <!-- 2) Extracted fields (multi-column) -->
+    <!-- 2) Extracted fields -->
     <div class="panel">
-      <h2>2) Extracted fields ( <span class="badge-pa">Power Automate</span>)</h2>
+      <h2>2) Extracted fields ( <span class="badge-pa">Power Automate</span> )</h2>
 
       <div class="form-grid">
         <!-- English set -->
-        <div class="field"><label for="fullName">Full name</label><input id="fullName" type="text" /></div>
-        <div class="field"><label for="firstName">First name</label><input id="firstName" type="text" /></div>
-        <div class="field"><label for="lastName">Last name</label><input id="lastName" type="text" /></div>
-        <div class="field"><label for="title">Title</label><input id="title" type="text" /></div>
-        <div class="field"><label for="company">Company</label><input id="company" type="text" /></div>
-        <div class="field"><label for="department">Department</label><input id="department" type="text" /></div>
+        <div class="field"><label for="fullName">Full name <span class="badge-pa">PA</span></label><input id="fullName" type="text" /></div>
+        <div class="field"><label for="firstName">First name <span class="badge-pa">PA</span></label><input id="firstName" type="text" /></div>
+        <div class="field"><label for="lastName">Last name <span class="badge-pa">PA</span></label><input id="lastName" type="text" /></div>
+        <div class="field"><label for="title">Title <span class="badge-pa">PA</span></label><input id="title" type="text" /></div>
+        <div class="field"><label for="company">Company <span class="badge-pa">PA</span></label><input id="company" type="text" /></div>
+        <div class="field"><label for="department">Department <span class="badge-pa">PA</span></label><input id="department" type="text" /></div>
 
-        <!-- NEW: Derived fields -->
-        <div class="field"><label for="industry">Industry (derived)</label><input id="industry" type="text" readonly /></div>
-        <div class="field"><label for="occupation">Occupation (derived)</label><input id="occupation" type="text" readonly /></div>
-        <div class="field"><label for="position">Position (derived)</label><input id="position" type="text" readonly /></div>
+        <!-- Derived fields -->
+        <div class="field"><label for="industry">Industry (derived) <span class="badge-pa">PA</span></label><input id="industry" type="text" readonly /></div>
+        <div class="field"><label for="occupation">Occupation (derived) <span class="badge-pa">PA</span></label><input id="occupation" type="text" readonly /></div>
+        <div class="field"><label for="position">Position (derived) <span class="badge-pa">PA</span></label><input id="position" type="text" readonly /></div>
 
-        <div class="field"><label for="workPhone">Work phone</label><input id="workPhone" type="text" /></div>
-        <div class="field"><label for="email">Email</label><input id="email" type="email" /></div>
-        <div class="field"><label for="website">Website</label><input id="website" type="text" /></div>
-        <div class="field" style="grid-column:1 / -1"><label for="fullAddress">Full address</label><textarea id="fullAddress"></textarea></div>
+        <div class="field"><label for="workPhone">Work phone <span class="badge-pa">PA</span></label><input id="workPhone" type="text" /></div>
+        <div class="field"><label for="email">Email <span class="badge-pa">PA</span></label><input id="email" type="email" /></div>
+        <div class="field"><label for="website">Website <span class="badge-pa">PA</span></label><input id="website" type="text" /></div>
+        <div class="field" style="grid-column:1 / -1"><label for="fullAddress">Full address <span class="badge-pa">PA</span></label><textarea id="fullAddress"></textarea></div>
 
-<div style="display:none;">
-        <div class="field"><label for="addressStreet">Street</label><input id="addressStreet" type="text" /></div>
-        <div class="field"><label for="country">Country</label><input id="country" type="text" /></div>
-</div>
+        <div style="display:none;">
+          <div class="field"><label for="addressStreet">Street <span class="badge-pa">PA</span></label><input id="addressStreet" type="text" /></div>
+          <div class="field"><label for="country">Country <span class="badge-pa">PA</span></label><input id="country" type="text" /></div>
+        </div>
+
         <hr class="hr">
         <div class="section-caption">Chinese fields (中文)</div>
-        <!-- Chinese set -->
         <div class="field"><label for="fullName_chi">Full name (Chinese)</label><input id="fullName_chi" type="text" /></div>
         <div class="field"><label for="firstName_chi">First name (Chinese)</label><input id="firstName_chi" type="text" /></div>
         <div class="field"><label for="lastName_chi">Last name (Chinese)</label><input id="lastName_chi" type="text" /></div>
@@ -158,7 +150,7 @@
 
     <!-- 4) Dify output panel -->
     <div class="panel">
-      <h2>4) Structure Address ( <span class="badge">Dify AI</span>)</h2>
+      <h2>4) Structure Address ( <span class="badge">Dify AI</span> )</h2>
       <div class="form-grid">
         <div class="field"><label for="difyFlat">Flat / Unit <span class="badge">Dify</span></label><input id="difyFlat" type="text" /></div>
         <div class="field"><label for="difyFloor">Floor <span class="badge">Dify</span></label><input id="difyFloor" type="text" /></div>
@@ -179,12 +171,10 @@
     </div>
 
   <script>
-    // === CONFIG: your Power Automate HTTP endpoint ===
+    // === CONFIG: endpoints & keys (move sensitive keys server-side in production) ===
     const FLOW_URL = "https://default82d66b598a9149e39d76abcd7c3c6f.5b.environment.api.powerplatform.com:443/powerautomate/automations/direct/workflows/8db621c1e5b8442f92d1e793bc9802fe/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=q7N6_FOUNYdAUCLL7UdnxcGNHbIjJRWfHzUeGM2zfkk";
-
-    // === CONFIG: Dify workflow endpoint & API key ===
     const DIFY_URL = "https://api.dify.ai/v1/workflows/run";
-    const DIFY_API_KEY = "app-ZIfddptOdaACbwlqSM4Dkwjm"; // <-- move to server-side in production
+    const DIFY_API_KEY = "app-ZIfddptOdaACbwlqSM4Dkwjm";
     const DIFY_USER_ID = "abc-123";
 
     // === UI elements ===
@@ -205,7 +195,7 @@
     const imgLightboxImg=document.getElementById('imgLightboxImg');
     const imgLightboxClose=document.getElementById('imgLightboxClose');
 
-    // Flow result fields (English + Chinese + Derived)
+    // Flow fields (English + Chinese + Derived)
     const fields={
       fullName:document.getElementById('fullName'),
       firstName:document.getElementById('firstName'),
@@ -213,12 +203,9 @@
       title:document.getElementById('title'),
       company:document.getElementById('company'),
       department:document.getElementById('department'),
-
-      // NEW: derived fields
       industry:document.getElementById('industry'),
       occupation:document.getElementById('occupation'),
       position:document.getElementById('position'),
-
       workPhone:document.getElementById('workPhone'),
       email:document.getElementById('email'),
       website:document.getElementById('website'),
@@ -246,11 +233,59 @@
     };
     const rawDify=document.getElementById('rawDify');
 
-    // File preview
+    // ---------- Utilities ----------
+    function fileToBase64(file){ return new Promise((resolve,reject)=>{ const r=new FileReader(); r.readAsDataURL(file); r.onload=()=>resolve(r.result); r.onerror=reject; }); }
+    function setField(id,val){ if(val==null) return; fields[id].value=String(val); }
+    function clearFields(){ Object.values(fields).forEach(el=> el.value=''); }
+    function setDifyField(key,val){ if(!(key in difyFields) || val==null) return; difyFields[key].value=String(val); }
+    function clearDifyFields(){ Object.values(difyFields).forEach(el=> el.value=''); }
+    function escapeHtml(s){ return String(s).replace(/[&<>\"'`]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;','`':'&#96;'}[c])); }
+    function formatMs(ms){ return `${Math.round(ms)} ms`; } // change to seconds if preferred
+
+    // ---------- Populate ----------
+    function populateFields(d){
+      setField('fullName',d.fullName); setField('firstName',d.firstName); setField('lastName',d.lastName);
+      setField('title',d.title); setField('company',d.company); setField('department',d.department);
+      setField('industry',d.industry); setField('occupation',d.occupation); setField('position',d.position);
+      setField('workPhone',d.workPhone); setField('email',d.email); setField('website',d.website);
+      setField('fullAddress',d.fullAddress); setField('addressStreet',d.addressStreet); setField('country',d.country);
+      setField('fullName_chi',d.fullName_chi); setField('firstName_chi',d.firstName_chi); setField('lastName_chi',d.lastName_chi);
+      setField('title_chi',d.title_chi); setField('company_chi',d.company_chi); setField('department_chi',d.department_chi);
+    }
+    function populateDifyFields(obj){
+      setDifyField('flat',obj.flat); setDifyField('floor',obj.floor); setDifyField('block',obj.block);
+      setDifyField('streetNumber',obj.streetNumber); setDifyField('streetName',obj.streetName);
+      setDifyField('buildingName',obj.buildingName); setDifyField('district',obj.district); setDifyField('country',obj.country);
+    }
+
+    // ---------- Address selection for Dify ----------
+    function chooseFullAddressForDify(flowData){
+      const fa=(flowData && typeof flowData.fullAddress==='string' && flowData.fullAddress.trim())? flowData.fullAddress.trim(): '';
+      if(fa) return fa;
+      const parts=[flowData?.addressStreet, flowData?.country].filter(Boolean);
+      return parts.length? parts.join(', '): '';
+    }
+
+    // ---------- Dify call ----------
+    async function callDifyAddressParser(address){
+      const body={ inputs:{ user_query:`Parse this address: ${address}` }, response_mode:"blocking", user:DIFY_USER_ID };
+      const resp=await fetch(DIFY_URL,{ method:'POST', headers:{ 'Authorization':`Bearer ${DIFY_API_KEY}`,'Content-Type':'application/json'}, body:JSON.stringify(body) });
+      if(!resp.ok){ const txt=await resp.text().catch(()=> ''); throw new Error(`Dify error ${resp.status}${txt?': '+txt:''}`); }
+      return resp.json();
+    }
+
+    // ---------- Overlay ----------
+    function setBusy(isBusy,text){
+      analyzeBtn.disabled=isBusy; busy.textContent=isBusy?(text||'Processing…'):'';
+      overlay.setAttribute('aria-hidden',String(!isBusy));
+      if(isBusy){ loaderText.textContent=text||'Processing…'; loaderLive.textContent=text||'Processing…'; document.body.style.pointerEvents='none'; }
+      else{ loaderText.textContent=''; loaderLive.textContent=''; document.body.style.pointerEvents=''; }
+    }
+
+    // ---------- Events ----------
     fileInput.addEventListener('change',()=>{
       analyzeBtn.disabled=!fileInput.files||fileInput.files.length===0;
       msg.textContent=''; raw.value=''; rawDify.value=''; clearFields(); clearDifyFields();
-
       const f=fileInput.files && fileInput.files[0];
       if(!f){ preview.src=''; return; }
       if(f.type.startsWith('image/')){
@@ -260,113 +295,84 @@
       }else{ preview.src=''; }
     });
 
+    preview.addEventListener('click',openLightbox);
+    preview.addEventListener('keydown',(e)=>{ if(e.key==='Enter'||e.key===' '){ e.preventDefault(); openLightbox(); }});
+    function openLightbox(){ if(!preview.src) return; imgLightboxImg.src=preview.src; imgLightbox.setAttribute('aria-hidden','false'); document.body.style.overflow='hidden'; imgLightboxClose.focus(); }
+    function closeLightbox(){ imgLightbox.setAttribute('aria-hidden','true'); document.body.style.overflow=''; imgLightboxImg.removeAttribute('src'); preview.focus(); }
+    imgLightboxClose.addEventListener('click',closeLightbox);
+    imgLightbox.addEventListener('click',(e)=>{ if(e.target===imgLightbox) closeLightbox(); });
+    document.addEventListener('keydown',(e)=>{ if(e.key==='Escape' && imgLightbox.getAttribute('aria-hidden')==='false') closeLightbox(); });
+
+    // ---------- Main click handler with timing ----------
     analyzeBtn.addEventListener('click',async()=>{
       msg.textContent=''; raw.value=''; rawDify.value=''; clearFields(); clearDifyFields();
 
       const file=fileInput.files && fileInput.files[0];
       if(!file){ msg.innerHTML='<span class="err">Please choose a file.</span>'; return; }
 
+      // Timing anchors
+      const t0 = performance.now();
+      let tPAStart, tPAEnd, tDifyStart, tDifyEnd;
+
       try{
         setBusy(true,'Converting to Base64…');
         const base64=await fileToBase64(file);
         const pureBase64=(base64.includes(','))? base64.split(',')[1] : base64;
 
+        // --- Power Automate timing ---
         setBusy(true,'Calling Power Automate…');
+        tPAStart = performance.now();
         const payload={ fileName:file.name, fileContent:pureBase64 };
-
         const res=await fetch(FLOW_URL,{ method:'POST', headers:{ 'Content-Type':'application/json' }, body:JSON.stringify(payload) });
         if(!res.ok && res.status!==202){
           const t=await res.text().catch(()=> ''); throw new Error(`HTTP ${res.status}${t?': '+t:''}`);
         }
-
         let data=null; try{ data=await res.json(); }
         catch{ throw new Error('The flow did not return JSON. Ensure the flow ends with a Response action.'); }
+        tPAEnd = performance.now();
 
         raw.value=JSON.stringify(data,null,2);
         populateFields(data);
 
         const address=chooseFullAddressForDify(data);
         if(!address){
-          msg.innerHTML='<span class="ok">Flow analysis completed.</span> <span class="err">But no full address available to send to Dify.</span>';
+          const tEnd = performance.now();
+          const paMs = tPAEnd - tPAStart;
+          const totalMs = tEnd - t0;
+          msg.innerHTML = `<span class="ok">Analysis completed (Power Automate only).</span> <span class="subtle">PA: ${formatMs(paMs)} · Total: ${formatMs(totalMs)}</span>`;
           return;
         }
 
+        // --- Dify timing ---
         setBusy(true,'Calling Dify…');
+        tDifyStart = performance.now();
         const difyResponse=await callDifyAddressParser(address);
+        tDifyEnd = performance.now();
+
         rawDify.value=JSON.stringify(difyResponse,null,2);
 
         const parsed=parseDifyTextToJson(difyResponse?.data?.outputs?.text);
-        if(!parsed){ msg.innerHTML='<span class="ok">Flow analysis completed.</span> <span class="err">Dify returned no parsable JSON.</span>'; }
-        else{ populateDifyFields(parsed); msg.innerHTML='<span class="ok">Analysis completed (Power Automate + Dify).</span>'; }
+        const tEnd = performance.now();
+
+        const paMs = tPAEnd - tPAStart;
+        const difyMs = tDifyEnd - tDifyStart;
+        const totalMs = tEnd - t0;
+
+        if(!parsed){
+          msg.innerHTML = `<span class="ok">Analysis completed.</span> <span class="err">Dify returned no parsable JSON.</span> <span class="subtle">PA: ${formatMs(paMs)} · Dify: ${formatMs(difyMs)} · Total: ${formatMs(totalMs)}</span>`;
+        } else {
+          populateDifyFields(parsed);
+          msg.innerHTML = `<span class="ok">Analysis completed (Power Automate + Dify).</span> <span class="subtle">PA: ${formatMs(paMs)} · Dify: ${formatMs(difyMs)} · Total: ${formatMs(totalMs)}</span>`;
+        }
       }catch(e){
-        console.error(e); msg.innerHTML=`<span class="err">Error: ${escapeHtml(e.message)}</span>`;
-      }finally{ setBusy(false); }
+        const tEnd = performance.now();
+        const totalMs = tEnd - t0;
+        console.error(e);
+        msg.innerHTML=`<span class="err">Error: ${escapeHtml(e.message)}</span> <span class="subtle">Total: ${formatMs(totalMs)}</span>`;
+      }finally{
+        setBusy(false);
+      }
     });
-
-    // Lightbox
-    function openLightbox(){ if(!preview.src) return; imgLightboxImg.src=preview.src; imgLightbox.setAttribute('aria-hidden','false'); document.body.style.overflow='hidden'; imgLightboxClose.focus(); }
-    function closeLightbox(){ imgLightbox.setAttribute('aria-hidden','true'); document.body.style.overflow=''; imgLightboxImg.removeAttribute('src'); preview.focus(); }
-    preview.addEventListener('click',openLightbox);
-    preview.addEventListener('keydown',(e)=>{ if(e.key==='Enter'||e.key===' '){ e.preventDefault(); openLightbox(); }});
-    imgLightboxClose.addEventListener('click',closeLightbox);
-    imgLightbox.addEventListener('click',(e)=>{ if(e.target===imgLightbox) closeLightbox(); });
-    document.addEventListener('keydown',(e)=>{ if(e.key==='Escape' && imgLightbox.getAttribute('aria-hidden')==='false') closeLightbox(); });
-
-    // Helpers
-    function fileToBase64(file){ return new Promise((resolve,reject)=>{ const r=new FileReader(); r.readAsDataURL(file); r.onload=()=>resolve(r.result); r.onerror=reject; }); }
-    function setField(id,val){ if(val==null) return; fields[id].value=String(val); }
-    function clearFields(){ Object.values(fields).forEach(el=> el.value=''); }
-    function setDifyField(key,val){ if(!(key in difyFields) || val==null) return; difyFields[key].value=String(val); }
-    function clearDifyFields(){ Object.values(difyFields).forEach(el=> el.value=''); }
-
-    function populateFields(d){
-      setField('fullName',d.fullName); setField('firstName',d.firstName); setField('lastName',d.lastName);
-      setField('title',d.title); setField('company',d.company); setField('department',d.department);
-
-      // NEW: derived fields from Power Automate
-      setField('industry',d.industry);
-      setField('occupation',d.occupation);
-      setField('position',d.position);
-
-      setField('workPhone',d.workPhone); setField('email',d.email); setField('website',d.website);
-      setField('fullAddress',d.fullAddress); setField('addressStreet',d.addressStreet); setField('country',d.country);
-      setField('fullName_chi',d.fullName_chi); setField('firstName_chi',d.firstName_chi); setField('lastName_chi',d.lastName_chi);
-      setField('title_chi',d.title_chi); setField('company_chi',d.company_chi); setField('department_chi',d.department_chi);
-    }
-
-    // Dify helpers
-    function chooseFullAddressForDify(flowData){
-      const fa=(flowData && typeof flowData.fullAddress==='string' && flowData.fullAddress.trim())? flowData.fullAddress.trim(): '';
-      if(fa) return fa;
-      const parts=[flowData?.addressStreet, flowData?.country].filter(Boolean);
-      return parts.length? parts.join(', '): '';
-    }
-    async function callDifyAddressParser(address){
-      const body={ inputs:{ user_query:`Parse this address: ${address}` }, response_mode:"blocking", user:DIFY_USER_ID };
-      const resp=await fetch(DIFY_URL,{ method:'POST', headers:{ 'Authorization':`Bearer ${DIFY_API_KEY}`,'Content-Type':'application/json'}, body:JSON.stringify(body) });
-      if(!resp.ok){ const txt=await resp.text().catch(()=> ''); throw new Error(`Dify error ${resp.status}${txt?': '+txt:''}`); }
-      return resp.json();
-    }
-    function parseDifyTextToJson(text){
-      if(!text||typeof text!=='string') return null;
-      const start=text.indexOf('{'); const end=text.lastIndexOf('}');
-      if(start===-1||end===-1||end<=start) return null;
-      try{ return JSON.parse(text.slice(start,end+1)); }catch{ return null; }
-    }
-    function populateDifyFields(obj){
-      setDifyField('flat',obj.flat); setDifyField('floor',obj.floor); setDifyField('block',obj.block);
-      setDifyField('streetNumber',obj.streetNumber); setDifyField('streetName',obj.streetName);
-      setDifyField('buildingName',obj.buildingName); setDifyField('district',obj.district); setDifyField('country',obj.country);
-    }
-
-    // Busy overlay
-    function setBusy(isBusy,text){
-      analyzeBtn.disabled=isBusy; busy.textContent=isBusy?(text||'Processing…'):'';
-      overlay.setAttribute('aria-hidden',String(!isBusy));
-      if(isBusy){ loaderText.textContent=text||'Processing…'; loaderLive.textContent=text||'Processing…'; document.body.style.pointerEvents='none'; }
-      else{ loaderText.textContent=''; loaderLive.textContent=''; document.body.style.pointerEvents=''; }
-    }
-    function escapeHtml(s){ return String(s).replace(/[&<>\"'`]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;','`':'&#96;'}[c])); }
   </script>
 </body>
 </html>
