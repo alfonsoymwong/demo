@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="utf-8" />
-  <title>AI Business Card Application Form Filling (v1.1)</title>
+  <title>AI Business Card Application Form Filling (v1.2)</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <style>
     /* ================= THEME: DEFAULT (DARK) ================= */
@@ -79,7 +79,8 @@
     .theme-toggle .chip--off{opacity:.8}
 
     .layout{display:grid;gap:16px;grid-template-columns:1fr}
-    @media (min-width: 1024px){ .layout{ grid-template-columns:360px 1fr; align-items:start; } }
+    @media (min-width: 1024px){ .layout{ grid-template-columns:1fr 360px; align-items:start; } }
+    /* ↑ main form (left) = 1fr, preview (right) = 360px */
 
     .panel{
       background:var(--card);border:1px solid var(--border);border-radius:16px;
@@ -210,7 +211,7 @@
 
   <div class="wrap">
     <div class="page-head">
-      <h1><span class="glow-dot"></span> AI Business Card Application Form Filling (v1.1)</h1>
+      <h1><span class="glow-dot"></span> AI Business Card Application Form Filling (v1.2)</h1>
       <button id="themeToggle" class="theme-toggle" aria-label="Toggle theme">
         <span class="chip chip--on" id="themeOn">🌙 Dark</span>
         <span class="chip chip--off" id="themeOff">☀️ Light</span>
@@ -218,7 +219,7 @@
     </div>
     <div class="subtitle">OCR ➜ Preview from PA (edit, select, apply) ➜ Dify auto‑fills address ➜ Done</div>
 
-    <!-- Layout -->
+    <!-- Layout: main form (left) + preview (right) -->
     <div class="layout">
       <!-- Upload panel spans both columns -->
       <section class="panel" style="grid-column:1 / -1">
@@ -278,26 +279,7 @@
         </div>
       </section>
 
-      <!-- LEFT COLUMN: PA Preview -->
-      <aside class="panel">
-        <h2><span class="bar"></span>2) Preview from Power Automate <span class="small">(editable)</span></h2>
-        <div id="paPreviewContainer" class="preview-panel" aria-live="polite">
-          <div class="small">Edit values, tick to select, click <b>Apply selected</b> or use <b>Apply</b> per row. Applied rows disappear.</div>
-
-          <div class="preview-toolbar">
-            <button id="btnSelectAll" type="button" class="btn-ghost">Select all</button>
-            <button id="btnClearAll" type="button" class="btn-ghost">Clear all</button>
-            <button id="btnApplySelected" type="button" class="btn-ghost">Apply selected to form</button>
-            <span id="previewCount" class="small"></span>
-          </div>
-
-          <div id="paPreviewList" class="preview-list" role="group" aria-label="PA Proposed Fields">
-            <!-- Rows injected dynamically -->
-          </div>
-        </div>
-      </aside>
-
-      <!-- RIGHT COLUMN: Main form + Dify -->
+      <!-- LEFT (main) COLUMN: Main form + Dify -->
       <section class="stack">
         <!-- 3) Extracted Fields (final, editable) -->
         <div class="panel">
@@ -369,6 +351,25 @@
           </div>
         </div>
       </section>
+
+      <!-- RIGHT (preview) COLUMN: PA Preview -->
+      <aside class="panel">
+        <h2><span class="bar"></span>2) Preview from Power Automate <span class="small">(editable)</span></h2>
+        <div id="paPreviewContainer" class="preview-panel" aria-live="polite">
+          <div class="small">Edit values, tick to select, click <b>Apply selected</b> or use <b>Apply</b> per row. Applied rows disappear.</div>
+
+          <div class="preview-toolbar">
+            <button id="btnSelectAll" type="button" class="btn-ghost">Select all</button>
+            <button id="btnClearAll" type="button" class="btn-ghost">Clear all</button>
+            <button id="btnApplySelected" type="button" class="btn-ghost" disabled>Apply selected to form</button>
+            <span id="previewCount" class="small"></span>
+          </div>
+
+          <div id="paPreviewList" class="preview-list" role="group" aria-label="PA Proposed Fields">
+            <!-- Rows injected dynamically -->
+          </div>
+        </div>
+      </aside>
     </div>
   </div>
 
@@ -408,7 +409,7 @@
 
     const topProgress=document.getElementById('topProgress');
     const inlineInfo=document.getElementById('inlineInfo');
-    const inlineDot=inlineInfo.querySelector('.inline-dot');
+    const inlineDot=inlineInfo ? inlineInfo.querySelector('.inline-dot') : null;
     const inlineText=document.getElementById('inlineText');
 
     /* ========= FIELD MAPS ========= */
@@ -451,16 +452,22 @@
     function fileToBase64(file){ return new Promise((resolve,reject)=>{ const r=new FileReader(); r.readAsDataURL(file); r.onload=()=>resolve(r.result); r.onerror=reject; }); }
     function escapeHtml(s){ return String(s).replace(/[&<>"'`]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;','`':'&#96;'}[c])); }
     function toSec(ms){ return (ms/1000).toFixed(2); }
-    function showTopProgress(on){ topProgress.setAttribute('aria-hidden', on ? 'false':'true'); }
-    function showInlineInfo(on, text){ inlineDot.style.display = on ? 'inline-block' : 'none'; inlineText.textContent = on ? (text||'Processing…') : ''; }
+    function showTopProgress(on){ if(topProgress) topProgress.setAttribute('aria-hidden', on ? 'false':'true'); }
+    function showInlineInfo(on, text){
+      if(!inlineInfo || !inlineText) return;
+      if(inlineDot) inlineDot.style.display = on ? 'inline-block' : 'none';
+      inlineText.textContent = on ? (text||'Processing…') : '';
+    }
 
     const timPaEl=document.getElementById('timPa');
     const timDifyEl=document.getElementById('timDify');
     const timTotalEl=document.getElementById('timTotal');
     function updateTimes(pa, dify, total){
-      if(typeof pa==='number') timPaEl.textContent = Number(pa).toFixed(2);
-      if(typeof dify==='number') timDifyEl.textContent = Number(dify).toFixed(2);
-      if(typeof total==='number') timTotalEl.textContent = Number(total).toFixed(2);
+      try{
+        if(typeof pa==='number' && timPaEl) timPaEl.textContent = Number(pa).toFixed(2);
+        if(typeof dify==='number' && timDifyEl) timDifyEl.textContent = Number(dify).toFixed(2);
+        if(typeof total==='number' && timTotalEl) timTotalEl.textContent = Number(total).toFixed(2);
+      }catch{}
     }
 
     function setStepState(step, state){
@@ -479,7 +486,7 @@
 
     /* ========= PROCESSING GUARD ========= */
     function setProcessing(on, text){
-      analyzeBtn.disabled = !!on; // Disable upload while processing
+      if(analyzeBtn) analyzeBtn.disabled = !!on; // Disable upload while processing
       showTopProgress(!!on);
       showInlineInfo(!!on, text || (on ? 'Processing…' : ''));
     }
@@ -497,10 +504,13 @@
     function clearAllBadges(){
       document.querySelectorAll('.label-badges').forEach(slot => slot.innerHTML = '');
     }
-    document.getElementById('btnResetBadges').addEventListener('click', ()=>{
-      clearAllBadges();
-      msg.innerHTML = `<span class="ok">PA badges reset.</span>`;
-    });
+    const btnResetBadges = document.getElementById('btnResetBadges');
+    if(btnResetBadges){
+      btnResetBadges.addEventListener('click', ()=>{
+        clearAllBadges();
+        if(msg) msg.innerHTML = `<span class="ok">PA badges reset.</span>`;
+      });
+    }
 
     /* ========= PA PREVIEW ========= */
     const paPreviewList = document.getElementById('paPreviewList');
@@ -522,19 +532,22 @@
     let paProposed = {};
 
     function clearPaPreview(){
-      paPreviewList.innerHTML = '';
-      btnApplySelected.disabled = true;
-      previewCount.textContent = '';
+      if(paPreviewList) paPreviewList.innerHTML = '';
+      if(btnApplySelected) btnApplySelected.disabled = true;
+      if(previewCount) previewCount.textContent = '';
     }
     function updatePreviewCount(){
+      if(!paPreviewList) return;
       const n = paPreviewList.querySelectorAll('.preview-row').length;
-      previewCount.textContent = n ? `${n} pending field${n>1?'s':''}` : 'All applied';
-      btnApplySelected.disabled = n === 0 || paPreviewList.querySelectorAll('.preview-row input[type="checkbox"]:checked').length === 0;
+      if(previewCount) previewCount.textContent = n ? `${n} pending field${n>1?'s':''}` : 'All applied';
+      const checked = paPreviewList.querySelectorAll('.preview-row input[type="checkbox"]:checked').length;
+      if(btnApplySelected) btnApplySelected.disabled = (n === 0 || checked === 0);
     }
 
     function renderPaPreview(data){
       paProposed = data || {};
       clearPaPreview();
+      if(!paPreviewList) return;
 
       const entries = Object.entries(LABELS)
         .map(([key,label]) => ({ key, label, val: data?.[key] }))
@@ -582,7 +595,6 @@
         applyBtn.className = 'btn-ghost';
         applyBtn.textContent = 'Apply';
         applyBtn.addEventListener('click', () => applySingleRow(row));
-
         act.appendChild(applyBtn);
 
         row.appendChild(ck);
@@ -597,52 +609,66 @@
     }
 
     function onAnyPreviewCheckChanged(){
-      const anyChecked = paPreviewList.querySelectorAll('.preview-row input[type="checkbox"]:checked').length > 0;
-      btnApplySelected.disabled = !anyChecked;
+      try{
+        if(!paPreviewList) return;
+        const anyChecked = paPreviewList.querySelectorAll('.preview-row input[type="checkbox"]:checked').length > 0;
+        if(btnApplySelected) btnApplySelected.disabled = !anyChecked;
+        updatePreviewCount();
+      }catch{}
     }
 
     function applySingleRow(row){
-      const key = row.dataset.key;
-      if(!key || !(key in fields)) return;
-      const inputEl = row.querySelector('.preview-input');
-      const value = inputEl ? inputEl.value : '';
-      fields[key].value = value;     // apply edited value
-      addPABadge(key);               // mark with PA badge
-      row.remove();                  // remove from preview
-      updatePreviewCount();
-      msg.innerHTML = `<span class="ok">Applied ${LABELS[key] || key} from PA preview.</span>`;
-    }
-
-    btnSelectAll.addEventListener('click', ()=>{
-      paPreviewList.querySelectorAll('.preview-row input[type="checkbox"]').forEach(ch => ch.checked = true);
-      onAnyPreviewCheckChanged();
-    });
-    btnClearAll.addEventListener('click', ()=>{
-      paPreviewList.querySelectorAll('.preview-row input[type="checkbox"]').forEach(ch => ch.checked = false);
-      onAnyPreviewCheckChanged();
-    });
-
-    btnApplySelected.addEventListener('click', ()=>{
-      const checks = [...paPreviewList.querySelectorAll('.preview-row input[type="checkbox"]:checked')];
-      if(checks.length === 0) return;
-      let applied = 0;
-      checks.forEach(ck => {
-        const row = ck.closest('.preview-row'); if(!row) return;
-        const key = row.dataset.key;
-        if(!(key in fields)) return;
+      try{
+        const key = row?.dataset?.key;
+        if(!key || !(key in fields)) return;
         const inputEl = row.querySelector('.preview-input');
         const value = inputEl ? inputEl.value : '';
-        fields[key].value = value;
-        addPABadge(key);
-        row.remove();
-        applied++;
+        fields[key].value = value;     // apply edited value
+        addPABadge(key);               // mark with PA badge
+        row.remove();                  // remove from preview
+        updatePreviewCount();
+        if(msg) msg.innerHTML = `<span class="ok">Applied ${LABELS[key] || key} from PA preview.</span>`;
+      }catch(e){ console.warn(e); }
+    }
+
+    if(btnSelectAll){
+      btnSelectAll.addEventListener('click', ()=>{
+        if(!paPreviewList) return;
+        paPreviewList.querySelectorAll('.preview-row input[type="checkbox"]').forEach(ch => ch.checked = true);
+        onAnyPreviewCheckChanged();
       });
-      updatePreviewCount();
-      onAnyPreviewCheckChanged();
-      if(applied > 0){
-        msg.innerHTML = `<span class="ok">Applied ${applied} field${applied>1?'s':''} from PA preview.</span>`;
-      }
-    });
+    }
+    if(btnClearAll){
+      btnClearAll.addEventListener('click', ()=>{
+        if(!paPreviewList) return;
+        paPreviewList.querySelectorAll('.preview-row input[type="checkbox"]').forEach(ch => ch.checked = false);
+        onAnyPreviewCheckChanged();
+      });
+    }
+    if(btnApplySelected){
+      btnApplySelected.addEventListener('click', ()=>{
+        if(!paPreviewList) return;
+        const checks = [...paPreviewList.querySelectorAll('.preview-row input[type="checkbox"]:checked')];
+        if(checks.length === 0) return;
+        let applied = 0;
+        checks.forEach(ck => {
+          const row = ck.closest('.preview-row'); if(!row) return;
+          const key = row.dataset.key;
+          if(!(key in fields)) return;
+          const inputEl = row.querySelector('.preview-input');
+          const value = inputEl ? inputEl.value : '';
+          fields[key].value = value;
+          addPABadge(key);
+          row.remove();
+          applied++;
+        });
+        updatePreviewCount();
+        onAnyPreviewCheckChanged();
+        if(applied > 0 && msg){
+          msg.innerHTML = `<span class="ok">Applied ${applied} field${applied>1?'s':''} from PA preview.</span>`;
+        }
+      });
+    }
 
     /* ========= DIFY PARSE HELPERS ========= */
     function chooseFullAddressForDify(flowData){
@@ -762,39 +788,39 @@
 
     /* ========= File change reset ========= */
     fileInput.addEventListener('change',()=>{
-      analyzeBtn.disabled=!fileInput.files||fileInput.files.length===0;
+      if(analyzeBtn) analyzeBtn.disabled=!fileInput.files||fileInput.files.length===0;
 
       newRequestToken();
       try{ paController?.abort(); }catch(_){}
       try{ difyController?.abort(); }catch(_){}
       paController = null; difyController = null;
 
-      msg.textContent='';
-      Object.values(fields).forEach(el => el.value = '');
-      Object.values(difyFields).forEach(el => el.value = '');
+      if(msg) msg.textContent='';
+      Object.values(fields).forEach(el => { if(el) el.value = ''; });
+      Object.values(difyFields).forEach(el => { if(el) el.value = ''; });
       clearPaPreview();
       clearAllBadges();
       updateTimes(0,0,0); resetStepper();
       setProcessing(false, '');
       const f=fileInput.files && fileInput.files[0];
-      if(!f){ preview.src=''; return; }
+      if(!f){ if(preview) preview.src=''; return; }
       if(f.type.startsWith('image/')){
-        const r=new FileReader(); r.onload=()=>{ preview.src=r.result; }; r.readAsDataURL(f);
-      }else{ preview.src=''; }
+        const r=new FileReader(); r.onload=()=>{ if(preview) preview.src=r.result; }; r.readAsDataURL(f);
+      }else{ if(preview) preview.src=''; }
     });
 
     /* ========= Main handler ========= */
     analyzeBtn.addEventListener('click', async ()=>{
-      msg.textContent='';
-      Object.values(fields).forEach(el => el.value = '');
-      Object.values(difyFields).forEach(el => el.value = '');
+      if(msg) msg.textContent='';
+      Object.values(fields).forEach(el => { if(el) el.value = ''; });
+      Object.values(difyFields).forEach(el => { if(el) el.value = ''; });
       clearPaPreview();
       clearAllBadges();
       updateTimes(0,0,0); resetStepper();
 
       const file=fileInput.files && fileInput.files[0];
       if(!file){
-        msg.innerHTML='<span class="err">Please choose a file.</span>';
+        if(msg) msg.innerHTML='<span class="err">Please choose a file.</span>';
         return;
       }
 
@@ -838,7 +864,7 @@
           setStepState('done','done');
           const tAllEnd = performance.now();
           updateTimes(paSec, 0, Number(toSec(tAllEnd - tAllStart)));
-          msg.innerHTML = `<span class="ok">OCR preview is ready (PA only). No address found for Dify.</span>`;
+          if(msg) msg.innerHTML = `<span class="ok">OCR preview is ready (PA only). No address found for Dify.</span>`;
           return;
         }
 
@@ -852,24 +878,24 @@
 
         difySec = dElapsed;
         if(parsed){
-          difyFields.flat.value = parsed.flat ?? '';
-          difyFields.floor.value = parsed.floor ?? '';
-          difyFields.block.value = parsed.block ?? '';
-          difyFields.streetNumber.value = parsed.streetNumber ?? '';
-          difyFields.streetName.value = parsed.streetName ?? '';
-          difyFields.buildingName.value = parsed.buildingName ?? '';
-          difyFields.district.value = parsed.district ?? '';
-          difyFields.country.value = parsed.country ?? '';
+          if(difyFields.flat) difyFields.flat.value = parsed.flat ?? '';
+          if(difyFields.floor) difyFields.floor.value = parsed.floor ?? '';
+          if(difyFields.block) difyFields.block.value = parsed.block ?? '';
+          if(difyFields.streetNumber) difyFields.streetNumber.value = parsed.streetNumber ?? '';
+          if(difyFields.streetName) difyFields.streetName.value = parsed.streetName ?? '';
+          if(difyFields.buildingName) difyFields.buildingName.value = parsed.buildingName ?? '';
+          if(difyFields.district) difyFields.district.value = parsed.district ?? '';
+          if(difyFields.country) difyFields.country.value = parsed.country ?? '';
         }else{
-          msg.innerHTML = `<span class="ok">OCR preview is ready.</span> <span class="err">Dify returned no parsable JSON.</span>`;
+          if(msg) msg.innerHTML = `<span class="ok">OCR preview is ready.</span> <span class="err">Dify returned no parsable JSON.</span>`;
         }
 
         setStepState('dify','done');
         setStepState('done','done');
         const tAllEnd = performance.now();
         updateTimes(paSec, difySec, Number(toSec(tAllEnd - tAllStart)));
-        if(!msg.textContent){
-          msg.innerHTML = `<span class="ok">OCR preview is ready. Dify structured address has been auto-filled.</span>`;
+        if(!msg?.textContent){
+          if(msg) msg.innerHTML = `<span class="ok">OCR preview is ready. Dify structured address has been auto-filled.</span>`;
         }
 
       }catch(e){
@@ -881,7 +907,7 @@
 
         if (e?.name !== 'AbortError') {
           console.error(e);
-          msg.innerHTML=`<span class="err">Error: ${escapeHtml(e.message)}</span>`;
+          if(msg) msg.innerHTML=`<span class="err">Error: ${escapeHtml(e.message)}</span>`;
         }
       } finally {
         if(!isStale(token)) setProcessing(false, '');
@@ -889,13 +915,18 @@
     });
 
     /* ========= Lightbox ========= */
-    function openLightbox(){ if(!preview.src) return; imgLightboxImg.src=preview.src; imgLightbox.setAttribute('aria-hidden','false'); document.body.style.overflow='hidden'; imgLightboxClose.focus(); }
+    function openLightbox(){ if(!preview?.src) return; imgLightboxImg.src=preview.src; imgLightbox.setAttribute('aria-hidden','false'); document.body.style.overflow='hidden'; imgLightboxClose.focus(); }
     function closeLightbox(){ imgLightbox.setAttribute('aria-hidden','true'); document.body.style.overflow=''; imgLightboxImg.removeAttribute('src'); preview.focus(); }
-    preview.addEventListener('click',openLightbox);
-    preview.addEventListener('keydown',(e)=>{ if(e.key==='Enter'||e.key===' '){ e.preventDefault(); openLightbox(); }});
-    imgLightboxClose.addEventListener('click',closeLightbox);
-    imgLightbox.addEventListener('click',(e)=>{ if(e.target===imgLightbox) closeLightbox(); });
+    if(preview){
+      preview.addEventListener('click',openLightbox);
+      preview.addEventListener('keydown',(e)=>{ if(e.key==='Enter'||e.key===' '){ e.preventDefault(); openLightbox(); }});
+    }
+    if(imgLightboxClose) imgLightboxClose.addEventListener('click',closeLightbox);
+    if(imgLightbox){
+      imgLightbox.addEventListener('click',(e)=>{ if(e.target===imgLightbox) closeLightbox(); });
+    }
     document.addEventListener('keydown',(e)=>{ if(e.key==='Escape' && imgLightbox.getAttribute('aria-hidden')==='false') closeLightbox(); });
   </script>
 </body>
 </html>
+``
