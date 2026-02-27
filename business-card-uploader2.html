@@ -479,6 +479,14 @@
       inlineText.textContent = on ? (text||'Processing…') : '';
     }
 
+    /* --- Add: key normalizer --- */
+    function _normKey(s){
+      return String(s || '')
+        .toLowerCase()
+        .replace(/[\s_\-\.]/g, ''); // ignore spaces, underscores, hyphens, dots
+    }
+
+    
     const timPaEl=document.getElementById('timPa');
     const timDifyEl=document.getElementById('timDify');
     const timTotalEl=document.getElementById('timTotal');
@@ -552,50 +560,56 @@
     let paProposed = {};
 
     /** Robust value resolver for PA responses of various shapes */
-    function getPaValue(paData, key){
-      if(paData == null) return '';
-      // 1) Direct
-      if(paData[key] != null) return paData[key];
 
-      // 2) Common containers
-      const containers = [
-        paData.fields,
-        paData.result,
-        paData.data,
-        paData.body,
-        paData.outputs?.body,
-        paData.outputs,
-        paData.response,
-        paData.payload
-      ].filter(Boolean);
+function getPaValue(paData, key){
+  if (paData == null) return '';
+  const want = _normKey(key);
 
-      for(const c of containers){
-        if(c && c[key] != null) return c[key];
-        // case-insensitive/underscore-insensitive key match
-        const target = key.toLowerCase().replace(/_/g,'');
-        for(const k in c){
-          if(String(k).toLowerCase().replace(/_/g,'') === target) return c[k];
-        }
-      }
+  // 1) direct
+  if (paData[key] != null) return paData[key];
 
-      // 3) Array forms: [{key:'fullName', value:'...'}] or [{name:'fullName', value:'...'}]
-      if(Array.isArray(paData)){
-        const found = paData.find(x => (x?.key===key || x?.name===key));
-        if(found){
-          if(found.value != null) return found.value;
-          if(found.text != null) return found.text;
-          if(found.val != null) return found.val;
-        }
-      }
+  // 2) common containers
+  const containers = [
+    paData.fields,
+    paData.result,
+    paData.data,
+    paData.body,
+    paData.outputs?.body,
+    paData.outputs,
+    paData.response,
+    paData.payload
+  ].filter(Boolean);
 
-      // 4) Last resort: shallow case-insensitive match on root
-      const target2 = key.toLowerCase().replace(/_/g,'');
-      for(const k in paData){
-        if(String(k).toLowerCase().replace(/_/g,'') === target2) return paData[k];
-      }
-      return '';
+  for (const c of containers){
+    if (c && c[key] != null) return c[key];
+    for (const k in c){
+      if (_normKey(k) === want) return c[k];
     }
+  }
 
+  // 3) array forms: [{key:'First name', value:'John'}] / [{name:'firstName', value:'John'}]
+  const arrays = [];
+  if (Array.isArray(paData)) arrays.push(paData);
+  containers.forEach(c => { if (Array.isArray(c)) arrays.push(c); });
+
+  for (const arr of arrays){
+    for (const item of arr){
+      const k1 = item?.key, k2 = item?.name, k3 = item?.field, k4 = item?.id;
+      if (_normKey(k1) === want || _normKey(k2) === want || _normKey(k3) === want || _normKey(k4) === want){
+        if (item?.value != null) return item.value;
+        if (item?.text  != null) return item.text;
+        if (item?.val   != null) return item.val;
+      }
+    }
+  }
+
+  // 4) fallback on root
+  for (const k in paData){
+    if (_normKey(k) === want) return paData[k];
+  }
+  return '';
+}
+ 
     function normalizeValue(v){
       if(v == null) return '';
       if(typeof v === 'object') {
@@ -664,10 +678,12 @@
         if(TEXTAREA_KEYS.has(key)){
           inputEl = document.createElement('textarea');
           inputEl.className = 'preview-input';
+          inputEl.name = key;  
           inputEl.value = val;               // <-- PA value shown here
         }else{
           inputEl = document.createElement('input');
           inputEl.type = 'text'; inputEl.className = 'preview-input'; inputEl.value = val; // <-- PA value shown here
+          inputEl.name = key;  
         }
         valWrap.appendChild(inputEl);
 
@@ -940,6 +956,14 @@
 
         paSec = paElapsed;
         renderPaPreview(data);   // Preview shows PA-returned values (editable)
+
+console.log('Preview values (after render):');
+document.querySelectorAll('#paPreviewList .preview-item').forEach(it => {
+  const k = it.dataset.key;
+  const v = it.querySelector('.preview-input')?.value;
+  console.log(k, '=>', v);
+});
+
         updateTimes(paSec, undefined, Number(toSec(performance.now()-tAllStart)));
         setStepState('pa','done');
 
@@ -1015,3 +1039,4 @@
   </script>
 </body>
 </html>
+
