@@ -1,8 +1,8 @@
 <!doctype html>
-<html lang="en">
+<html lang="en" data-density="compact">
 <head>
   <meta charset="utf-8" />
-  <title>AI Business Card Application Form Filling (v1.3.6)</title>
+  <title>AI Business Card Application Form Filling (v1.3.7)</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <style>
     /* ================= THEME: DEFAULT (DARK) ================= */
@@ -181,79 +181,61 @@
     .inline-dot{width:8px;height:8px;border-radius:50%;background: var(--accent); box-shadow: 0 0 10px var(--accent); animation: pulse 1.4s ease-in-out infinite; display:none}
     @keyframes pulse { 0%,100%{transform:scale(1)} 50%{transform:scale(1.2)} }
 
-/* ======= PA PREVIEW LIST (RIGHT COLUMN) ======= */
-.preview-panel { border:1px solid var(--border); border-radius:12px; padding:12px; background:var(--glass) }
-.preview-toolbar { display:flex; gap:8px; align-items:center; flex-wrap:wrap; margin:8px 0 12px }
-.preview-list { display:flex; flex-direction:column; gap:12px }
+    /* ======= PA PREVIEW LIST (RIGHT COLUMN) ======= */
+    .preview-panel { border:1px solid var(--border); border-radius:12px; padding:12px; background:var(--glass) }
+    .preview-toolbar { display:flex; gap:8px; align-items:center; flex-wrap:wrap; margin:8px 0 12px }
+    .preview-list { display:flex; flex-direction:column; gap:12px }
 
-/* Layout: [checkbox] [label + value stacked] [apply] */
-.preview-item {
-  display:grid; align-items:stretch; gap:8px;
-  grid-template-columns: 1fr auto; /* rectangle row, then apply button */
-}
-.preview-row {
-  display:grid;
-  grid-template-columns: 24px 1fr;             /* col1=checkbox, col2=stacked content */
-  grid-template-areas:
-    "ck label"
-    "ck value";
-  gap:10px; align-items:start;
-  border:1px solid var(--border); border-radius:10px; padding:10px;
-  background:rgba(255,255,255,.03);
-}
-[data-theme="light"] .preview-row { background:#fff }
+    /* Layout: [checkbox] [label + value stacked] [apply] */
+    .preview-item {
+      display:grid; align-items:stretch; gap:8px;
+      grid-template-columns: 1fr auto;
+    }
+    .preview-row {
+      display:grid;
+      grid-template-columns: 24px 1fr;
+      grid-template-areas:
+        "ck label"
+        "ck value";
+      gap:10px; align-items:start;
+      border:1px solid var(--border); border-radius:10px; padding:10px;
+      background:rgba(255,255,255,.03);
+    }
+    [data-theme="light"] .preview-row { background:#fff }
 
-.preview-row input[type="checkbox"]{
-  grid-area: ck;
-  margin-top: 4px;
-}
-.preview-row .key {
-  grid-area: label;
-  color: var(--text-dim);
-  font-size:.9rem;
-  padding-top:2px;
-}
-.preview-row .val {
-  grid-area: value;
-  opacity: 1 !important;
-}
+    .preview-row input[type="checkbox"]{ grid-area: ck; margin-top: 4px; }
+    .preview-row .key { grid-area: label; color: var(--text-dim); font-size:.9rem; padding-top:2px; }
+    .preview-row .val { grid-area: value; opacity: 1 !important; }
 
-/* Display-only value box */
-.preview-text {
-  display:block;
-  padding:10px 12px !important;
-  border:1px dashed var(--border) !important;
-  border-radius:8px;
-  color: var(--text-strong) !important;
-  background-color: rgba(255,255,255,.03) !important;
-  min-height: 64px !important;      /* taller for readability */
-  line-height: 1.45 !important;
-  white-space: pre-wrap;
-  word-break: break-word;
-  user-select: text;
-  cursor: default;
-}
-[data-theme="light"] .preview-text {
-  color:#0b1020 !important;
-  background-color:#ffffff !important;
-  border-color: rgba(17,24,39,.12) !important;
-}
+    .preview-text {
+      display:block;
+      padding:10px 12px !important;
+      border:1px dashed var(--border) !important;
+      border-radius:8px;
+      color: var(--text-strong) !important;
+      background-color: rgba(255,255,255,.03) !important;
+      min-height: 64px !important;
+      line-height: 1.45 !important;
+      white-space: pre-wrap;
+      word-break: break-word;
+      user-select: text;
+      cursor: default;
+    }
+    [data-theme="light"] .preview-text {
+      color:#0b1020 !important;
+      background-color:#ffffff !important;
+      border-color: rgba(17,24,39,.12) !important;
+    }
 
-/* Keep Apply button on the right column */
-.apply-cell {
-  z-index: 0;
-  display:flex; align-items:center;
-}
-.apply-cell .btn-apply { white-space:nowrap; }
+    .apply-cell { z-index: 0; display:flex; align-items:center; }
+    .apply-cell .btn-apply { white-space:nowrap; }
+    .preview-row { z-index: 1; }
 
-/* Ensure the preview card sits above the button column if overlapped */
-.preview-row { z-index: 1; }
+    @media (max-width: 480px){
+      .preview-item { grid-template-columns: 1fr; }
+      .apply-cell { justify-content:flex-end; }
+    }
 
-/* Spacing refinements on small screens */
-@media (max-width: 480px){
-  .preview-item { grid-template-columns: 1fr; }
-  .apply-cell { justify-content:flex-end; }
-}
     /* ======= DERIVED BOX ======= */
     .box-derived{
       grid-column:1 / -1;border:1px solid rgba(239,68,68,.45);
@@ -264,6 +246,114 @@
     .box-derived__title{display:flex;align-items:center;gap:8px;font-size:.95rem;font-weight:700;color:var(--text-strong);margin:0 0 10px}
     .box-derived__grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
     @media (max-width:819px){.box-derived__grid{grid-template-columns:1fr}}
+
+    /* ====== DENSITY & MULTI-COLUMN PREVIEW ENHANCEMENTS ====== */
+
+    /* wider page + larger preview column */
+    .wrap{ max-width: 1440px; } /* was 1280px */
+    @media (min-width: 1280px){
+      .layout{ grid-template-columns: 1fr 480px; } /* was 1fr 420px */
+    }
+
+    /* density variables */
+    [data-density="compact"]{
+      --compact-font: 0.88rem;
+      --compact-font-small: 0.8rem;
+      --compact-pad-8: 6px;
+      --compact-pad-10: 8px;
+      --compact-radius: 8px;
+    }
+    [data-density="compact"] .panel{
+      padding: 12px;
+      border-radius: var(--compact-radius);
+    }
+    [data-density="compact"] h1{ font-size: 1.15rem; }
+    [data-density="compact"] .panel h2{ font-size: .95rem; }
+    [data-density="compact"] .subtitle{ font-size: .9rem; margin-bottom: 12px; }
+
+    [data-density="compact"] input[type="text"],
+    [data-density="compact"] input[type="email"],
+    [data-density="compact"] textarea{
+      padding: 8px 10px;
+      font-size: var(--compact-font);
+      border-radius: 10px;
+    }
+    [data-density="compact"] .field label{ font-size: .8rem; }
+
+    [data-density="compact"] button{
+      padding: 8px 10px;
+      font-size: .9rem;
+      border-radius: 10px;
+    }
+    [data-density="compact"] .btn-ghost{ padding: 5px 8px; font-size: .8rem; }
+    [data-density="compact"] .btn-primary{ padding: 6px 10px; font-weight: 800; }
+
+    [data-density="compact"] .step{ padding: 4px 8px; font-size: .8rem; }
+    [data-density="compact"] .chip-time{ font-size: .8rem; padding: 4px 8px; }
+    [data-density="compact"] .inline-info{ font-size: .85rem; }
+
+    /* preview panel as scroll container with sticky toolbar */
+    .preview-panel{
+      display: grid;
+      grid-template-rows: auto 1fr;
+      height: min(80vh, 900px);
+      overflow: hidden;
+      gap: 8px;
+    }
+    .preview-toolbar{
+      position: sticky;
+      top: 0;
+      z-index: 2;
+      padding: 8px 0 8px;
+      margin: 0;
+      background: var(--glass);
+      backdrop-filter: blur(8px);
+      border-bottom: 1px solid var(--border);
+    }
+    .preview-list{
+      overflow: auto;
+      padding-right: 4px;
+    }
+
+    /* multi-column grid for preview items on wide screens */
+    @media (min-width: 880px){
+      .preview-list{
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 10px;
+      }
+    }
+    @media (min-width: 1280px){
+      .preview-list{
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+      }
+    }
+
+    /* compact tweaks inside preview */
+    .preview-item{ gap: 6px; }
+    .preview-row{ padding: 8px; gap: 8px; border-radius: 8px; }
+    .preview-row .key{ font-size: .85rem; }
+    .preview-text{
+      min-height: unset;
+      padding: 8px 10px !important;
+      font-size: .9rem !important;
+    }
+    .apply-cell{ display:flex; justify-content:flex-end; align-items:center; }
+    .apply-cell .btn-apply{ padding: 6px 10px; font-size: .85rem; }
+
+    [data-density="compact"] .preview-row{
+      padding: 6px;
+      gap: 6px;
+      border-radius: 6px;
+    }
+    [data-density="compact"] .preview-row .key{ font-size: .78rem; }
+    [data-density="compact"] .preview-text{
+      padding: 6px 8px !important;
+      font-size: .85rem !important;
+    }
+
+    #previewCount{ font-size: .85rem; opacity: .85; }
+    [data-density="compact"] .top-progress{ height: 2px; }
   </style>
 </head>
 <body>
@@ -278,11 +368,17 @@
 
   <div class="wrap">
     <div class="page-head">
-      <h1><span class="glow-dot"></span> AI Business Card Application Form Filling (v1.3.6)</h1>
-      <button id="themeToggle" class="theme-toggle" aria-label="Toggle theme">
-        <span class="chip chip--on" id="themeOn">🌙 Dark</span>
-        <span class="chip chip--off" id="themeOff">☀️ Light</span>
-      </button>
+      <h1><span class="glow-dot"></span> AI Business Card Application Form Filling (v1.3.7)</h1>
+      <div style="display:flex; gap:10px; align-items:center; flex-wrap:wrap">
+        <button id="densityToggle" class="theme-toggle" aria-label="Toggle density">
+          <span class="chip chip--on" id="densityCompactOn">📏 Compact</span>
+          <span class="chip chip--off" id="densityCompactOff">🧊 Comfortable</span>
+        </button>
+        <button id="themeToggle" class="theme-toggle" aria-label="Toggle theme">
+          <span class="chip chip--on" id="themeOn">🌙 Dark</span>
+          <span class="chip chip--off" id="themeOff">☀️ Light</span>
+        </button>
+      </div>
     </div>
     <div class="subtitle">OCR ➜ Preview from PA (display-only, select, apply) ➜ Dify auto‑fills address ➜ Done</div>
 
@@ -423,8 +519,6 @@
       <aside class="panel">
         <h2><span class="bar"></span>2) AI Result Preview <span class="small">(display-only)</span></h2>
         <div id="paPreviewContainer" class="preview-panel" aria-live="polite">
-          <div class="small">Select and <b>Apply</b> to copy into the form.</div>
-
           <div class="preview-toolbar">
             <button id="btnSelectAll" type="button" class="btn-ghost">Select all</button>
             <button id="btnClearAll" type="button" class="btn-ghost">Clear all</button>
@@ -433,7 +527,7 @@
           </div>
 
           <div id="paPreviewList" class="preview-list" role="group" aria-label="PA Proposed Fields">
-            <!-- Items injected dynamically as .preview-item (rectangle row + right-side Apply) -->
+            <!-- Items injected dynamically as .preview-item -->
           </div>
         </div>
       </aside>
@@ -457,6 +551,34 @@
         if(current === 'dark'){ on.classList.add('chip--on'); off.classList.remove('chip--on'); }
         else { on.classList.remove('chip--on'); off.classList.add('chip--on'); }
       });
+    })();
+
+    /* ========= DENSITY TOGGLE (Compact vs Comfortable) ========= */
+    (function initDensity(){
+      const root = document.documentElement;
+      const saved = localStorage.getItem('density') || 'compact'; // default compact
+      root.setAttribute('data-density', saved);
+
+      const btn = document.getElementById('densityToggle');
+      const on = document.getElementById('densityCompactOn');
+      const off = document.getElementById('densityCompactOff');
+
+      function updateChips(mode){
+        if(!on || !off) return;
+        const isCompact = mode === 'compact';
+        on.classList.toggle('chip--on', isCompact);
+        off.classList.toggle('chip--on', !isCompact);
+      }
+      updateChips(saved);
+
+      if(btn){
+        btn.addEventListener('click', () => {
+          const current = root.getAttribute('data-density') === 'compact' ? 'comfortable' : 'compact';
+          root.setAttribute('data-density', current);
+          localStorage.setItem('density', current);
+          updateChips(current);
+        });
+      }
     })();
 
     /* ========= CONFIG ========= */
@@ -517,7 +639,7 @@
 
     /* ========= HELPERS ========= */
     function fileToBase64(file){ return new Promise((resolve,reject)=>{ const r=new FileReader(); r.readAsDataURL(file); r.onload=()=>resolve(r.result); r.onerror=reject; }); }
-    function escapeHtml(s){ return String(s).replace(/[&<>"'`]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;','`':'&#96;'}[c])); }
+    function escapeHtml(s){ return String(s).replace(/[&<>\"'`]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;','`':'&#96;'}[c])); }
     function toSec(ms){ return (ms/1000).toFixed(2); }
     function showTopProgress(on){ if(topProgress) topProgress.setAttribute('aria-hidden', on ? 'false':'true'); }
     function showInlineInfo(on, text){
@@ -526,7 +648,6 @@
       inlineText.textContent = on ? (text||'Processing…') : '';
     }
 
-    /* --- Add: key normalizer --- */
     function _normKey(s){
       return String(s || '')
         .toLowerCase()
@@ -605,15 +726,12 @@
     const TEXTAREA_KEYS = new Set(['fullAddress']);
     let paProposed = {};
 
-    /** Robust value resolver for PA responses of various shapes */
     function getPaValue(paData, key){
       if (paData == null) return '';
       const want = _normKey(key);
 
-      // 1) direct
       if (paData[key] != null) return paData[key];
 
-      // 2) common containers
       const containers = [
         paData.fields,
         paData.result,
@@ -632,7 +750,6 @@
         }
       }
 
-      // 3) array forms
       const arrays = [];
       if (Array.isArray(paData)) arrays.push(paData);
       containers.forEach(c => { if (Array.isArray(c)) arrays.push(c); });
@@ -648,7 +765,6 @@
         }
       }
 
-      // 4) fallback on root
       for (const k in paData){
         if (_normKey(k) === want) return paData[k];
       }
@@ -676,14 +792,11 @@
       if(btnApplySelected) btnApplySelected.disabled = (n === 0 || checked === 0);
     }
 
-    /* ---- RENDER display-only preview ---- */
     function renderPaPreview(data){
-      // keep for Dify address
       paProposed = data || {};
       clearPaPreview();
       if(!paPreviewList) return;
 
-      // Build entries with robust value lookup
       const entries = Object.entries(LABELS)
         .map(([key,label]) => {
           const rawVal = getPaValue(data, key);
@@ -706,7 +819,7 @@
         const item = document.createElement('div');
         item.className = 'preview-item';
         item.dataset.key = key;
-        item.dataset.value = val; // store value for Apply
+        item.dataset.value = val;
 
         const row = document.createElement('div');
         row.className = 'preview-row';
@@ -722,7 +835,6 @@
         const valWrap = document.createElement('div');
         valWrap.className = 'val';
 
-        // Display-only text block (no input/textarea)
         const textEl = document.createElement(TEXTAREA_KEYS.has(key) ? 'pre' : 'div');
         textEl.className = 'preview-text';
         textEl.textContent = val;
@@ -772,7 +884,6 @@
       }catch(e){ console.warn(e); }
     }
 
-    // Toolbar actions
     if(btnSelectAll){
       btnSelectAll.addEventListener('click', ()=>{
         if(!paPreviewList) return;
@@ -985,7 +1096,7 @@
         const pureBase64=(base64.includes(','))? base64.split(',')[1] : base64;
         setStepState('ocr','done');
 
-        // 1) Power Automate — preview only (display-only PA values)
+        // 1) Power Automate — preview only
         setStepState('pa','active');
         showInlineInfo(true,'Extracting fields via Power Automate…');
         tPAStart = performance.now();
@@ -1071,4 +1182,3 @@
   </script>
 </body>
 </html>
-
