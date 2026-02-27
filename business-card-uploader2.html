@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="utf-8" />
-  <title>AI Business Card Application Form Filling (Async) </title>
+  <title>AI Business Card Application Form Filling (Async, Non‑blocking)</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <style>
     /* ================= THEME: DEFAULT (DARK) ================= */
@@ -77,6 +77,21 @@
         var(--bg-grad-3),
         var(--bg);
     }
+
+    /* ======= TOP THIN PROGRESS BAR (non-blocking) ======= */
+    .top-progress {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 3px;
+      background: linear-gradient(90deg, var(--brand), var(--accent), var(--dify));
+      background-size: 200% 100%;
+      animation: topbar 1.2s linear infinite;
+      opacity: 0; pointer-events: none;
+      transition: opacity .2s ease;
+      z-index: 10001;
+    }
+    .top-progress[aria-hidden="false"] { opacity: 1; }
+    @keyframes topbar { 0% {background-position:0% 0} 100% {background-position:200% 0} }
 
     /* ======= PAGE LAYOUT ======= */
     .wrap{max-width:1280px;margin:28px auto;padding:0 18px}
@@ -202,17 +217,6 @@
     }
     [data-theme="light"] .preview{ background:#fff }
 
-    /* ======= OVERLAY/SPINNER ======= */
-    .overlay{position:fixed;inset:0;background:rgba(8,12,26,.6);backdrop-filter:blur(2px);
-      display:none;align-items:center;justify-content:center;z-index:9999}
-    .overlay[aria-hidden="false"]{display:flex}
-    .loader{display:flex;flex-direction:column;align-items:center;gap:12px;background:var(--glass);border:1px solid var(--border);border-radius:16px;padding:16px 18px;min-width:240px;box-shadow:0 10px 30px rgba(0,0,0,.35)}
-    [data-theme="light"] .overlay{background:rgba(255,255,255,.6)}
-    .spinner{width:38px;height:38px;border-radius:50%;border:3px solid rgba(255,255,255,.18);border-top-color:var(--accent);animation:spin .8s linear infinite}
-    @keyframes spin{to{transform:rotate(360deg)}}
-    .loader-text{font-size:.98rem;color:var(--text);text-align:center}
-    .sr-only{position:absolute!important;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
-
     /* ======= LIGHTBOX ======= */
     .img-lightbox{position:fixed;inset:0;background:rgba(2,6,23,.9);display:none;align-items:center;justify-content:center;z-index:10000}
     .img-lightbox[aria-hidden="false"]{display:flex}
@@ -253,21 +257,32 @@
     .feature-text{font-size:.94rem;line-height:1.35}
     .muted{opacity:.68}
 
-    /* ======= NEW: PROGRESS STEPPER ======= */
+    /* ======= PROGRESS STEPPER ======= */
     .stepper{
       display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-top:10px
     }
     .step{
       display:flex;align-items:center;gap:8px;
       background:var(--glass);border:1px solid var(--border);
-      border-radius:999px;padding:6px 10px;font-size:.86rem
+      border-radius:999px;padding:6px 10px;font-size:.86rem; position:relative;
     }
     .step__icon{width:20px;height:20px;display:inline-grid;place-items:center;border-radius:6px;background:rgba(255,255,255,.08)}
     .step--active{box-shadow:0 0 0 2px var(--step-active) inset}
     .step--done{box-shadow:0 0 0 2px var(--step-done) inset; opacity:.9}
     .sep{opacity:.4}
 
-    /* ======= NEW: TIMING BADGES/PANEL ======= */
+    /* In-chip spinner (non-blocking) */
+    .chip-spinner {
+      width:14px;height:14px;border-radius:50%;
+      border:2px solid rgba(255,255,255,.25);
+      border-top-color: var(--accent);
+      animation: spin .8s linear infinite;
+      display:none;
+    }
+    .step--active .chip-spinner { display:inline-block; }
+    @keyframes spin{to{transform:rotate(360deg)}}
+
+    /* ======= TIMING BADGES/PANEL ======= */
     .timing-panel{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-top:10px}
     .chip-time{
       display:inline-flex;align-items:center;gap:8px;
@@ -281,33 +296,22 @@
     .chip-total{background:var(--total-weak);outline:1px solid rgba(34,211,238,.35)}
     .chip-total .dot{background:var(--total)}
 
-    /* Inline badges for message line */
-    .badge-time-pa{
-      display:inline-flex;align-items:center;gap:6px;
-      font-size:.80rem;line-height:1;
-      padding:4px 8px;border-radius:999px;color:#fff;background:var(--pa)
+    /* ======= NON-BLOCKING INFO LINE ======= */
+    .inline-info {
+      display:flex;align-items:center;gap:10px;margin-top:6px;color:var(--muted);font-size:.9rem;
     }
-    .badge-time-dify{
-      display:inline-flex;align-items:center;gap:6px;
-      font-size:.80rem;line-height:1;
-      padding:4px 8px;border-radius:999px;color:#fff;background:var(--dify)
+    .inline-dot {
+      width:8px;height:8px;border-radius:50%;
+      background: var(--accent); box-shadow: 0 0 10px var(--accent);
+      animation: pulse 1.4s ease-in-out infinite;
     }
-    .badge-time-total{
-      display:inline-flex;align-items:center;gap:6px;
-      font-size:.80rem;line-height:1;
-      padding:4px 8px;border-radius:999px;color:#06202a;background:var(--total)
-    }
+    @keyframes pulse { 0%,100%{transform:scale(1)} 50%{transform:scale(1.2)} }
+
   </style>
 </head>
 <body>
-  <!-- Loading Overlay -->
-  <div id="loadingOverlay" class="overlay" aria-hidden="true" role="dialog" aria-modal="true" aria-label="Processing">
-    <div class="loader" role="status" aria-live="polite" aria-atomic="true">
-      <div class="spinner" aria-hidden="true"></div>
-      <div id="loaderText" class="loader-text">Processing…</div>
-      <div class="sr-only" id="loaderLive">Processing</div>
-    </div>
-  </div>
+  <!-- Thin top progress bar: toggled on during any API work -->
+  <div id="topProgress" class="top-progress" aria-hidden="true"></div>
 
   <!-- Lightbox -->
   <div id="imgLightbox" class="img-lightbox" aria-hidden="true" aria-label="Image preview dialog" role="dialog" aria-modal="true">
@@ -317,7 +321,7 @@
 
   <div class="wrap">
     <div class="page-head">
-      <h1><span class="glow-dot"></span> AI Business Card Application Form Filling (Async) </h1>
+      <h1><span class="glow-dot"></span> AI Business Card Application Form Filling (Async, Non‑blocking)</h1>
       <button id="themeToggle" class="theme-toggle" aria-label="Toggle theme">
         <span class="chip chip--on" id="themeOn">🌙 Dark</span>
         <span class="chip chip--off" id="themeOff">☀️ Light</span>
@@ -368,18 +372,21 @@
                 <span id="busy" class="status"></span>
               </div>
 
-              <!-- NEW: Progress Stepper -->
+              <!-- Progress Stepper -->
               <div id="stepper" class="stepper" aria-label="Progress">
                 <div class="step step--active" data-step="ocr">
                   <span class="step__icon">🧾</span><span>OCR</span>
+                  <span class="chip-spinner" aria-hidden="true"></span>
                 </div>
                 <span class="sep">→</span>
                 <div class="step" data-step="pa">
                   <span class="step__icon">🛠️</span><span>PA</span>
+                  <span class="chip-spinner" aria-hidden="true"></span>
                 </div>
                 <span class="sep">→</span>
                 <div class="step" data-step="dify">
                   <span class="step__icon">🤖</span><span>Dify</span>
+                  <span class="chip-spinner" aria-hidden="true"></span>
                 </div>
                 <span class="sep">→</span>
                 <div class="step" data-step="done">
@@ -387,10 +394,16 @@
                 </div>
               </div>
 
-              <!-- Message -->
-              <div id="msg" class="status" aria-live="polite" style="margin-top:8px"></div>
+              <!-- Non-blocking info line -->
+              <div id="inlineInfo" class="inline-info" aria-live="polite">
+                <span class="inline-dot" aria-hidden="true" style="display:none"></span>
+                <span id="inlineText"></span>
+              </div>
 
-              <!-- NEW: Mini timing panel -->
+              <!-- Message -->
+              <div id="msg" class="status" aria-live="polite" style="margin-top:6px"></div>
+
+              <!-- Mini timing panel -->
               <div id="timingPanel" class="timing-panel" aria-label="Timings">
                 <span class="chip-time chip-pa" title="Power Automate time">
                   <span class="dot"></span> PA: <span id="timPa">0.00</span>s
@@ -530,13 +543,14 @@
     const msg=document.getElementById('msg');
     const raw=document.getElementById('raw');
 
-    const overlay=document.getElementById('loadingOverlay');
-    const loaderText=document.getElementById('loaderText');
-    const loaderLive=document.getElementById('loaderLive');
-
     const imgLightbox=document.getElementById('imgLightbox');
     const imgLightboxImg=document.getElementById('imgLightboxImg');
     const imgLightboxClose=document.getElementById('imgLightboxClose');
+
+    const topProgress=document.getElementById('topProgress');
+    const inlineInfo=document.getElementById('inlineInfo');
+    const inlineDot=inlineInfo.querySelector('.inline-dot');
+    const inlineText=document.getElementById('inlineText');
 
     /* ========= FIELD MAPS ========= */
     const fields={
@@ -611,7 +625,15 @@
       setStepState('done','idle');
     }
 
-    /* ========= FIX: populateFields ========= */
+    function showTopProgress(on){
+      topProgress.setAttribute('aria-hidden', on ? 'false':'true');
+    }
+    function showInlineInfo(on, text){
+      if(on){ inlineDot.style.display='inline-block'; inlineText.textContent = text || 'Processing…'; }
+      else { inlineDot.style.display='none'; inlineText.textContent=''; }
+    }
+
+    /* ========= populate helpers ========= */
     function populateFields(d){
       setField('fullName',d.fullName); setField('firstName',d.firstName); setField('lastName',d.lastName);
       setField('title',d.title); setField('company',d.company); setField('department',d.department);
@@ -621,25 +643,16 @@
       setField('fullName_chi',d.fullName_chi); setField('firstName_chi',d.firstName_chi); setField('lastName_chi',d.lastName_chi);
       setField('title_chi',d.title_chi); setField('company_chi',d.company_chi); setField('department_chi',d.department_chi);
     }
-
     function populateDifyFields(obj){
       setDifyField('flat',obj.flat); setDifyField('floor',obj.floor); setDifyField('block',obj.block);
       setDifyField('streetNumber',obj.streetNumber); setDifyField('streetName',obj.streetName);
       setDifyField('buildingName',obj.buildingName); setDifyField('district',obj.district); setDifyField('country',obj.country);
     }
-
     function chooseFullAddressForDify(flowData){
       const fa=(flowData && typeof flowData.fullAddress==='string' && flowData.fullAddress.trim())? flowData.fullAddress.trim(): '';
       if(fa) return fa;
       const parts=[flowData?.addressStreet, flowData?.country].filter(Boolean);
       return parts.length? parts.join(', '): '';
-    }
-
-    function setBusy(isBusy,text){
-      analyzeBtn.disabled=isBusy; busy.textContent=isBusy?(text||'Processing…'):'';
-      overlay.setAttribute('aria-hidden',String(!isBusy));
-      if(isBusy){ loaderText.textContent=text||'Processing…'; loaderLive.textContent=text||'Processing…'; document.body.style.pointerEvents='none'; }
-      else{ loaderText.textContent=''; loaderLive.textContent=''; document.body.style.pointerEvents=''; }
     }
 
     /* ========= Lightbox ========= */
@@ -655,12 +668,10 @@
     let currentRequestToken = 0;
     function newRequestToken(){ currentRequestToken += 1; return currentRequestToken; }
     function isStale(token){ return token !== currentRequestToken; }
-
-    // Controllers to cancel in-flight fetches when a new run starts
     let paController = null;
     let difyController = null;
 
-    /* ========= Timed API wrappers with AbortController ========= */
+    /* ========= API wrappers ========= */
     async function callPowerAutomate(pureBase64, signal) {
       const tStart = performance.now();
       const payload = { fileName: 'uploaded', fileContent: pureBase64 };
@@ -719,14 +730,17 @@
     /* ========= File change reset ========= */
     fileInput.addEventListener('change',()=>{
       analyzeBtn.disabled=!fileInput.files||fileInput.files.length===0;
-      // Invalidate any in-flight runs & cancel fetches
+
+      // Invalidate runs & cancel in-flight requests
       newRequestToken();
       try{ paController?.abort(); }catch(_){}
       try{ difyController?.abort(); }catch(_){}
       paController = null; difyController = null;
 
-      msg.textContent=''; raw.value=''; rawDify.value=''; clearFields(); clearDifyFields();
+      msg.textContent=''; raw.value=''; rawDify.value='';
+      clearFields(); clearDifyFields();
       updateTimes(0,0,0); resetStepper();
+      showTopProgress(false); showInlineInfo(false);
 
       const f=fileInput.files && fileInput.files[0];
       if(!f){ preview.src=''; return; }
@@ -735,9 +749,10 @@
       }else{ preview.src=''; }
     });
 
-    /* ========= Main handler (async orchestration) ========= */
+    /* ========= Main handler (async, non-blocking) ========= */
     analyzeBtn.addEventListener('click', async ()=>{
-      msg.textContent=''; raw.value=''; rawDify.value=''; clearFields(); clearDifyFields();
+      msg.textContent=''; raw.value=''; rawDify.value='';
+      clearFields(); clearDifyFields();
       updateTimes(0,0,0); resetStepper();
 
       const file=fileInput.files && fileInput.files[0];
@@ -746,7 +761,7 @@
         return;
       }
 
-      // Invalidate previous runs & cancel in-flight requests
+      // New run context
       const token = newRequestToken();
       try{ paController?.abort(); }catch(_){}
       try{ difyController?.abort(); }catch(_){}
@@ -758,18 +773,17 @@
       let paSec = 0, difySec = 0;
 
       try{
-        // ===== 0) "OCR" stage (Base64 conversion)
-        setBusy(true,'Converting to Base64…');
+        // 0) "OCR" / Base64 conversion (non-blocking)
+        showTopProgress(true); showInlineInfo(true,'Preparing file…');
         setStepState('ocr','active');
         const base64 = await fileToBase64(file);
         if (isStale(token)) return;
         const pureBase64=(base64.includes(','))? base64.split(',')[1] : base64;
-
         setStepState('ocr','done');
-        setStepState('pa','active');
 
-        // ===== 1) Power Automate — async call
-        setBusy(true,'Calling Power Automate…');
+        // 1) Power Automate
+        setStepState('pa','active');
+        showInlineInfo(true,'Extracting fields via Power Automate…');
         tPAStart = performance.now();
         const { data, elapsedSec: paElapsed } = await callPowerAutomate(pureBase64, paController.signal);
         tPAEnd = performance.now();
@@ -781,21 +795,21 @@
         updateTimes(paSec, undefined, Number(toSec(performance.now()-tAllStart)));
         setStepState('pa','done');
 
-        // Decide if Dify is needed
+        // 2) Dify (if address available)
         const address = chooseFullAddressForDify(data);
         if(!address){
-          // No Dify; finalize
           setStepState('dify','done');
           setStepState('done','done');
           const tAllEnd = performance.now();
           updateTimes(paSec, 0, Number(toSec(tAllEnd - tAllStart)));
           msg.innerHTML = `<span class="ok">Analysis completed (Power Automate only).</span>`;
+          showInlineInfo(false);
+          showTopProgress(false);
           return;
         }
 
-        // ===== 2) Dify — fire immediately after PA
         setStepState('dify','active');
-        setBusy(true,'Calling Dify…');
+        showInlineInfo(true,'Parsing address with Dify…');
         difyController = new AbortController();
         tDifyStart = performance.now();
         const { raw: difyRaw, parsed, elapsedSec: dElapsed } = await callDifyBlocking(address, difyController.signal);
@@ -809,7 +823,6 @@
           msg.innerHTML = `<span class="ok">Analysis completed.</span> <span class="err">Dify returned no parsable JSON.</span>`;
         }
 
-        // Finalize
         setStepState('dify','done');
         setStepState('done','done');
         const tAllEnd = performance.now();
@@ -817,25 +830,25 @@
         if(!msg.textContent){
           msg.innerHTML = `<span class="ok">Analysis completed (Power Automate + Dify).</span>`;
         }
+        showInlineInfo(false);
+        showTopProgress(false);
 
       }catch(e){
         const tAllEnd = performance.now();
         const totalSec = Number(toSec(tAllEnd - tAllStart));
-        // derive partial times if present
         const paMeasured = (typeof tPAStart==='number' && typeof tPAEnd==='number') ? Number(toSec(tPAEnd - tPAStart)) : paSec;
         const difyMeasured = (typeof tDifyStart==='number' && typeof tDifyEnd==='number') ? Number(toSec(tDifyEnd - tDifyStart)) : difySec;
         updateTimes(paMeasured || 0, difyMeasured || 0, totalSec);
 
-        // Ignore abort errors as they are expected on cancel
         if (e?.name === 'AbortError') {
-          // silently exit if stale
+          // Expected if user re-uploads/clicks; leave UI as-is
+          showInlineInfo(false); showTopProgress(false);
           return;
         }
 
         console.error(e);
         msg.innerHTML=`<span class="err">Error: ${escapeHtml(e.message)}</span>`;
-      }finally{
-        if (!isStale(token)) setBusy(false);
+        showInlineInfo(false); showTopProgress(false);
       }
     });
 
@@ -887,5 +900,3 @@
   </script>
 </body>
 </html>
-
-
