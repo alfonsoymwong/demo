@@ -581,7 +581,7 @@
     function clearFields(){ Object.values(fields).forEach(el=> el.value=''); }
     function setDifyField(key,val){ if(!(key in difyFields) || val==null) return; difyFields[key].value=String(val); }
     function clearDifyFields(){ Object.values(difyFields).forEach(el=> el.value=''); }
-    function escapeHtml(s){ return String(s).replace(/[&<>\"'`]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;','\'':'&#39;','`':'&#96;'}[c])); }
+    function escapeHtml(s){ return String(s).replace(/[&<>"'`]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;','`':'&#96;'}[c])); }
     function toSec(ms){ return (ms/1000).toFixed(2); }
 
     /* ========= UI UPDATERS ========= */
@@ -635,13 +635,6 @@
       return parts.length? parts.join(', '): '';
     }
 
-    async function callDifyAddressParser(address){
-      const body={ inputs:{ user_query:`Parse this address: ${address}` }, response_mode:"blocking", user:DIFY_USER_ID };
-      const resp=await fetch(DIFY_URL,{ method:'POST', headers:{ 'Authorization':`Bearer ${DIFY_API_KEY}`,'Content-Type':'application/json'}, body:JSON.stringify(body) });
-      if(!resp.ok){ const txt=await resp.text().catch(()=> ''); throw new Error(`Dify error ${resp.status}${txt?': '+txt:''}`); }
-      return resp.json();
-    }
-
     function setBusy(isBusy,text){
       analyzeBtn.disabled=isBusy; busy.textContent=isBusy?(text||'Processing…'):'';
       overlay.setAttribute('aria-hidden',String(!isBusy));
@@ -658,11 +651,83 @@
     imgLightbox.addEventListener('click',(e)=>{ if(e.target===imgLightbox) closeLightbox(); });
     document.addEventListener('keydown',(e)=>{ if(e.key==='Escape' && imgLightbox.getAttribute('aria-hidden')==='false') closeLightbox(); });
 
+    /* ========= Request scoping & cancellation ========= */
+    let currentRequestToken = 0;
+    function newRequestToken(){ currentRequestToken += 1; return currentRequestToken; }
+    function isStale(token){ return token !== currentRequestToken; }
+
+    // Controllers to cancel in-flight fetches when a new run starts
+    let paController = null;
+    let difyController = null;
+
+    /* ========= Timed API wrappers with AbortController ========= */
+    async function callPowerAutomate(pureBase64, signal) {
+      const tStart = performance.now();
+      const payload = { fileName: 'uploaded', fileContent: pureBase64 };
+
+      const res = await fetch(FLOW_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+        signal
+      });
+
+      if (!res.ok && res.status !== 202) {
+        const t = await res.text().catch(() => '');
+        throw new Error(`Power Automate HTTP ${res.status}${t ? ': ' + t : ''}`);
+      }
+
+      let data = null;
+      try { data = await res.json(); }
+      catch { throw new Error('The flow did not return JSON. Ensure the flow ends with a Response action.'); }
+
+      const tEnd = performance.now();
+      return { data, elapsedSec: Number(((tEnd - tStart) / 1000).toFixed(2)) };
+    }
+
+    async function callDifyBlocking(address, signal) {
+      const tStart = performance.now();
+
+      const body = {
+        inputs: { user_query: `Parse this address: ${address}` },
+        response_mode: 'blocking',
+        user: DIFY_USER_ID
+      };
+
+      const resp = await fetch(DIFY_URL, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${DIFY_API_KEY}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(body),
+        signal
+      });
+
+      if (!resp.ok) {
+        const txt = await resp.text().catch(() => '');
+        throw new Error(`Dify error ${resp.status}${txt ? ': ' + txt : ''}`);
+      }
+
+      const raw = await resp.json();
+      const parsed = parseDifyTextToJson(raw?.data?.outputs?.text);
+
+      const tEnd = performance.now();
+      return { raw, parsed, elapsedSec: Number(((tEnd - tStart) / 1000).toFixed(2)) };
+    }
+
     /* ========= File change reset ========= */
     fileInput.addEventListener('change',()=>{
       analyzeBtn.disabled=!fileInput.files||fileInput.files.length===0;
+      // Invalidate any in-flight runs & cancel fetches
+      newRequestToken();
+      try{ paController?.abort(); }catch(_){}
+      try{ difyController?.abort(); }catch(_){}
+      paController = null; difyController = null;
+
       msg.textContent=''; raw.value=''; rawDify.value=''; clearFields(); clearDifyFields();
       updateTimes(0,0,0); resetStepper();
+
       const f=fileInput.files && fileInput.files[0];
       if(!f){ preview.src=''; return; }
       if(f.type.startsWith('image/')){
@@ -670,103 +735,107 @@
       }else{ preview.src=''; }
     });
 
-    /* ========= Main handler with timings ========= */
-    analyzeBtn.addEventListener('click',async()=>{
+    /* ========= Main handler (async orchestration) ========= */
+    analyzeBtn.addEventListener('click', async ()=>{
       msg.textContent=''; raw.value=''; rawDify.value=''; clearFields(); clearDifyFields();
       updateTimes(0,0,0); resetStepper();
 
       const file=fileInput.files && fileInput.files[0];
-      if(!file){ msg.innerHTML='<span class="err">Please choose a file.</span>'; return; }
+      if(!file){
+        msg.innerHTML='<span class="err">Please choose a file.</span>';
+        return;
+      }
 
-      const t0 = performance.now();
+      // Invalidate previous runs & cancel in-flight requests
+      const token = newRequestToken();
+      try{ paController?.abort(); }catch(_){}
+      try{ difyController?.abort(); }catch(_){}
+      paController = new AbortController();
+      difyController = null;
+
+      const tAllStart = performance.now();
       let tPAStart, tPAEnd, tDifyStart, tDifyEnd;
+      let paSec = 0, difySec = 0;
 
       try{
-        // OCR step (local conversion) -> mark done
+        // ===== 0) "OCR" stage (Base64 conversion)
         setBusy(true,'Converting to Base64…');
-        const base64=await fileToBase64(file); // "OCR" placeholder stage
+        setStepState('ocr','active');
+        const base64 = await fileToBase64(file);
+        if (isStale(token)) return;
+        const pureBase64=(base64.includes(','))? base64.split(',')[1] : base64;
+
         setStepState('ocr','done');
         setStepState('pa','active');
 
-        const pureBase64=(base64.includes(','))? base64.split(',')[1] : base64;
-
-        // Power Automate
+        // ===== 1) Power Automate — async call
         setBusy(true,'Calling Power Automate…');
         tPAStart = performance.now();
-        const payload={ fileName:file.name, fileContent:pureBase64 };
-        const res=await fetch(FLOW_URL,{ method:'POST', headers:{ 'Content-Type':'application/json' }, body:JSON.stringify(payload) });
-        if(!res.ok && res.status!==202){
-          const t=await res.text().catch(()=> ''); throw new Error(`HTTP ${res.status}${t?': '+t:''}`);
-        }
-        let data=null; try{ data=await res.json(); } catch{ throw new Error('The flow did not return JSON. Ensure the flow ends with a Response action.'); }
+        const { data, elapsedSec: paElapsed } = await callPowerAutomate(pureBase64, paController.signal);
         tPAEnd = performance.now();
+        if (isStale(token)) return;
 
-        raw.value=JSON.stringify(data,null,2);
+        paSec = paElapsed;
+        raw.value = JSON.stringify(data,null,2);
         populateFields(data);
-
-        const paSec = Number(toSec(tPAEnd - tPAStart));
-        updateTimes(paSec, undefined, Number(toSec(performance.now()-t0)));
+        updateTimes(paSec, undefined, Number(toSec(performance.now()-tAllStart)));
         setStepState('pa','done');
 
-        // Address to Dify?
-        const address=chooseFullAddressForDify(data);
+        // Decide if Dify is needed
+        const address = chooseFullAddressForDify(data);
         if(!address){
-          const tEnd = performance.now();
-          const totalSec = Number(toSec(tEnd - t0));
-          updateTimes(paSec, 0, totalSec);
-
-          setStepState('dify','done'); // treated as skipped
+          // No Dify; finalize
+          setStepState('dify','done');
           setStepState('done','done');
-
-          msg.innerHTML = `
-            <span class="ok">Analysis completed (Power Automate only).</span>
-          `;
-          setBusy(false);
+          const tAllEnd = performance.now();
+          updateTimes(paSec, 0, Number(toSec(tAllEnd - tAllStart)));
+          msg.innerHTML = `<span class="ok">Analysis completed (Power Automate only).</span>`;
           return;
         }
 
-        // Dify
+        // ===== 2) Dify — fire immediately after PA
         setStepState('dify','active');
         setBusy(true,'Calling Dify…');
+        difyController = new AbortController();
         tDifyStart = performance.now();
-        const difyResponse=await callDifyAddressParser(address);
+        const { raw: difyRaw, parsed, elapsedSec: dElapsed } = await callDifyBlocking(address, difyController.signal);
         tDifyEnd = performance.now();
+        if (isStale(token)) return;
 
-        rawDify.value=JSON.stringify(difyResponse,null,2);
-
-        const parsed=parseDifyTextToJson(difyResponse?.data?.outputs?.text);
-        const tEnd = performance.now();
-
-        const difySec = Number(toSec(tDifyEnd - tDifyStart));
-        const totalSec = Number(toSec(tEnd - t0));
-        updateTimes(paSec, difySec, totalSec);
-
-        if(!parsed){
-          msg.innerHTML = `
-            <span class="ok">Analysis completed.</span> <span class="err">Dify returned no parsable JSON.</span>
-          `;
-        } else {
-          populateDifyFields(parsed);
-          msg.innerHTML = `
-            <span class="ok">Analysis completed (Power Automate + Dify).</span>
-          `;
+        difySec = dElapsed;
+        rawDify.value = JSON.stringify(difyRaw,null,2);
+        if(parsed){ populateDifyFields(parsed); }
+        else{
+          msg.innerHTML = `<span class="ok">Analysis completed.</span> <span class="err">Dify returned no parsable JSON.</span>`;
         }
+
+        // Finalize
         setStepState('dify','done');
         setStepState('done','done');
+        const tAllEnd = performance.now();
+        updateTimes(paSec, difySec, Number(toSec(tAllEnd - tAllStart)));
+        if(!msg.textContent){
+          msg.innerHTML = `<span class="ok">Analysis completed (Power Automate + Dify).</span>`;
+        }
 
       }catch(e){
-        const tEnd = performance.now();
-        const totalSec = Number(toSec(tEnd - t0));
-        const paSec = (typeof tPAStart==='number' && typeof tPAEnd==='number') ? Number(toSec(tPAEnd - tPAStart)) : 0.00;
-        const difySec = (typeof tDifyStart==='number' && typeof tDifyEnd==='number') ? Number(toSec(tDifyEnd - tDifyStart)) : 0.00;
-        updateTimes(paSec, difySec, totalSec);
+        const tAllEnd = performance.now();
+        const totalSec = Number(toSec(tAllEnd - tAllStart));
+        // derive partial times if present
+        const paMeasured = (typeof tPAStart==='number' && typeof tPAEnd==='number') ? Number(toSec(tPAEnd - tPAStart)) : paSec;
+        const difyMeasured = (typeof tDifyStart==='number' && typeof tDifyEnd==='number') ? Number(toSec(tDifyEnd - tDifyStart)) : difySec;
+        updateTimes(paMeasured || 0, difyMeasured || 0, totalSec);
+
+        // Ignore abort errors as they are expected on cancel
+        if (e?.name === 'AbortError') {
+          // silently exit if stale
+          return;
+        }
 
         console.error(e);
-        msg.innerHTML=`
-          <span class="err">Error: ${escapeHtml(e.message)}</span>
-        `;
+        msg.innerHTML=`<span class="err">Error: ${escapeHtml(e.message)}</span>`;
       }finally{
-        setBusy(false);
+        if (!isStale(token)) setBusy(false);
       }
     });
 
@@ -818,6 +887,3 @@
   </script>
 </body>
 </html>
-
-
-
