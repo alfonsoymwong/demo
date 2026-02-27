@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="utf-8" />
-  <title>AI Business Card Application Form Filling (v1.3)</title>
+  <title>AI Business Card Application Form Filling (v1.3.1)</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <style>
     /* ================= THEME: DEFAULT (DARK) ================= */
@@ -231,7 +231,7 @@
 
   <div class="wrap">
     <div class="page-head">
-      <h1><span class="glow-dot"></span> AI Business Card Application Form Filling (v1.3)</h1>
+      <h1><span class="glow-dot"></span> AI Business Card Application Form Filling (v1.3.1)</h1>
       <button id="themeToggle" class="theme-toggle" aria-label="Toggle theme">
         <span class="chip chip--on" id="themeOn">🌙 Dark</span>
         <span class="chip chip--off" id="themeOff">☀️ Light</span>
@@ -565,7 +565,6 @@
     }
 
     function renderPaPreview(data){
-      // Ensure we show the exact values from PA
       paProposed = data || {};
       clearPaPreview();
       if(!paPreviewList) return;
@@ -585,12 +584,10 @@
 
       const frag = document.createDocumentFragment();
       entries.forEach(({key,label,val}) => {
-        // Wrapper combines [rectangle row] + [right-side apply button]
         const item = document.createElement('div');
         item.className = 'preview-item';
         item.dataset.key = key;
 
-        // Rectangle row
         const row = document.createElement('div');
         row.className = 'preview-row';
         row.dataset.key = key;
@@ -604,8 +601,6 @@
 
         const valWrap = document.createElement('div');
         valWrap.className = 'val';
-
-        // Show PA's value (editable)
         let inputEl;
         if(TEXTAREA_KEYS.has(key)){
           inputEl = document.createElement('textarea');
@@ -621,7 +616,6 @@
         row.appendChild(lbl);
         row.appendChild(valWrap);
 
-        // Apply button (outside the rectangle)
         const applyCell = document.createElement('div');
         applyCell.className = 'apply-cell';
         const applyBtn = document.createElement('button');
@@ -655,16 +649,14 @@
         if(!key || !(key in fields)) return;
         const inputEl = item.querySelector('.preview-input');
         const value = inputEl ? inputEl.value : '';
-        fields[key].value = value;     // apply edited value
-        addPABadge(key);               // mark with PA badge
-        item.remove();                 // remove from preview
+        fields[key].value = value;
+        addPABadge(key);
+        item.remove();
         updatePreviewCount();
         if(msg) msg.innerHTML = `<span class="ok">Applied ${LABELS[key] || key} from PA preview.</span>`;
       }catch(e){ console.warn(e); }
     }
 
-    const btnSelectAll = document.getElementById('btnSelectAll');
-    const btnClearAll = document.getElementById('btnClearAll');
     if(btnSelectAll){
       btnSelectAll.addEventListener('click', ()=>{
         if(!paPreviewList) return;
@@ -887,7 +879,7 @@
         if (isStale(token)) return;
 
         paSec = paElapsed;
-        renderPaPreview(data);   // ⟵ Preview shows PA-returned values (editable)
+        renderPaPreview(data);   // Preview shows PA-returned values (editable)
         updateTimes(paSec, undefined, Number(toSec(performance.now()-tAllStart)));
         setStepState('pa','done');
 
