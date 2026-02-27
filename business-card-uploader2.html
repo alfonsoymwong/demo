@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="utf-8" />
-  <title>AI Business Card Application Form Filling (v1.3.3)</title>
+  <title>AI Business Card Application Form Filling (v1.3.4)</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <style>
     /* ================= THEME: DEFAULT (DARK) ================= */
@@ -211,7 +211,15 @@
   min-height: 36px;             /* make it visibly tall */
   line-height: 1.2;
 }
-
+    
+.preview-row .val input,
+.preview-row .val textarea {
+  min-height: 38px !important;
+  height: auto !important;
+  padding: 8px 12px !important;
+  line-height: 1.4 !important;
+}
+    
 /* Make sure text is readable in light theme too */
 [data-theme="light"] .preview-row .val input,
 [data-theme="light"] .preview-row .val textarea {
@@ -267,7 +275,7 @@
 
   <div class="wrap">
     <div class="page-head">
-      <h1><span class="glow-dot"></span> AI Business Card Application Form Filling (v1.3.3)</h1>
+      <h1><span class="glow-dot"></span> AI Business Card Application Form Filling (v1.3.4)</h1>
       <button id="themeToggle" class="theme-toggle" aria-label="Toggle theme">
         <span class="chip chip--on" id="themeOn">🌙 Dark</span>
         <span class="chip chip--off" id="themeOff">☀️ Light</span>
@@ -1075,5 +1083,6 @@ document.querySelectorAll('#paPreviewList .preview-item').forEach(it => {
   </script>
 </body>
 </html>
+
 
 
