@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="utf-8" />
-  <title>AI Business Card Application Form Filling (v1.3.2)</title>
+  <title>AI Business Card Application Form Filling (v1.3.3)</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <style>
     /* ================= THEME: DEFAULT (DARK) ================= */
@@ -202,6 +202,42 @@
       color:var(--text-strong); font-size:.92rem;
     }
 
+    /* ===== Stronger, explicit styles so preview values always show ===== */
+.preview-row .val input,
+.preview-row .val textarea {
+  color: var(--text-strong) !important;
+  background-color: var(--input-bg) !important;
+  border: 1px solid var(--input-border) !important;
+  min-height: 36px;             /* make it visibly tall */
+  line-height: 1.2;
+}
+
+/* Make sure text is readable in light theme too */
+[data-theme="light"] .preview-row .val input,
+[data-theme="light"] .preview-row .val textarea {
+  color: #0b1020 !important;
+  background-color: #ffffff !important;
+  border-color: rgba(17,24,39,.12) !important;
+}
+
+/* In case a parent style accidentally dims the whole cell */
+.preview-row .val { 
+  opacity: 1 !important;
+}
+
+/* Prevent accidental overlay/cover from the 'Apply' column */
+.preview-item { 
+  align-items: stretch; 
+}
+.apply-cell { 
+  z-index: 0; 
+}
+.preview-row { 
+  z-index: 1; 
+}
+
+
+    
     .apply-cell { display:flex; align-items:center; }
     .apply-cell .btn-apply { white-space:nowrap; }
 
@@ -231,7 +267,7 @@
 
   <div class="wrap">
     <div class="page-head">
-      <h1><span class="glow-dot"></span> AI Business Card Application Form Filling (v1.3.2)</h1>
+      <h1><span class="glow-dot"></span> AI Business Card Application Form Filling (v1.3.3)</h1>
       <button id="themeToggle" class="theme-toggle" aria-label="Toggle theme">
         <span class="chip chip--on" id="themeOn">🌙 Dark</span>
         <span class="chip chip--off" id="themeOff">☀️ Light</span>
@@ -1039,4 +1075,5 @@ document.querySelectorAll('#paPreviewList .preview-item').forEach(it => {
   </script>
 </body>
 </html>
+
 
