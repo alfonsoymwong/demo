@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="utf-8" />
-  <title>AI Business Card Application Form Filling (v1.3.1)</title>
+  <title>AI Business Card Application Form Filling (v1.3.2)</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <style>
     /* ================= THEME: DEFAULT (DARK) ================= */
@@ -231,7 +231,7 @@
 
   <div class="wrap">
     <div class="page-head">
-      <h1><span class="glow-dot"></span> AI Business Card Application Form Filling (v1.3.1)</h1>
+      <h1><span class="glow-dot"></span> AI Business Card Application Form Filling (v1.3.2)</h1>
       <button id="themeToggle" class="theme-toggle" aria-label="Toggle theme">
         <span class="chip chip--on" id="themeOn">🌙 Dark</span>
         <span class="chip chip--off" id="themeOff">☀️ Light</span>
@@ -374,7 +374,7 @@
 
       <!-- RIGHT (preview) COLUMN: PA Preview -->
       <aside class="panel">
-        <h2><span class="bar"></span>2) Preview from Power Automate <span class="small">(editable)</span></h2>
+        <h2><span class="bar"></span>2) Power Automate Preview <span class="small">(editable)</span></h2>
         <div id="paPreviewContainer" class="preview-panel" aria-live="polite">
           <div class="small">These are the values returned by <b>PA</b>. Edit before applying if needed. Click <b>Apply</b> (right) or select multiple and <b>Apply selected</b>.</div>
 
@@ -551,6 +551,59 @@
     const TEXTAREA_KEYS = new Set(['fullAddress']);
     let paProposed = {};
 
+    /** Robust value resolver for PA responses of various shapes */
+    function getPaValue(paData, key){
+      if(paData == null) return '';
+      // 1) Direct
+      if(paData[key] != null) return paData[key];
+
+      // 2) Common containers
+      const containers = [
+        paData.fields,
+        paData.result,
+        paData.data,
+        paData.body,
+        paData.outputs?.body,
+        paData.outputs,
+        paData.response,
+        paData.payload
+      ].filter(Boolean);
+
+      for(const c of containers){
+        if(c && c[key] != null) return c[key];
+        // case-insensitive/underscore-insensitive key match
+        const target = key.toLowerCase().replace(/_/g,'');
+        for(const k in c){
+          if(String(k).toLowerCase().replace(/_/g,'') === target) return c[k];
+        }
+      }
+
+      // 3) Array forms: [{key:'fullName', value:'...'}] or [{name:'fullName', value:'...'}]
+      if(Array.isArray(paData)){
+        const found = paData.find(x => (x?.key===key || x?.name===key));
+        if(found){
+          if(found.value != null) return found.value;
+          if(found.text != null) return found.text;
+          if(found.val != null) return found.val;
+        }
+      }
+
+      // 4) Last resort: shallow case-insensitive match on root
+      const target2 = key.toLowerCase().replace(/_/g,'');
+      for(const k in paData){
+        if(String(k).toLowerCase().replace(/_/g,'') === target2) return paData[k];
+      }
+      return '';
+    }
+
+    function normalizeValue(v){
+      if(v == null) return '';
+      if(typeof v === 'object') {
+        try { return JSON.stringify(v); } catch { return String(v); }
+      }
+      return String(v);
+    }
+
     function clearPaPreview(){
       if(paPreviewList) paPreviewList.innerHTML = '';
       if(btnApplySelected) btnApplySelected.disabled = true;
@@ -565,13 +618,19 @@
     }
 
     function renderPaPreview(data){
+      // keep for Dify address
       paProposed = data || {};
       clearPaPreview();
       if(!paPreviewList) return;
 
+      // Build entries with robust value lookup
       const entries = Object.entries(LABELS)
-        .map(([key,label]) => ({ key, label, val: data?.[key] }))
-        .filter(x => x.val !== undefined && x.val !== null && String(x.val).trim() !== '');
+        .map(([key,label]) => {
+          const rawVal = getPaValue(data, key);
+          const val = normalizeValue(rawVal).trim();
+          return { key, label, val };
+        })
+        .filter(x => x.val !== '');
 
       if(entries.length === 0){
         const empty = document.createElement('div');
@@ -605,10 +664,10 @@
         if(TEXTAREA_KEYS.has(key)){
           inputEl = document.createElement('textarea');
           inputEl.className = 'preview-input';
-          inputEl.value = String(val);
+          inputEl.value = val;               // <-- PA value shown here
         }else{
           inputEl = document.createElement('input');
-          inputEl.type = 'text'; inputEl.className = 'preview-input'; inputEl.value = String(val);
+          inputEl.type = 'text'; inputEl.className = 'preview-input'; inputEl.value = val; // <-- PA value shown here
         }
         valWrap.appendChild(inputEl);
 
@@ -657,6 +716,7 @@
       }catch(e){ console.warn(e); }
     }
 
+    // Toolbar actions
     if(btnSelectAll){
       btnSelectAll.addEventListener('click', ()=>{
         if(!paPreviewList) return;
