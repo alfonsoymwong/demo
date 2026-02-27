@@ -2,45 +2,30 @@
 <html lang="en">
 <head>
   <meta charset="utf-8" />
-  <title>AI Business Card Application Form Filling (v1.0)</title>
+  <title>AI Business Card Application Form Filling (v1.1)</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <style>
     /* ================= THEME: DEFAULT (DARK) ================= */
     :root{
-      /* Brand palette */
-      --brand:#00a8ff;          /* electric blue */
-      --brand-2:#7c3aed;        /* violet (Dify) */
-      --accent:#22d3ee;         /* cyan accent */
-      --muted:#9CA3AF;          /* slate-400 */
-      --ok:#10B981;             /* emerald-500 */
-      --err:#EF4444;            /* red-500 */
+      --brand:#00a8ff; --brand-2:#7c3aed; --accent:#22d3ee;
+      --muted:#9CA3AF; --ok:#10B981; --err:#EF4444;
 
-      /* Surfaces & Text (dark) */
-      --bg:#0b1020;             /* deep space */
+      --bg:#0b1020;
       --bg-grad-1: radial-gradient(1000px 600px at 10% -10%, rgba(124,58,237,.20), transparent 60%);
       --bg-grad-2: radial-gradient(1000px 600px at 100% 0%, rgba(34,211,238,.15), transparent 60%);
       --bg-grad-3: radial-gradient(900px 500px at 100% 100%, rgba(0,168,255,.10), transparent 60%);
       --card:rgba(255,255,255,.08);
       --glass:rgba(255,255,255,.06);
       --border:rgba(255,255,255,.12);
-      --text:#E5E7EB;
-      --text-strong:#ffffff;
-      --text-dim:#C7D2FE;
-      --input-bg:rgba(255,255,255,.05);
-      --input-border:rgba(255,255,255,.12);
-      --input-focus-ring:rgba(34,211,238,.25);
-      --panel-shadow: 0 10px 30px rgba(0,0,0,.25);
+      --text:#E5E7EB; --text-strong:#ffffff; --text-dim:#C7D2FE;
 
-      /* Accents */
-      --pa:#ef4444;             /* PA red */
-      --pa-weak: rgba(239,68,68,.18);
-      --dify:#7c3aed;           /* Dify purple */
-      --dify-weak: rgba(124,58,237,.16);
-      --total:#22d3ee;          /* total cyan */
-      --total-weak: rgba(34,211,238,.16);
-      --step-done:#10b981;      /* green-500 */
-      --step-active:#22d3ee;    /* cyan-400 */
-      --step-muted:#64748b;     /* slate-500 */
+      --input-bg:rgba(255,255,255,.05); --input-border:rgba(255,255,255,.12);
+      --input-focus-ring:rgba(34,211,238,.25); --panel-shadow: 0 10px 30px rgba(0,0,0,.25);
+
+      --pa:#ef4444; --pa-weak: rgba(239,68,68,.18);
+      --dify:#7c3aed; --dify-weak: rgba(124,58,237,.16);
+      --total:#22d3ee; --total-weak: rgba(34,211,238,.16);
+      --step-done:#10b981; --step-active:#22d3ee; --step-muted:#64748b;
     }
 
     /* ================= THEME: LIGHT OVERRIDES ================= */
@@ -49,16 +34,10 @@
       --bg-grad-1: radial-gradient(1000px 600px at 5% -10%, rgba(124,58,237,.12), transparent 60%);
       --bg-grad-2: radial-gradient(1000px 600px at 100% 0%, rgba(34,211,238,.12), transparent 60%);
       --bg-grad-3: radial-gradient(900px 500px at 100% 100%, rgba(0,168,255,.08), transparent 60%);
-      --card:#ffffffcc;
-      --glass:#ffffffd9;
-      --border:rgba(17,24,39,.12);
-      --text:#0f172a;
-      --text-strong:#0b1020;
-      --text-dim:#374151;
-      --input-bg:#ffffff;
-      --input-border:rgba(17,24,39,.12);
-      --input-focus-ring:rgba(34,211,238,.35);
-      --panel-shadow: 0 10px 30px rgba(2,6,23,.10);
+      --card:#ffffffcc; --glass:#ffffffd9; --border:rgba(17,24,39,.12);
+      --text:#0f172a; --text-strong:#0b1020; --text-dim:#374151;
+      --input-bg:#ffffff; --input-border:rgba(17,24,39,.12);
+      --input-focus-ring:rgba(34,211,238,.35); --panel-shadow: 0 10px 30px rgba(2,6,23,.10);
 
       --pa-weak: rgba(239,68,68,.10);
       --dify-weak: rgba(124,58,237,.08);
@@ -68,108 +47,49 @@
     *{box-sizing:border-box}
     html,body{height:100%}
     body{
-      margin:0;
-      color:var(--text);
+      margin:0; color:var(--text);
       font-family:ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,Helvetica,Arial,"Apple Color Emoji","Segoe UI Emoji";
-      background:
-        var(--bg-grad-1),
-        var(--bg-grad-2),
-        var(--bg-grad-3),
-        var(--bg);
+      background: var(--bg-grad-1), var(--bg-grad-2), var(--bg-grad-3), var(--bg);
     }
 
-    /* ======= TOP THIN PROGRESS BAR (non-blocking) ======= */
+    /* ======= TOP THIN PROGRESS BAR ======= */
     .top-progress {
-      position: fixed;
-      top: 0; left: 0;
-      width: 100%; height: 3px;
+      position: fixed; top: 0; left: 0; width: 100%; height: 3px;
       background: linear-gradient(90deg, var(--brand), var(--accent), var(--dify));
-      background-size: 200% 100%;
-      animation: topbar 1.2s linear infinite;
-      opacity: 0; pointer-events: none;
-      transition: opacity .2s ease;
-      z-index: 10001;
+      background-size: 200% 100%; animation: topbar 1.2s linear infinite;
+      opacity: 0; pointer-events: none; transition: opacity .2s ease; z-index: 10001;
     }
     .top-progress[aria-hidden="false"] { opacity: 1; }
     @keyframes topbar { 0% {background-position:0% 0} 100% {background-position:200% 0} }
 
-    /* ======= PAGE LAYOUT ======= */
+    /* ======= LAYOUT ======= */
     .wrap{max-width:1280px;margin:28px auto;padding:0 18px}
-    .page-head{
-      display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:12px
-    }
-    h1{
-      font-size:1.35rem;letter-spacing:.2px;margin:0;
-      font-weight:700;color:var(--text-strong);
-      display:flex;align-items:center;gap:10px
-    }
-    h1 .glow-dot{
-      width:10px;height:10px;border-radius:50%;
-      background:linear-gradient(135deg,var(--accent),var(--brand));
-      box-shadow:0 0 16px var(--accent);
-      display:inline-block
-    }
+    .page-head{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:12px}
+    h1{font-size:1.35rem;letter-spacing:.2px;margin:0;font-weight:700;color:var(--text-strong);display:flex;align-items:center;gap:10px}
+    h1 .glow-dot{width:10px;height:10px;border-radius:50%;background:linear-gradient(135deg,var(--accent),var(--brand));box-shadow:0 0 16px var(--accent)}
     .subtitle{color:var(--text-dim);font-size:.95rem;margin:4px 0 18px}
 
-    /* Theme toggle */
     .theme-toggle{
-      display:inline-flex;align-items:center;gap:8px;
-      background:var(--glass);border:1px solid var(--border);border-radius:999px;
-      padding:8px 12px;cursor:pointer;color:var(--text);
+      display:inline-flex;align-items:center;gap:8px;background:var(--glass);border:1px solid var(--border);
+      border-radius:999px;padding:8px 12px;cursor:pointer;color:var(--text);
       backdrop-filter:blur(8px);box-shadow:var(--panel-shadow)
     }
-    .theme-toggle .chip{
-      display:inline-flex;align-items:center;gap:6px;
-      border-radius:999px;padding:6px 10px;font-size:.88rem;font-weight:700
-    }
+    .theme-toggle .chip{display:inline-flex;align-items:center;gap:6px;border-radius:999px;padding:6px 10px;font-size:.88rem;font-weight:700}
     .theme-toggle .chip--on{background:linear-gradient(135deg,var(--brand),var(--accent));color:#0b1020}
     .theme-toggle .chip--off{opacity:.8}
 
-    /* Two-column canvas: sidebar + main content */
     .layout{display:grid;gap:16px;grid-template-columns:1fr}
-    @media (min-width: 1024px){ .layout{ grid-template-columns:320px 1fr; } }
+    @media (min-width: 1024px){ .layout{ grid-template-columns:360px 1fr; align-items:start; } }
 
-    /* ======= CARDS / PANELS ======= */
     .panel{
-      background:var(--card);
-      border:1px solid var(--border);
-      border-radius:16px;
-      padding:16px 16px 14px;
-      backdrop-filter:blur(8px);
-      box-shadow:var(--panel-shadow), inset 0 1px 0 rgba(255,255,255,.04);
+      background:var(--card);border:1px solid var(--border);border-radius:16px;
+      padding:16px 16px 14px;backdrop-filter:blur(8px);
+      box-shadow:var(--panel-shadow), inset 0 1px 0 rgba(255,255,255,.04)
     }
-    .panel h2{
-      font-size:1rem;margin:0 0 12px;display:flex;align-items:center;gap:10px;
-      color:var(--text-strong);font-weight:700
-    }
-    .panel h2 .bar{
-      width:6px;height:18px;border-radius:4px;
-      background:linear-gradient(180deg,var(--brand),var(--accent));
-      box-shadow:0 0 10px var(--accent);
-    }
+    .panel h2{font-size:1rem;margin:0 0 12px;display:flex;align-items:center;gap:10px;color:var(--text-strong);font-weight:700}
+    .panel h2 .bar{width:6px;height:18px;border-radius:4px;background:linear-gradient(180deg,var(--brand),var(--accent));box-shadow:0 0 10px var(--accent)}
 
-    .panel--features{
-      border:1px solid rgba(34,211,238,.35);
-      background:linear-gradient(180deg, rgba(124,58,237,.12), rgba(34,211,238,.08));
-    }
-    [data-theme="light"] .panel--features{ background:#ffffff; }
-
-    /* ======= BADGES ======= */
-    .badge{
-      display:inline-flex;align-items:center;gap:6px;
-      font-size:.72rem;line-height:1;
-      padding:4px 8px;border-radius:999px;color:#fff;
-      background:var(--dify);
-      box-shadow:0 0 10px rgba(124,58,237,.45) inset, 0 0 10px rgba(124,58,237,.25);
-      letter-spacing:.2px
-    }
-    .badge-pa{
-      display:inline-flex;align-items:center;gap:6px;
-      font-size:.72rem;line-height:1;
-      padding:4px 8px;border-radius:999px;color:#fff;
-      background:var(--pa);
-      box-shadow:0 0 10px rgba(239,68,68,.45) inset, 0 0 10px rgba(239,68,68,.25)
-    }
+    .stack{display:flex;flex-direction:column;gap:16px}
 
     /* ======= FORMS ======= */
     .row-2col{display:grid;grid-template-columns:1fr 1fr;gap:12px}
@@ -177,43 +97,43 @@
     .form-grid{display:grid;gap:12px;grid-template-columns:1fr}
     @media (min-width:840px){.form-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
     @media (min-width:1200px){.form-grid{grid-template-columns:repeat(3,minmax(0,1fr))}}
+
     .field{display:flex;flex-direction:column;gap:8px}
-    .field label{color:var(--text);font-size:.86rem;opacity:.9}
+    .field label{color:var(--text);font-size:.86rem;opacity:.95;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+    .label-badges{display:inline-flex;gap:6px;align-items:center}
+    .badge-pa{display:inline-flex;align-items:center;gap:6px;font-size:.72rem;line-height:1;padding:4px 8px;border-radius:999px;color:#fff;background:var(--pa);box-shadow:0 0 10px rgba(239,68,68,.45) inset, 0 0 10px rgba(239,68,68,.25)}
+
     input[type="text"],input[type="email"],textarea{
-      width:100%;
-      padding:10px 12px;
-      border:1px solid var(--input-border);
-      border-radius:12px;
+      width:100%;padding:10px 12px;border:1px solid var(--input-border);border-radius:12px;
       font-size:.96rem;color:var(--text-strong);background:var(--input-bg);
-      outline:none;transition:border-color .2s, box-shadow .2s, background-color .2s;
-      box-shadow:0 0 0 2px transparent inset;
+      outline:none;transition:border-color .2s, box-shadow .2s, background-color .2s; box-shadow:0 0 0 2px transparent inset;
     }
     input::placeholder,textarea::placeholder{color:rgba(127,127,127,.55)}
-    input:focus,textarea:focus{
-      border-color:rgba(34,211,238,.55);
-      box-shadow:0 0 0 2px var(--input-focus-ring) inset, 0 0 12px rgba(34,211,238,.15);
-      background:rgba(255,255,255,.07);
-    }
+    input:focus,textarea:focus{border-color:rgba(34,211,238,.55);box-shadow:0 0 0 2px var(--input-focus-ring) inset, 0 0 12px rgba(34,211,238,.15);background:rgba(255,255,255,.07)}
     [data-theme="light"] input:focus,[data-theme="light"] textarea:focus{ background:#ffffff }
     textarea{min-height:86px;resize:vertical}
 
     .actions{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
     button{
-      background:linear-gradient(135deg,var(--brand),var(--accent));
-      color:#0b1020;border:0;border-radius:12px;
-      padding:10px 14px;font-size:.96rem;font-weight:700;
-      cursor:pointer;letter-spacing:.2px
+      background:linear-gradient(135deg,var(--brand),var(--accent));color:#0b1020;border:0;border-radius:12px;
+      padding:10px 14px;font-size:.96rem;font-weight:700;cursor:pointer;letter-spacing:.2px
     }
-    button:hover{filter:brightness(1.1)}
-    button:disabled{opacity:.55;cursor:not-allowed}
+    button:hover{filter:brightness(1.1)} button:disabled{opacity:.55;cursor:not-allowed}
+
+    .btn-ghost{
+      background:transparent;color:var(--text);border:1px solid var(--border);
+      border-radius:8px;padding:6px 10px;font-size:.86rem;cursor:pointer
+    }
+    .btn-ghost:hover{filter:brightness(1.2)}
+    .btn-danger{ background:linear-gradient(135deg, #ef44441a, #ef44440f); border:1px solid rgba(239,68,68,.45) }
+
     .status{font-size:.92rem}
     .ok{color:var(--ok)} .err{color:var(--err)}
     .hint{font-size:.9rem;color:var(--muted)}
 
     .preview{
       width:100%;max-width:340px;max-height:200px;border:1px dashed var(--border);
-      border-radius:12px;display:block;object-fit:contain;cursor:zoom-in;
-      background:rgba(255,255,255,.03)
+      border-radius:12px;display:block;object-fit:contain;cursor:zoom-in;background:rgba(255,255,255,.03)
     }
     [data-theme="light"] .preview{ background:#fff }
 
@@ -227,69 +147,59 @@
     .section-caption{grid-column:1 / -1;color:var(--text-dim);font-size:.92rem;margin-top:6px;opacity:.9}
     hr.hr{grid-column:1 / -1;border:none;border-top:1px solid var(--border);margin:6px 0}
 
-    /* ======= PROGRESS STEPPER ======= */
-    .stepper{
-      display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-top:10px
-    }
-    .step{
-      display:flex;align-items:center;gap:8px;
-      background:var(--glass);border:1px solid var(--border);
-      border-radius:999px;padding:6px 10px;font-size:.86rem; position:relative;
-    }
+    /* ======= STEPPER ======= */
+    .stepper{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-top:10px}
+    .step{display:flex;align-items:center;gap:8px;background:var(--glass);border:1px solid var(--border);border-radius:999px;padding:6px 10px;font-size:.86rem; position:relative}
     .step__icon{width:20px;height:20px;display:inline-grid;place-items:center;border-radius:6px;background:rgba(255,255,255,.08)}
     .step--active{box-shadow:0 0 0 2px var(--step-active) inset}
     .step--done{box-shadow:0 0 0 2px var(--step-done) inset; opacity:.9}
     .sep{opacity:.4}
-
-    /* In-chip spinner (non-blocking) */
-    .chip-spinner {
-      width:14px;height:14px;border-radius:50%;
-      border:2px solid rgba(255,255,255,.25);
-      border-top-color: var(--accent);
-      animation: spin .8s linear infinite;
-      display:none;
-    }
+    .chip-spinner { width:14px;height:14px;border-radius:50%;border:2px solid rgba(255,255,255,.25);border-top-color: var(--accent);animation: spin .8s linear infinite;display:none; }
     .step--active .chip-spinner { display:inline-block; }
     @keyframes spin{to{transform:rotate(360deg)}}
 
-    /* ======= TIMING BADGES/PANEL ======= */
+    /* ======= TIMINGS & INFO ======= */
     .timing-panel{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-top:10px}
-    .chip-time{
-      display:inline-flex;align-items:center;gap:8px;
-      padding:6px 10px;border-radius:999px;font-weight:700;font-size:.86rem;color:#0b1020
-    }
+    .chip-time{display:inline-flex;align-items:center;gap:8px;padding:6px 10px;border-radius:999px;font-weight:700;font-size:.86rem;color:#0b1020}
     .chip-time .dot{width:8px;height:8px;border-radius:50%}
-    .chip-pa{background:var(--pa-weak);outline:1px solid rgba(239,68,68,.35)}
-    .chip-pa .dot{background:var(--pa)}
-    .chip-dify{background:var(--dify-weak);outline:1px solid rgba(124,58,237,.35)}
-    .chip-dify .dot{background:var(--dify)}
-    .chip-total{background:var(--total-weak);outline:1px solid rgba(34,211,238,.35)}
-    .chip-total .dot{background:var(--total)}
-
-    /* ======= NON-BLOCKING INFO LINE ======= */
-    .inline-info {
-      display:flex;align-items:center;gap:10px;margin-top:6px;color:var(--muted);font-size:.9rem;
-    }
-    .inline-dot {
-      width:8px;height:8px;border-radius:50%;
-      background: var(--accent); box-shadow: 0 0 10px var(--accent);
-      animation: pulse 1.4s ease-in-out infinite;
-      display:none;
-    }
+    .chip-pa{background:var(--pa-weak);outline:1px solid rgba(239,68,68,.35)} .chip-pa .dot{background:var(--pa)}
+    .chip-dify{background:var(--dify-weak);outline:1px solid rgba(124,58,237,.35)} .chip-dify .dot{background:var(--dify)}
+    .chip-total{background:var(--total-weak);outline:1px solid rgba(34,211,238,.35)} .chip-total .dot{background:var(--total)}
+    .inline-info{display:flex;align-items:center;gap:10px;margin-top:6px;color:var(--muted);font-size:.9rem}
+    .inline-dot{width:8px;height:8px;border-radius:50%;background: var(--accent); box-shadow: 0 0 10px var(--accent); animation: pulse 1.4s ease-in-out infinite; display:none}
     @keyframes pulse { 0%,100%{transform:scale(1)} 50%{transform:scale(1.2)} }
 
     /* ======= PA PREVIEW LIST ======= */
     .preview-panel { border:1px solid var(--border); border-radius:12px; padding:12px; background:var(--glass) }
     .preview-toolbar { display:flex; gap:8px; align-items:center; flex-wrap:wrap; margin:8px 0 12px }
-    .preview-list { display:grid; grid-template-columns: 24px 180px 1fr; gap:10px; align-items:center }
-    .preview-list .key { color:var(--text-dim); font-size:.9rem }
-    .preview-list .val { background:rgba(255,255,255,.04); border:1px solid var(--border); border-radius:8px; padding:8px 10px; font-size:.92rem; color:var(--text-strong); overflow:auto; max-height:68px }
-    [data-theme="light"] .preview-list .val { background:#fff }
+    .preview-list { display:flex; flex-direction:column; gap:10px }
+    .preview-row {
+      display:grid; grid-template-columns: 24px 160px 1fr auto; gap:10px; align-items:start;
+      border:1px solid var(--border); border-radius:10px; padding:8px; background:rgba(255,255,255,.03)
+    }
+    [data-theme="light"] .preview-row { background:#fff }
+    .preview-row .key { color:var(--text-dim); font-size:.9rem; padding-top:4px }
+    .preview-row .val input, .preview-row .val textarea {
+      width:100%; padding:8px 10px; border:1px solid var(--input-border); border-radius:8px; background:var(--input-bg);
+      color:var(--text-strong); font-size:.92rem;
+    }
+    .row-actions{ display:flex; gap:6px; align-items:center; flex-wrap:wrap }
     .small { font-size:.86rem; color:var(--muted) }
+
+    /* ======= DERIVED BOX ======= */
+    .box-derived{
+      grid-column:1 / -1;border:1px solid rgba(239,68,68,.45);
+      border-radius:14px;background:linear-gradient(180deg, rgba(239,68,68,.10), rgba(239,68,68,.05));
+      padding:14px;box-shadow:0 0 0 1px rgba(239,68,68,.12) inset, 0 8px 24px rgba(239,68,68,.12)
+    }
+    [data-theme="light"] .box-derived{ background:#fff3f3 }
+    .box-derived__title{display:flex;align-items:center;gap:8px;font-size:.95rem;font-weight:700;color:var(--text-strong);margin:0 0 10px}
+    .box-derived__grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+    @media (max-width:819px){.box-derived__grid{grid-template-columns:1fr}}
   </style>
 </head>
 <body>
-  <!-- Thin top progress bar: toggled on during any API work -->
+  <!-- Thin top progress bar -->
   <div id="topProgress" class="top-progress" aria-hidden="true"></div>
 
   <!-- Lightbox -->
@@ -300,173 +210,147 @@
 
   <div class="wrap">
     <div class="page-head">
-      <h1><span class="glow-dot"></span> AI Business Card Application Form Filling (v1.0)</h1>
+      <h1><span class="glow-dot"></span> AI Business Card Application Form Filling (v1.1)</h1>
       <button id="themeToggle" class="theme-toggle" aria-label="Toggle theme">
         <span class="chip chip--on" id="themeOn">🌙 Dark</span>
         <span class="chip chip--off" id="themeOff">☀️ Light</span>
       </button>
     </div>
-    <div class="subtitle">OCR ➜ Preview from PA ➜ Apply Selected ➜ Dify Auto (address) ➜ Done</div>
+    <div class="subtitle">OCR ➜ Preview from PA (edit, select, apply) ➜ Dify auto‑fills address ➜ Done</div>
 
-    <!-- Two-column layout -->
+    <!-- Layout -->
     <div class="layout">
-      <!-- LEFT: Features -->
-      <aside class="panel panel--features" aria-labelledby="featuresTitle">
-        <h2 id="featuresTitle"><span class="bar"></span>Features</h2>
-        <div class="features">
-          <div class="feature-item">
-            <div class="feature-icon">🔎</div>
-            <div class="feature-text">Preview OCR results from Power Automate and selectively apply to the form.</div>
+      <!-- Upload panel spans both columns -->
+      <section class="panel" style="grid-column:1 / -1">
+        <h2><span class="bar"></span>1) Upload Business Card</h2>
+        <div class="row-2col">
+          <div>
+            <input id="fileInput" type="file" accept="image/*,.pdf" />
+            <div class="hint">Supported: JPG/JPEG, PNG, BMP, PDF.</div>
+            <div class="actions" style="margin-top:10px">
+              <button id="analyzeBtn" disabled>Upload</button>
+              <span id="busy" class="status"></span>
+            </div>
+
+            <!-- Progress Stepper -->
+            <div id="stepper" class="stepper" aria-label="Progress">
+              <div class="step step--active" data-step="ocr">
+                <span class="step__icon">🧾</span><span>OCR</span><span class="chip-spinner" aria-hidden="true"></span>
+              </div>
+              <span class="sep">→</span>
+              <div class="step" data-step="pa">
+                <span class="step__icon">🛠️</span><span>PA</span><span class="chip-spinner" aria-hidden="true"></span>
+              </div>
+              <span class="sep">→</span>
+              <div class="step" data-step="dify">
+                <span class="step__icon">🤖</span><span>Dify</span><span class="chip-spinner" aria-hidden="true"></span>
+              </div>
+              <span class="sep">→</span>
+              <div class="step" data-step="done">
+                <span class="step__icon">✅</span><span>Done</span>
+              </div>
+            </div>
+
+            <!-- Non-blocking info line -->
+            <div id="inlineInfo" class="inline-info" aria-live="polite">
+              <span class="inline-dot" aria-hidden="true"></span>
+              <span id="inlineText"></span>
+            </div>
+
+            <!-- Timing chips -->
+            <div id="timingPanel" class="timing-panel" aria-label="Timings">
+              <span class="chip-time chip-pa" title="Power Automate time">
+                <span class="dot"></span> PA: <span id="timPa">0.00</span>s
+              </span>
+              <span class="chip-time chip-dify" title="Dify time">
+                <span class="dot"></span> Dify: <span id="timDify">0.00</span>s
+              </span>
+              <span class="chip-time chip-total" title="Total time">
+                <span class="dot"></span> Total: <span id="timTotal">0.00</span>s
+              </span>
+            </div>
           </div>
-          <div class="feature-item">
-            <div class="feature-icon">🤖</div>
-            <div class="feature-text">Dify auto‑parses structured address and fills the Dify panel automatically.</div>
+
+          <div>
+            <img id="preview" class="preview" alt="Preview" role="button" tabindex="0" aria-label="Open enlarged preview" />
+            <div class="subtle" style="margin-top:6px">Click to enlarge (images only)</div>
           </div>
-          <div class="feature-item">
-            <div class="feature-icon">🧩</div>
-            <div class="feature-text">Final form remains fully editable at all times.</div>
+        </div>
+      </section>
+
+      <!-- LEFT COLUMN: PA Preview -->
+      <aside class="panel">
+        <h2><span class="bar"></span>2) Preview from Power Automate <span class="small">(editable)</span></h2>
+        <div id="paPreviewContainer" class="preview-panel" aria-live="polite">
+          <div class="small">Edit values, tick to select, click <b>Apply selected</b> or use <b>Apply</b> per row. Applied rows disappear.</div>
+
+          <div class="preview-toolbar">
+            <button id="btnSelectAll" type="button" class="btn-ghost">Select all</button>
+            <button id="btnClearAll" type="button" class="btn-ghost">Clear all</button>
+            <button id="btnApplySelected" type="button" class="btn-ghost">Apply selected to form</button>
+            <span id="previewCount" class="small"></span>
+          </div>
+
+          <div id="paPreviewList" class="preview-list" role="group" aria-label="PA Proposed Fields">
+            <!-- Rows injected dynamically -->
           </div>
         </div>
       </aside>
 
-      <!-- RIGHT: Application -->
-      <main>
-        <!-- 1) Upload -->
-        <div class="panel">
-          <h2><span class="bar"></span>1) Upload Business Card</h2>
-          <div class="row-2col">
-            <div>
-              <input id="fileInput" type="file" accept="image/*,.pdf" />
-              <div class="hint">Supported: JPG/JPEG, PNG, BMP, PDF. (Max size depends on your flow limits.)</div>
-              <div class="actions" style="margin-top:10px">
-                <button id="analyzeBtn" disabled>Upload</button>
-                <span id="busy" class="status"></span>
-              </div>
-
-              <!-- Progress Stepper -->
-              <div id="stepper" class="stepper" aria-label="Progress">
-                <div class="step step--active" data-step="ocr">
-                  <span class="step__icon">🧾</span><span>OCR</span>
-                  <span class="chip-spinner" aria-hidden="true"></span>
-                </div>
-                <span class="sep">→</span>
-                <div class="step" data-step="pa">
-                  <span class="step__icon">🛠️</span><span>PA</span>
-                  <span class="chip-spinner" aria-hidden="true"></span>
-                </div>
-                <span class="sep">→</span>
-                <div class="step" data-step="dify">
-                  <span class="step__icon">🤖</span><span>Dify</span>
-                  <span class="chip-spinner" aria-hidden="true"></span>
-                </div>
-                <span class="sep">→</span>
-                <div class="step" data-step="done">
-                  <span class="step__icon">✅</span><span>Done</span>
-                </div>
-              </div>
-
-              <!-- Non-blocking info line -->
-              <div id="inlineInfo" class="inline-info" aria-live="polite">
-                <span class="inline-dot" aria-hidden="true" style="display:none"></span>
-                <span id="inlineText"></span>
-              </div>
-
-              <!-- Message -->
-              <div id="msg" class="status" aria-live="polite" style="margin-top:6px"></div>
-
-              <!-- Mini timing panel -->
-              <div id="timingPanel" class="timing-panel" aria-label="Timings">
-                <span class="chip-time chip-pa" title="Power Automate time">
-                  <span class="dot"></span> PA: <span id="timPa">0.00</span>s
-                </span>
-                <span class="chip-time chip-dify" title="Dify time">
-                  <span class="dot"></span> Dify: <span id="timDify">0.00</span>s
-                </span>
-                <span class="chip-time chip-total" title="Total time">
-                  <span class="dot"></span> Total: <span id="timTotal">0.00</span>s
-                </span>
-              </div>
-            </div>
-
-            <div>
-              <img id="preview" class="preview" alt="Preview" role="button" tabindex="0" aria-label="Open enlarged preview" />
-              <div class="subtle" style="margin-top:6px">Click to enlarge (images only)</div>
-            </div>
-          </div>
-        </div>
-
-        <!-- 2) Preview from Power Automate (PA) -->
-        <div class="panel">
-          <h2><span class="bar"></span>2) Preview from Power Automate (OCR) <span class="badge-pa">PA</span></h2>
-
-          <div id="paPreviewContainer" class="preview-panel" aria-live="polite">
-            <div class="small">After upload, OCR results from PA appear here. Tick fields you want to apply, then click <b>Apply selected to form</b>.</div>
-
-            <div class="preview-toolbar">
-              <button id="btnSelectAll" type="button">Select all</button>
-              <button id="btnClearAll" type="button">Clear all</button>
-              <button id="btnApplySelected" type="button" disabled>Apply selected to form</button>
-              <span id="previewCount" class="small"></span>
-            </div>
-
-            <div id="paPreviewList" class="preview-list" role="group" aria-label="PA Proposed Fields">
-              <!-- Rows injected dynamically -->
-            </div>
-          </div>
-        </div>
-
+      <!-- RIGHT COLUMN: Main form + Dify -->
+      <section class="stack">
         <!-- 3) Extracted Fields (final, editable) -->
         <div class="panel">
+          <div class="actions" style="justify-content:flex-end;margin-bottom:6px">
+            <button id="btnResetBadges" type="button" class="btn-ghost btn-danger">Reset PA badges</button>
+          </div>
           <h2><span class="bar"></span>3) Extracted Fields (Editable)</h2>
-
           <div class="form-grid">
             <!-- English set -->
-            <div class="field"><label for="fullName">Full name</label><input id="fullName" type="text" /></div>
-            <div class="field"><label for="firstName">First name</label><input id="firstName" type="text" /></div>
-            <div class="field"><label for="lastName">Last name</label><input id="lastName" type="text" /></div>
-            <div class="field"><label for="title">Title</label><input id="title" type="text" /></div>
-            <div class="field"><label for="company">Company</label><input id="company" type="text" /></div>
-            <div class="field"><label for="department">Department</label><input id="department" type="text" /></div>
+            <div class="field"><label for="fullName">Full name <span class="label-badges" data-badges-for="fullName"></span></label><input id="fullName" type="text" /></div>
+            <div class="field"><label for="firstName">First name <span class="label-badges" data-badges-for="firstName"></span></label><input id="firstName" type="text" /></div>
+            <div class="field"><label for="lastName">Last name <span class="label-badges" data-badges-for="lastName"></span></label><input id="lastName" type="text" /></div>
+            <div class="field"><label for="title">Title <span class="label-badges" data-badges-for="title"></span></label><input id="title" type="text" /></div>
+            <div class="field"><label for="company">Company <span class="label-badges" data-badges-for="company"></span></label><input id="company" type="text" /></div>
+            <div class="field"><label for="department">Department <span class="label-badges" data-badges-for="department"></span></label><input id="department" type="text" /></div>
 
-            <!-- Derived fields (boxed) - still editable if you want -->
+            <!-- Derived fields in rectangle box -->
             <div class="box-derived">
-              <div class="box-derived__title">
-                <span class="badge-pa">PA</span> Derived (from PA): Industry / Occupation / Position
-              </div>
+              <div class="box-derived__title">Derived from PA: Industry / Occupation / Position</div>
               <div class="box-derived__grid">
                 <div class="field">
-                  <label for="industry">Industry (derived)</label>
+                  <label for="industry">Industry <span class="label-badges" data-badges-for="industry"></span></label>
                   <input id="industry" type="text" />
                 </div>
                 <div class="field">
-                  <label for="occupation">Occupation (derived)</label>
+                  <label for="occupation">Occupation <span class="label-badges" data-badges-for="occupation"></span></label>
                   <input id="occupation" type="text" />
                 </div>
                 <div class="field">
-                  <label for="position">Position (derived)</label>
+                  <label for="position">Position <span class="label-badges" data-badges-for="position"></span></label>
                   <input id="position" type="text" />
                 </div>
               </div>
             </div>
 
-            <div class="field"><label for="workPhone">Work phone</label><input id="workPhone" type="text" /></div>
-            <div class="field"><label for="email">Email</label><input id="email" type="email" /></div>
-            <div class="field"><label for="website">Website</label><input id="website" type="text" /></div>
-            <div class="field" style="grid-column:1 / -1"><label for="fullAddress">Full address</label><textarea id="fullAddress"></textarea></div>
+            <div class="field"><label for="workPhone">Work phone <span class="label-badges" data-badges-for="workPhone"></span></label><input id="workPhone" type="text" /></div>
+            <div class="field"><label for="email">Email <span class="label-badges" data-badges-for="email"></span></label><input id="email" type="email" /></div>
+            <div class="field"><label for="website">Website <span class="label-badges" data-badges-for="website"></span></label><input id="website" type="text" /></div>
+            <div class="field" style="grid-column:1 / -1"><label for="fullAddress">Full address <span class="label-badges" data-badges-for="fullAddress"></span></label><textarea id="fullAddress"></textarea></div>
 
             <div style="display:none;">
-              <div class="field"><label for="addressStreet">Street</label><input id="addressStreet" type="text" /></div>
-              <div class="field"><label for="country">Country</label><input id="country" type="text" /></div>
+              <div class="field"><label for="addressStreet">Street <span class="label-badges" data-badges-for="addressStreet"></span></label><input id="addressStreet" type="text" /></div>
+              <div class="field"><label for="country">Country <span class="label-badges" data-badges-for="country"></span></label><input id="country" type="text" /></div>
             </div>
 
             <hr class="hr">
             <div class="section-caption">Chinese fields (中文)</div>
-            <div class="field"><label for="fullName_chi">Full name (Chinese)</label><input id="fullName_chi" type="text" /></div>
-            <div class="field"><label for="firstName_chi">First name (Chinese)</label><input id="firstName_chi" type="text" /></div>
-            <div class="field"><label for="lastName_chi">Last name (Chinese)</label><input id="lastName_chi" type="text" /></div>
-            <div class="field"><label for="title_chi">Title (Chinese)</label><input id="title_chi" type="text" /></div>
-            <div class="field"><label for="company_chi">Company (Chinese)</label><input id="company_chi" type="text" /></div>
-            <div class="field"><label for="department_chi">Department (Chinese)</label><input id="department_chi" type="text" /></div>
+            <div class="field"><label for="fullName_chi">Full name (中文) <span class="label-badges" data-badges-for="fullName_chi"></span></label><input id="fullName_chi" type="text" /></div>
+            <div class="field"><label for="firstName_chi">First name (中文) <span class="label-badges" data-badges-for="firstName_chi"></span></label><input id="firstName_chi" type="text" /></div>
+            <div class="field"><label for="lastName_chi">Last name (中文) <span class="label-badges" data-badges-for="lastName_chi"></span></label><input id="lastName_chi" type="text" /></div>
+            <div class="field"><label for="title_chi">Title (中文) <span class="label-badges" data-badges-for="title_chi"></span></label><input id="title_chi" type="text" /></div>
+            <div class="field"><label for="company_chi">Company (中文) <span class="label-badges" data-badges-for="company_chi"></span></label><input id="company_chi" type="text" /></div>
+            <div class="field"><label for="department_chi">Department (中文) <span class="label-badges" data-badges-for="department_chi"></span></label><input id="department_chi" type="text" /></div>
           </div>
         </div>
 
@@ -484,7 +368,7 @@
             <div class="field"><label for="difyCountry">Country <span class="badge">Dify</span></label><input id="difyCountry" type="text" /></div>
           </div>
         </div>
-      </main>
+      </section>
     </div>
   </div>
 
@@ -516,7 +400,6 @@
     const fileInput=document.getElementById('fileInput');
     const analyzeBtn=document.getElementById('analyzeBtn');
     const preview=document.getElementById('preview');
-    const busy=document.getElementById('busy');
     const msg=document.getElementById('msg');
 
     const imgLightbox=document.getElementById('imgLightbox');
@@ -566,33 +449,27 @@
 
     /* ========= HELPERS ========= */
     function fileToBase64(file){ return new Promise((resolve,reject)=>{ const r=new FileReader(); r.readAsDataURL(file); r.onload=()=>resolve(r.result); r.onerror=reject; }); }
-    function setField(id,val){ if(val==null) return; fields[id].value=String(val); }
-    function clearFields(){ Object.values(fields).forEach(el=> el.value=''); }
-    function setDifyField(key,val){ if(!(key in difyFields) || val==null) return; difyFields[key].value=String(val); }
-    function clearDifyFields(){ Object.values(difyFields).forEach(el=> el.value=''); }
     function escapeHtml(s){ return String(s).replace(/[&<>"'`]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;','`':'&#96;'}[c])); }
     function toSec(ms){ return (ms/1000).toFixed(2); }
+    function showTopProgress(on){ topProgress.setAttribute('aria-hidden', on ? 'false':'true'); }
+    function showInlineInfo(on, text){ inlineDot.style.display = on ? 'inline-block' : 'none'; inlineText.textContent = on ? (text||'Processing…') : ''; }
 
-    /* ========= UI UPDATERS ========= */
     const timPaEl=document.getElementById('timPa');
     const timDifyEl=document.getElementById('timDify');
     const timTotalEl=document.getElementById('timTotal');
-
     function updateTimes(pa, dify, total){
-      if(typeof pa==='number') timPaEl.textContent = pa.toFixed(2);
-      if(typeof dify==='number') timDifyEl.textContent = dify.toFixed(2);
-      if(typeof total==='number') timTotalEl.textContent = total.toFixed(2);
+      if(typeof pa==='number') timPaEl.textContent = Number(pa).toFixed(2);
+      if(typeof dify==='number') timDifyEl.textContent = Number(dify).toFixed(2);
+      if(typeof total==='number') timTotalEl.textContent = Number(total).toFixed(2);
     }
 
     function setStepState(step, state){
-      // state: 'active' | 'done' | 'idle'
       const el = document.querySelector(`.step[data-step="${step}"]`);
       if(!el) return;
       el.classList.remove('step--active','step--done');
       if(state==='active') el.classList.add('step--active');
       if(state==='done') el.classList.add('step--done');
     }
-
     function resetStepper(){
       setStepState('ocr','active');
       setStepState('pa','idle');
@@ -600,13 +477,30 @@
       setStepState('done','idle');
     }
 
-    function showTopProgress(on){
-      topProgress.setAttribute('aria-hidden', on ? 'false':'true');
+    /* ========= PROCESSING GUARD ========= */
+    function setProcessing(on, text){
+      analyzeBtn.disabled = !!on; // Disable upload while processing
+      showTopProgress(!!on);
+      showInlineInfo(!!on, text || (on ? 'Processing…' : ''));
     }
-    function showInlineInfo(on, text){
-      if(on){ inlineDot.style.display='inline-block'; inlineText.textContent = text || 'Processing…'; }
-      else { inlineDot.style.display='none'; inlineText.textContent=''; }
+
+    /* ========= BADGES (PA applied) ========= */
+    function addPABadge(fieldId){
+      const slot = document.querySelector(`.label-badges[data-badges-for="${fieldId}"]`);
+      if(!slot) return;
+      if(slot.querySelector('.badge-pa')) return;
+      const b = document.createElement('span');
+      b.className = 'badge-pa';
+      b.textContent = 'PA';
+      slot.appendChild(b);
     }
+    function clearAllBadges(){
+      document.querySelectorAll('.label-badges').forEach(slot => slot.innerHTML = '');
+    }
+    document.getElementById('btnResetBadges').addEventListener('click', ()=>{
+      clearAllBadges();
+      msg.innerHTML = `<span class="ok">PA badges reset.</span>`;
+    });
 
     /* ========= PA PREVIEW ========= */
     const paPreviewList = document.getElementById('paPreviewList');
@@ -624,13 +518,18 @@
       fullName_chi:'Full name (中文)', firstName_chi:'First name (中文)', lastName_chi:'Last name (中文)',
       title_chi:'Title (中文)', company_chi:'Company (中文)', department_chi:'Department (中文)'
     };
-
+    const TEXTAREA_KEYS = new Set(['fullAddress']);
     let paProposed = {};
 
     function clearPaPreview(){
       paPreviewList.innerHTML = '';
       btnApplySelected.disabled = true;
       previewCount.textContent = '';
+    }
+    function updatePreviewCount(){
+      const n = paPreviewList.querySelectorAll('.preview-row').length;
+      previewCount.textContent = n ? `${n} pending field${n>1?'s':''}` : 'All applied';
+      btnApplySelected.disabled = n === 0 || paPreviewList.querySelectorAll('.preview-row input[type="checkbox"]:checked').length === 0;
     }
 
     function renderPaPreview(data){
@@ -642,12 +541,20 @@
         .filter(x => x.val !== undefined && x.val !== null && String(x.val).trim() !== '');
 
       if(entries.length === 0){
-        paPreviewList.innerHTML = `<div class="small" style="grid-column:1 / -1">No fields returned by Power Automate.</div>`;
+        const empty = document.createElement('div');
+        empty.className = 'small';
+        empty.textContent = 'No fields returned by Power Automate.';
+        paPreviewList.appendChild(empty);
+        updatePreviewCount();
         return;
       }
 
       const frag = document.createDocumentFragment();
       entries.forEach(({key,label,val}) => {
+        const row = document.createElement('div');
+        row.className = 'preview-row';
+        row.dataset.key = key;
+
         const ck = document.createElement('input');
         ck.type = 'checkbox'; ck.id = `pa_ck_${key}`; ck.dataset.key = key; ck.ariaLabel = `Apply ${label}`;
         ck.addEventListener('change', onAnyPreviewCheckChanged);
@@ -655,45 +562,86 @@
         const lbl = document.createElement('label');
         lbl.className = 'key'; lbl.htmlFor = ck.id; lbl.textContent = label;
 
-        const vv = document.createElement('div');
-        vv.className = 'val'; vv.textContent = String(val);
+        const valWrap = document.createElement('div');
+        valWrap.className = 'val';
+        let inputEl;
+        if(TEXTAREA_KEYS.has(key)){
+          inputEl = document.createElement('textarea');
+          inputEl.className = 'preview-input';
+          inputEl.value = String(val);
+        }else{
+          inputEl = document.createElement('input');
+          inputEl.type = 'text'; inputEl.className = 'preview-input'; inputEl.value = String(val);
+        }
+        valWrap.appendChild(inputEl);
 
-        frag.appendChild(ck);
-        frag.appendChild(lbl);
-        frag.appendChild(vv);
+        const act = document.createElement('div');
+        act.className = 'row-actions';
+        const applyBtn = document.createElement('button');
+        applyBtn.type = 'button';
+        applyBtn.className = 'btn-ghost';
+        applyBtn.textContent = 'Apply';
+        applyBtn.addEventListener('click', () => applySingleRow(row));
+
+        act.appendChild(applyBtn);
+
+        row.appendChild(ck);
+        row.appendChild(lbl);
+        row.appendChild(valWrap);
+        row.appendChild(act);
+        frag.appendChild(row);
       });
       paPreviewList.appendChild(frag);
 
-      previewCount.textContent = `${entries.length} proposed field${entries.length>1?'s':''}`;
-      btnApplySelected.disabled = true;
+      updatePreviewCount();
     }
 
     function onAnyPreviewCheckChanged(){
-      const anyChecked = paPreviewList.querySelectorAll('input[type="checkbox"]:checked').length > 0;
+      const anyChecked = paPreviewList.querySelectorAll('.preview-row input[type="checkbox"]:checked').length > 0;
       btnApplySelected.disabled = !anyChecked;
     }
 
+    function applySingleRow(row){
+      const key = row.dataset.key;
+      if(!key || !(key in fields)) return;
+      const inputEl = row.querySelector('.preview-input');
+      const value = inputEl ? inputEl.value : '';
+      fields[key].value = value;     // apply edited value
+      addPABadge(key);               // mark with PA badge
+      row.remove();                  // remove from preview
+      updatePreviewCount();
+      msg.innerHTML = `<span class="ok">Applied ${LABELS[key] || key} from PA preview.</span>`;
+    }
+
     btnSelectAll.addEventListener('click', ()=>{
-      paPreviewList.querySelectorAll('input[type="checkbox"]').forEach(ch => ch.checked = true);
+      paPreviewList.querySelectorAll('.preview-row input[type="checkbox"]').forEach(ch => ch.checked = true);
       onAnyPreviewCheckChanged();
     });
     btnClearAll.addEventListener('click', ()=>{
-      paPreviewList.querySelectorAll('input[type="checkbox"]').forEach(ch => ch.checked = false);
+      paPreviewList.querySelectorAll('.preview-row input[type="checkbox"]').forEach(ch => ch.checked = false);
       onAnyPreviewCheckChanged();
     });
 
     btnApplySelected.addEventListener('click', ()=>{
-      const checks = [...paPreviewList.querySelectorAll('input[type="checkbox"]:checked')];
+      const checks = [...paPreviewList.querySelectorAll('.preview-row input[type="checkbox"]:checked')];
       if(checks.length === 0) return;
       let applied = 0;
-      checks.forEach(ch => {
-        const key = ch.dataset.key;
-        if(key in fields){
-          fields[key].value = String(paProposed[key] ?? '');
-          applied++;
-        }
+      checks.forEach(ck => {
+        const row = ck.closest('.preview-row'); if(!row) return;
+        const key = row.dataset.key;
+        if(!(key in fields)) return;
+        const inputEl = row.querySelector('.preview-input');
+        const value = inputEl ? inputEl.value : '';
+        fields[key].value = value;
+        addPABadge(key);
+        row.remove();
+        applied++;
       });
-      msg.innerHTML = `<span class="ok">Applied ${applied} field${applied>1?'s':''} from PA preview.</span>`;
+      updatePreviewCount();
+      onAnyPreviewCheckChanged();
+      if(applied > 0){
+        msg.innerHTML = `<span class="ok">Applied ${applied} field${applied>1?'s':''} from PA preview.</span>`;
+      }
     });
 
     /* ========= DIFY PARSE HELPERS ========= */
@@ -809,23 +757,25 @@
       const parsed = parseDifyTextToJson(raw?.data?.outputs?.text);
 
       const tEnd = performance.now();
-      return { raw, parsed, elapsedSec: Number(((tEnd - tStart) / 1000).toFixed(2)) };
+      return { parsed, elapsedSec: Number(((tEnd - tStart) / 1000).toFixed(2)) };
     }
 
     /* ========= File change reset ========= */
     fileInput.addEventListener('change',()=>{
       analyzeBtn.disabled=!fileInput.files||fileInput.files.length===0;
 
-      // Invalidate runs & cancel in-flight requests
       newRequestToken();
       try{ paController?.abort(); }catch(_){}
       try{ difyController?.abort(); }catch(_){}
       paController = null; difyController = null;
 
       msg.textContent='';
-      clearFields(); clearDifyFields(); clearPaPreview();
+      Object.values(fields).forEach(el => el.value = '');
+      Object.values(difyFields).forEach(el => el.value = '');
+      clearPaPreview();
+      clearAllBadges();
       updateTimes(0,0,0); resetStepper();
-      showTopProgress(false); showInlineInfo(false,'');
+      setProcessing(false, '');
       const f=fileInput.files && fileInput.files[0];
       if(!f){ preview.src=''; return; }
       if(f.type.startsWith('image/')){
@@ -833,10 +783,13 @@
       }else{ preview.src=''; }
     });
 
-    /* ========= Main handler (async, non-blocking) ========= */
+    /* ========= Main handler ========= */
     analyzeBtn.addEventListener('click', async ()=>{
       msg.textContent='';
-      clearFields(); clearDifyFields(); clearPaPreview();
+      Object.values(fields).forEach(el => el.value = '');
+      Object.values(difyFields).forEach(el => el.value = '');
+      clearPaPreview();
+      clearAllBadges();
       updateTimes(0,0,0); resetStepper();
 
       const file=fileInput.files && fileInput.files[0];
@@ -845,7 +798,6 @@
         return;
       }
 
-      // New run context
       const token = newRequestToken();
       try{ paController?.abort(); }catch(_){}
       try{ difyController?.abort(); }catch(_){}
@@ -857,15 +809,16 @@
       let paSec = 0, difySec = 0;
 
       try{
+        setProcessing(true, 'Preparing file…');
+
         // 0) Base64 conversion
-        showTopProgress(true); showInlineInfo(true,'Preparing file…');
         setStepState('ocr','active');
         const base64 = await fileToBase64(file);
         if (isStale(token)) return;
         const pureBase64=(base64.includes(','))? base64.split(',')[1] : base64;
         setStepState('ocr','done');
 
-        // 1) Power Automate — get OCR and show PREVIEW (no auto-fill)
+        // 1) Power Automate — preview only
         setStepState('pa','active');
         showInlineInfo(true,'Extracting fields via Power Automate…');
         tPAStart = performance.now();
@@ -874,11 +827,11 @@
         if (isStale(token)) return;
 
         paSec = paElapsed;
-        renderPaPreview(data);             // <-- Preview only
+        renderPaPreview(data);
         updateTimes(paSec, undefined, Number(toSec(performance.now()-tAllStart)));
         setStepState('pa','done');
 
-        // 2) Dify (auto-apply to Dify fields if PA produced address)
+        // 2) Dify (auto-fill)
         const address = chooseFullAddressForDify(data);
         if(!address){
           setStepState('dify','done');
@@ -886,8 +839,6 @@
           const tAllEnd = performance.now();
           updateTimes(paSec, 0, Number(toSec(tAllEnd - tAllStart)));
           msg.innerHTML = `<span class="ok">OCR preview is ready (PA only). No address found for Dify.</span>`;
-          showInlineInfo(false);
-          showTopProgress(false);
           return;
         }
 
@@ -900,17 +851,16 @@
         if (isStale(token)) return;
 
         difySec = dElapsed;
-        if(parsed){ 
-          // Auto-fill Dify structured fields
-          setDifyField('flat',parsed.flat);
-          setDifyField('floor',parsed.floor);
-          setDifyField('block',parsed.block);
-          setDifyField('streetNumber',parsed.streetNumber);
-          setDifyField('streetName',parsed.streetName);
-          setDifyField('buildingName',parsed.buildingName);
-          setDifyField('district',parsed.district);
-          setDifyField('country',parsed.country);
-        } else {
+        if(parsed){
+          difyFields.flat.value = parsed.flat ?? '';
+          difyFields.floor.value = parsed.floor ?? '';
+          difyFields.block.value = parsed.block ?? '';
+          difyFields.streetNumber.value = parsed.streetNumber ?? '';
+          difyFields.streetName.value = parsed.streetName ?? '';
+          difyFields.buildingName.value = parsed.buildingName ?? '';
+          difyFields.district.value = parsed.district ?? '';
+          difyFields.country.value = parsed.country ?? '';
+        }else{
           msg.innerHTML = `<span class="ok">OCR preview is ready.</span> <span class="err">Dify returned no parsable JSON.</span>`;
         }
 
@@ -921,8 +871,6 @@
         if(!msg.textContent){
           msg.innerHTML = `<span class="ok">OCR preview is ready. Dify structured address has been auto-filled.</span>`;
         }
-        showInlineInfo(false);
-        showTopProgress(false);
 
       }catch(e){
         const tAllEnd = performance.now();
@@ -931,13 +879,12 @@
         const difyMeasured = (typeof tDifyStart==='number' && typeof tDifyEnd==='number') ? Number(toSec(tDifyEnd - tDifyStart)) : difySec;
         updateTimes(paMeasured || 0, difyMeasured || 0, totalSec);
 
-        if (e?.name === 'AbortError') {
-          showInlineInfo(false); showTopProgress(false);
-          return;
+        if (e?.name !== 'AbortError') {
+          console.error(e);
+          msg.innerHTML=`<span class="err">Error: ${escapeHtml(e.message)}</span>`;
         }
-        console.error(e);
-        msg.innerHTML=`<span class="err">Error: ${escapeHtml(e.message)}</span>`;
-        showInlineInfo(false); showTopProgress(false);
+      } finally {
+        if(!isStale(token)) setProcessing(false, '');
       }
     });
 
