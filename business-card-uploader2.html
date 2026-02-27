@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="utf-8" />
-  <title>AI Business Card Application Form Filling (v1.3.4)</title>
+  <title>AI Business Card Application Form Filling (v1.3.5)</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <style>
     /* ================= THEME: DEFAULT (DARK) ================= */
@@ -197,57 +197,36 @@
     }
     [data-theme="light"] .preview-row { background:#fff }
     .preview-row .key { color:var(--text-dim); font-size:.9rem; padding-top:4px }
-    .preview-row .val input, .preview-row .val textarea {
-      width:100%; padding:8px 10px; border:1px solid var(--input-border); border-radius:8px; background:var(--input-bg);
-      color:var(--text-strong); font-size:.92rem;
+
+    /* ======= DISPLAY-ONLY VALUE CELL ======= */
+    .preview-row .val { 
+      opacity: 1 !important;
+    }
+    .preview-text {
+      display:block;
+      padding:8px 12px !important;
+      border:1px dashed var(--border) !important;
+      border-radius:8px;
+      color: var(--text-strong) !important;
+      background-color: rgba(255,255,255,.03) !important;
+      min-height: 38px !important;
+      line-height: 1.4 !important;
+      white-space: pre-wrap;
+      word-break: break-word;
+      user-select: text;
+      cursor: default;
+    }
+    [data-theme="light"] .preview-text {
+      color:#0b1020 !important;
+      background-color:#ffffff !important;
+      border-color: rgba(17,24,39,.12) !important;
     }
 
-    /* ===== Stronger, explicit styles so preview values always show ===== */
-.preview-row .val input,
-.preview-row .val textarea {
-  color: var(--text-strong) !important;
-  background-color: var(--input-bg) !important;
-  border: 1px solid var(--input-border) !important;
-  min-height: 36px;             /* make it visibly tall */
-  line-height: 1.2;
-}
-    
-.preview-row .val input,
-.preview-row .val textarea {
-  min-height: 38px !important;
-  height: auto !important;
-  padding: 8px 12px !important;
-  line-height: 1.4 !important;
-}
-    
-/* Make sure text is readable in light theme too */
-[data-theme="light"] .preview-row .val input,
-[data-theme="light"] .preview-row .val textarea {
-  color: #0b1020 !important;
-  background-color: #ffffff !important;
-  border-color: rgba(17,24,39,.12) !important;
-}
-
-/* In case a parent style accidentally dims the whole cell */
-.preview-row .val { 
-  opacity: 1 !important;
-}
-
-/* Prevent accidental overlay/cover from the 'Apply' column */
-.preview-item { 
-  align-items: stretch; 
-}
-.apply-cell { 
-  z-index: 0; 
-}
-.preview-row { 
-  z-index: 1; 
-}
-
-
-    
-    .apply-cell { display:flex; align-items:center; }
+    /* Prevent accidental overlay/cover from the 'Apply' column */
+    .preview-item { align-items: stretch; }
+    .apply-cell { z-index: 0; display:flex; align-items:center; }
     .apply-cell .btn-apply { white-space:nowrap; }
+    .preview-row { z-index: 1; }
 
     .small { font-size:.86rem; color:var(--muted) }
 
@@ -275,13 +254,13 @@
 
   <div class="wrap">
     <div class="page-head">
-      <h1><span class="glow-dot"></span> AI Business Card Application Form Filling (v1.3.4)</h1>
+      <h1><span class="glow-dot"></span> AI Business Card Application Form Filling (v1.3.5)</h1>
       <button id="themeToggle" class="theme-toggle" aria-label="Toggle theme">
         <span class="chip chip--on" id="themeOn">🌙 Dark</span>
         <span class="chip chip--off" id="themeOff">☀️ Light</span>
       </button>
     </div>
-    <div class="subtitle">OCR ➜ Preview from PA (edit, select, apply) ➜ Dify auto‑fills address ➜ Done</div>
+    <div class="subtitle">OCR ➜ Preview from PA (display-only, select, apply) ➜ Dify auto‑fills address ➜ Done</div>
 
     <!-- Layout: main form (left) + preview (right) -->
     <div class="layout">
@@ -418,9 +397,9 @@
 
       <!-- RIGHT (preview) COLUMN: PA Preview -->
       <aside class="panel">
-        <h2><span class="bar"></span>2) Preview from Power Automate <span class="small">(editable)</span></h2>
+        <h2><span class="bar"></span>2) Preview from Power Automate <span class="small">(display-only)</span></h2>
         <div id="paPreviewContainer" class="preview-panel" aria-live="polite">
-          <div class="small">These are the values returned by <b>PA</b>. Edit before applying if needed. Click <b>Apply</b> (right) or select multiple and <b>Apply selected</b>.</div>
+          <div class="small">These are the values returned by <b>PA</b>. Select and <b>Apply</b> to copy into the form.</div>
 
           <div class="preview-toolbar">
             <button id="btnSelectAll" type="button" class="btn-ghost">Select all</button>
@@ -465,7 +444,7 @@
     const fileInput=document.getElementById('fileInput');
     const analyzeBtn=document.getElementById('analyzeBtn');
     const preview=document.getElementById('preview');
-    const msg=document.getElementById('msg');
+    const msg=document.getElementById('msg'); // optional container if present
 
     const imgLightbox=document.getElementById('imgLightbox');
     const imgLightboxImg=document.getElementById('imgLightboxImg');
@@ -530,7 +509,6 @@
         .replace(/[\s_\-\.]/g, ''); // ignore spaces, underscores, hyphens, dots
     }
 
-    
     const timPaEl=document.getElementById('timPa');
     const timDifyEl=document.getElementById('timDify');
     const timTotalEl=document.getElementById('timTotal');
@@ -604,56 +582,55 @@
     let paProposed = {};
 
     /** Robust value resolver for PA responses of various shapes */
+    function getPaValue(paData, key){
+      if (paData == null) return '';
+      const want = _normKey(key);
 
-function getPaValue(paData, key){
-  if (paData == null) return '';
-  const want = _normKey(key);
+      // 1) direct
+      if (paData[key] != null) return paData[key];
 
-  // 1) direct
-  if (paData[key] != null) return paData[key];
+      // 2) common containers
+      const containers = [
+        paData.fields,
+        paData.result,
+        paData.data,
+        paData.body,
+        paData.outputs?.body,
+        paData.outputs,
+        paData.response,
+        paData.payload
+      ].filter(Boolean);
 
-  // 2) common containers
-  const containers = [
-    paData.fields,
-    paData.result,
-    paData.data,
-    paData.body,
-    paData.outputs?.body,
-    paData.outputs,
-    paData.response,
-    paData.payload
-  ].filter(Boolean);
-
-  for (const c of containers){
-    if (c && c[key] != null) return c[key];
-    for (const k in c){
-      if (_normKey(k) === want) return c[k];
-    }
-  }
-
-  // 3) array forms: [{key:'First name', value:'John'}] / [{name:'firstName', value:'John'}]
-  const arrays = [];
-  if (Array.isArray(paData)) arrays.push(paData);
-  containers.forEach(c => { if (Array.isArray(c)) arrays.push(c); });
-
-  for (const arr of arrays){
-    for (const item of arr){
-      const k1 = item?.key, k2 = item?.name, k3 = item?.field, k4 = item?.id;
-      if (_normKey(k1) === want || _normKey(k2) === want || _normKey(k3) === want || _normKey(k4) === want){
-        if (item?.value != null) return item.value;
-        if (item?.text  != null) return item.text;
-        if (item?.val   != null) return item.val;
+      for (const c of containers){
+        if (c && c[key] != null) return c[key];
+        for (const k in c){
+          if (_normKey(k) === want) return c[k];
+        }
       }
-    }
-  }
 
-  // 4) fallback on root
-  for (const k in paData){
-    if (_normKey(k) === want) return paData[k];
-  }
-  return '';
-}
- 
+      // 3) array forms
+      const arrays = [];
+      if (Array.isArray(paData)) arrays.push(paData);
+      containers.forEach(c => { if (Array.isArray(c)) arrays.push(c); });
+
+      for (const arr of arrays){
+        for (const item of arr){
+          const k1 = item?.key, k2 = item?.name, k3 = item?.field, k4 = item?.id;
+          if (_normKey(k1) === want || _normKey(k2) === want || _normKey(k3) === want || _normKey(k4) === want){
+            if (item?.value != null) return item.value;
+            if (item?.text  != null) return item.text;
+            if (item?.val   != null) return item.val;
+          }
+        }
+      }
+
+      // 4) fallback on root
+      for (const k in paData){
+        if (_normKey(k) === want) return paData[k];
+      }
+      return '';
+    }
+
     function normalizeValue(v){
       if(v == null) return '';
       if(typeof v === 'object') {
@@ -675,6 +652,7 @@ function getPaValue(paData, key){
       if(btnApplySelected) btnApplySelected.disabled = (n === 0 || checked === 0);
     }
 
+    /* ---- RENDER display-only preview ---- */
     function renderPaPreview(data){
       // keep for Dify address
       paProposed = data || {};
@@ -704,6 +682,7 @@ function getPaValue(paData, key){
         const item = document.createElement('div');
         item.className = 'preview-item';
         item.dataset.key = key;
+        item.dataset.value = val; // store value for Apply
 
         const row = document.createElement('div');
         row.className = 'preview-row';
@@ -718,18 +697,12 @@ function getPaValue(paData, key){
 
         const valWrap = document.createElement('div');
         valWrap.className = 'val';
-        let inputEl;
-        if(TEXTAREA_KEYS.has(key)){
-          inputEl = document.createElement('textarea');
-          inputEl.className = 'preview-input';
-          inputEl.name = key;  
-          inputEl.value = val;               // <-- PA value shown here
-        }else{
-          inputEl = document.createElement('input');
-          inputEl.type = 'text'; inputEl.className = 'preview-input'; inputEl.value = val; // <-- PA value shown here
-          inputEl.name = key;  
-        }
-        valWrap.appendChild(inputEl);
+
+        // Display-only text block (no input/textarea)
+        const textEl = document.createElement(TEXTAREA_KEYS.has(key) ? 'pre' : 'div');
+        textEl.className = 'preview-text';
+        textEl.textContent = val;
+        valWrap.appendChild(textEl);
 
         row.appendChild(ck);
         row.appendChild(lbl);
@@ -766,8 +739,7 @@ function getPaValue(paData, key){
       try{
         const key = item?.dataset?.key;
         if(!key || !(key in fields)) return;
-        const inputEl = item.querySelector('.preview-input');
-        const value = inputEl ? inputEl.value : '';
+        const value = item?.dataset?.value ?? '';
         fields[key].value = value;
         addPABadge(key);
         item.remove();
@@ -801,8 +773,7 @@ function getPaValue(paData, key){
           const item = ck.closest('.preview-item'); if(!item) return;
           const key = item.dataset.key;
           if(!(key in fields)) return;
-          const inputEl = item.querySelector('.preview-input');
-          const value = inputEl ? inputEl.value : '';
+          const value = item.dataset.value ?? '';
           fields[key].value = value;
           addPABadge(key);
           item.remove();
@@ -990,7 +961,7 @@ function getPaValue(paData, key){
         const pureBase64=(base64.includes(','))? base64.split(',')[1] : base64;
         setStepState('ocr','done');
 
-        // 1) Power Automate — preview only (shows PA values)
+        // 1) Power Automate — preview only (display-only PA values)
         setStepState('pa','active');
         showInlineInfo(true,'Extracting fields via Power Automate…');
         tPAStart = performance.now();
@@ -999,14 +970,7 @@ function getPaValue(paData, key){
         if (isStale(token)) return;
 
         paSec = paElapsed;
-        renderPaPreview(data);   // Preview shows PA-returned values (editable)
-
-console.log('Preview values (after render):');
-document.querySelectorAll('#paPreviewList .preview-item').forEach(it => {
-  const k = it.dataset.key;
-  const v = it.querySelector('.preview-input')?.value;
-  console.log(k, '=>', v);
-});
+        renderPaPreview(data);
 
         updateTimes(paSec, undefined, Number(toSec(performance.now()-tAllStart)));
         setStepState('pa','done');
@@ -1083,6 +1047,3 @@ document.querySelectorAll('#paPreviewList .preview-item').forEach(it => {
   </script>
 </body>
 </html>
-
-
-
