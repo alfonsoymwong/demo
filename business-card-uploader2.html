@@ -73,7 +73,7 @@
 
 /* Main fill with animated stripes and glow */
 .top-progress__fill{
-  position: absolute; left: 0; top: 0; height: 100%; width: 0%;
+  position: absolute; left: 0; right:auto; top: 0; height: 100%; width: 0%; transition: width .25s linear;
   background:
     repeating-linear-gradient(135deg,
       rgba(255,255,255,.22) 0 8px,
@@ -89,7 +89,7 @@
 
 /* Little spark traveling at the leading edge */
 .top-progress__spark{
-  position: absolute; top: 0; width: 26px; height: 100%;
+  position: absolute; top: 0; left: 0; right: auto; width: 26px; height: 100%; 
   transform: translateX(-50%);
   background: radial-gradient(16px 10px at 50% 50%, #fff, rgba(255,255,255,0));
   mix-blend-mode: screen; pointer-events: none;
@@ -1203,5 +1203,6 @@
   </script>
 </body>
 </html>
+
 
 
