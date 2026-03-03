@@ -27,8 +27,13 @@
       --total:#22d3ee; --total-weak: rgba(34,211,238,.16);
       --step-done:#10b981; --step-active:#22d3ee; --step-muted:#64748b;
 
-      /* Buttons */
       --btn-primary-from:#22d3ee; --btn-primary-to:#00a8ff; --btn-primary-text:#06202a;
+
+      /* ★ NEW: darker purple for Dify badge chips */
+      --dify-badge-bg:#4c1d95;      /* dark purple */
+      --dify-badge-bg-light:#5b21b6;/* slightly brighter for hover / light */
+      --dify-badge-text:#e9d5ff;    /* soft lavender text */
+      --dify-badge-border:rgba(139,92,246,.55);
     }
 
     /* ================= THEME: LIGHT OVERRIDES ================= */
@@ -56,15 +61,9 @@
     }
 
     /* ======= TOP PROGRESS BAR ======= */
-    .top-progress{
-      position: fixed; inset: 0 0 auto 0; height: 12px; z-index: 10001;
-      opacity: 0; pointer-events: none; transition: opacity .18s ease;
-    }
+    .top-progress{ position: fixed; inset: 0 0 auto 0; height: 12px; z-index: 10001; opacity: 0; pointer-events: none; transition: opacity .18s ease; }
     .top-progress[aria-hidden="false"]{ opacity: 1; pointer-events: auto; }
-    .top-progress__track{ position: absolute; inset: 0;
-      background: linear-gradient(180deg, rgba(255,255,255,.08), rgba(255,255,255,.02));
-      border-bottom: 1px solid var(--border);
-      backdrop-filter: blur(4px); box-shadow: 0 6px 18px rgba(0,0,0,.25); overflow: hidden; }
+    .top-progress__track{ position: absolute; inset: 0; background: linear-gradient(180deg, rgba(255,255,255,.08), rgba(255,255,255,.02)); border-bottom: 1px solid var(--border); backdrop-filter: blur(4px); box-shadow: 0 6px 18px rgba(0,0,0,.25); overflow: hidden; }
     .top-progress__fill{
       position: absolute; left: 0; right:auto; top: 0; height: 100%; width: 0%; transition: width .25s linear;
       background:
@@ -72,21 +71,15 @@
         linear-gradient(90deg, var(--brand), var(--accent), var(--dify));
       background-size: 16px 16px, 200% 100%;
       animation: tp-move 1.2s linear infinite reverse, tp-breath 1.8s ease-in-out infinite;
-      box-shadow: 0 0 20px var(--accent), 0 0 40px rgba(124,58,237,.25) inset; border-right: 1px solid rgba(255,255,255,.35);
+      box-shadow: 0 0 20px var(--accent), 0 0 40px rgba(124,58,237,.25) inset;
+      border-right: 1px solid rgba(255,255,255,.35);
     }
     @keyframes tp-move { from{ background-position: 0 0, 0 0 } to{ background-position: 16px 0, 200% 0 } }
     @keyframes tp-breath { 0%,100%{ filter: brightness(1) } 50%{ filter: brightness(1.2) } }
-    .top-progress__spark{
-      position: absolute; top: 0; left: 0; right: auto; width: 26px; height: 100%;
-      transform: translateX(-50%); background: radial-gradient(16px 10px at 50% 50%, #fff, rgba(255,255,255,0)); mix-blend-mode: screen; opacity: .85; }
-    .top-progress__hud{
-      position: absolute; top: 16px; right: 10px; display: inline-flex; align-items: center; gap: 8px;
-      padding: 6px 10px; border-radius: 999px; background: var(--glass); border: 1px solid var(--border);
-      backdrop-filter: blur(8px); font-size: .82rem; font-weight: 700; color: var(--text); box-shadow: var(--panel-shadow); }
-    .tp__stage{ color: var(--text-strong); }
-    .tp__sep{ opacity: .6 } .tp__pct{ color: var(--text-dim) }
-    .tp__cancel{ margin-left: 2px; border: 0; cursor: pointer; background: linear-gradient(135deg, #ef4444, #b91c1c); color: #fff;
-      padding: 4px 8px; border-radius: 999px; font-weight: 800; line-height: 1; box-shadow: 0 6px 16px rgba(239,68,68,.35); }
+    .top-progress__spark{ position: absolute; top: 0; left: 0; right: auto; width: 26px; height: 100%; transform: translateX(-50%); background: radial-gradient(16px 10px at 50% 50%, #fff, rgba(255,255,255,0)); mix-blend-mode: screen; opacity: .85; }
+    .top-progress__hud{ position: absolute; top: 16px; right: 10px; display: inline-flex; align-items: center; gap: 8px; padding: 6px 10px; border-radius: 999px; background: var(--glass); border: 1px solid var(--border); backdrop-filter: blur(8px); font-size: .82rem; font-weight: 700; color: var(--text); box-shadow: var(--panel-shadow); }
+    .tp__stage{ color: var(--text-strong); } .tp__sep{ opacity: .6 } .tp__pct{ color: var(--text-dim) }
+    .tp__cancel{ margin-left: 2px; border: 0; cursor: pointer; background: linear-gradient(135deg, #ef4444, #b91c1c); color: #fff; padding: 4px 8px; border-radius: 999px; font-weight: 800; line-height: 1; box-shadow: 0 6px 16px rgba(239,68,68,.35); }
     .tp__cancel:hover{ filter: brightness(1.1) }
 
     /* ======= LAYOUT ======= */
@@ -106,6 +99,7 @@
     .theme-toggle .chip--off{opacity:.8}
 
     .layout{display:grid;gap:16px;grid-template-columns:1fr}
+
     .panel{
       background:var(--card);border:1px solid var(--border);border-radius:16px;
       padding:16px 16px 14px;backdrop-filter:blur(8px);
@@ -113,6 +107,7 @@
     }
     .panel h2{font-size:1rem;margin:0 0 12px;display:flex;align-items:center;gap:10px;color:var(--text-strong);font-weight:700}
     .panel h2 .bar{width:6px;height:18px;border-radius:4px;background:linear-gradient(180deg,var(--brand),var(--accent));box-shadow:0 0 10px var(--accent)}
+
     .stack{display:flex;flex-direction:column;gap:16px}
 
     /* ======= FORMS ======= */
@@ -202,49 +197,31 @@
     @keyframes pulse { 0%,100%{transform:scale(1)} 50%{transform:scale(1.2)} }
 
     /* ======= COMPACT INLINE PA SUGGESTIONS ======= */
-    .pair{
-      display:grid; grid-template-columns:1fr minmax(120px, 160px); gap:8px; align-items:stretch;
-    }
+    .pair{ display:grid; grid-template-columns:1fr minmax(120px, 160px); gap:8px; align-items:stretch; }
     @media (max-width:520px){ .pair{ grid-template-columns:1fr; } }
-
     .pa-pill, .pa-box{
       border:1px dashed var(--pa-weak);
-      background:
-        repeating-linear-gradient(135deg,
-          rgba(239,68,68,.15) 0 8px,
-          rgba(239,68,68,.08) 8px 16px);
-      color:var(--text-strong);
-      border-radius:10px;
-      cursor:pointer;
-      position:relative;
-      transition: filter .15s ease, opacity .15s ease, background-color .15s ease;
-      box-shadow: 0 0 0 1px rgba(239,68,68,.12) inset;
+      background: repeating-linear-gradient(135deg, rgba(239,68,68,.15) 0 8px, rgba(239,68,68,.08) 8px 16px);
+      color:var(--text-strong); border-radius:10px; cursor:pointer; position:relative;
+      transition: filter .15s ease, opacity .15s ease, background-color .15s ease; box-shadow: 0 0 0 1px rgba(239,68,68,.12) inset;
     }
     [data-theme="light"] .pa-pill, [data-theme="light"] .pa-box{
-      background:
-        repeating-linear-gradient(135deg,
-          rgba(239,68,68,.10) 0 8px,
-          rgba(239,68,68,.05) 8px 16px);
+      background: repeating-linear-gradient(135deg, rgba(239,68,68,.10) 0 8px, rgba(239,68,68,.05) 8px 16px);
       color:#0f172a;
     }
-    .pa-suggest.pa-pill{
-      display:inline-flex; align-items:center; gap:8px;
-      padding:8px 10px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
-      min-height:42px;
-    }
-    .pa-suggest.pa-box{
-      display:block; padding:10px 12px; min-height:64px; line-height:1.45; white-space:pre-wrap; word-break:break-word;
-    }
+    .pa-suggest.pa-pill{ display:inline-flex; align-items:center; gap:8px; padding:8px 10px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; min-height:42px; }
+    .pa-suggest.pa-box{ display:block; padding:10px 12px; min-height:64px; line-height:1.45; white-space:pre-wrap; word-break:break-word; }
     .pa-applied{ opacity:.5; filter:grayscale(.05); }
 
-    /* ======= DIFY BADGE (RESTORED) ======= */
-    .badge{ /* ★ NEW: restore badge style used on Dify labels */
+    /* ======= DIFY BADGE (dark purple) ======= */
+    .badge{ /* ★ NEW: dark purple Dify chip */
       display:inline-flex; align-items:center; gap:6px;
-      font-size:.72rem; line-height:1;
+      font-size:.72rem; line-height:1; font-weight:700;
       padding:4px 8px; border-radius:999px;
-      background: var(--dify-weak); color:#0b1020;
-      border:1px solid rgba(124,58,237,.35);
+      background: var(--dify-badge-bg); color: var(--dify-badge-text);
+      border:1px solid var(--dify-badge-border);
     }
+    .badge:hover{ filter:brightness(1.05) }
 
     /* ======= DERIVED BOX ======= */
     .box-derived{
@@ -256,6 +233,19 @@
     .box-derived__title{display:flex;align-items:center;gap:8px;font-size:.95rem;font-weight:700;color:var(--text-strong);margin:0 0 10px}
     .box-derived__grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
     @media (max-width:819px){.box-derived__grid{grid-template-columns:1fr}}
+
+    /* ★ NEW: Compact Upload Panel tweaks (only this panel) */
+    .panel--upload{ padding:12px 12px 10px; }
+    .panel--upload .row-2col{ gap:10px; }
+    .panel--upload h2{ margin-bottom:8px; }
+    .panel--upload .actions{ margin-top:6px; gap:8px; }
+    .panel--upload .hint{ margin-top:4px; font-size:.86rem; }
+    .panel--upload .stepper{ margin-top:6px; gap:8px; }
+    .panel--upload .timing-panel{ margin-top:6px; gap:8px; }
+    .panel--upload .inline-info{ margin-top:4px; }
+
+    /* ★ NEW: hidden container for PA+Dify sections (shown after Upload is clicked) */
+    .results-wrap[hidden]{ display:none !important; }
   </style>
 </head>
 <body>
@@ -291,14 +281,14 @@
   <div class="subtitle">OCR ➜ PA inline suggestions (click to apply) ➜ Dify auto‑fills address ➜ Done</div>
 
   <div class="layout">
-    <!-- 1) Upload -->
-    <section class="panel">
+    <!-- 1) Upload (COMPACT) -->
+    <section class="panel panel--upload"><!-- ★ NEW: panel--upload -->
       <h2><span class="bar"></span>1) Upload Business Card</h2>
       <div class="row-2col">
         <div>
           <input id="fileInput" type="file" accept="image/*,.pdf" />
           <div class="hint">Supported: JPG/JPEG, PNG, BMP, PDF.</div>
-          <div class="actions" style="margin-top:10px">
+          <div class="actions">
             <button id="analyzeBtn" disabled>Upload</button>
             <span id="busy" class="status"></span>
           </div>
@@ -343,198 +333,201 @@
       </div>
     </section>
 
-    <!-- 3) Extracted Fields (editable + PA inline) -->
-    <section class="stack">
-      <div class="panel">
-        <div class="actions" style="justify-content:flex-end;margin-bottom:6px">
-          <button id="btnResetBadges" type="button" class="btn-ghost btn-danger">Reset PA badges</button>
-        </div>
-        <h2><span class="bar"></span>3) Extracted Fields (Editable with PA Suggestions)</h2>
-
-        <div class="form-grid">
-          <!-- English set -->
-          <div class="field">
-            <label for="fullName">Full name <span class="label-badges" data-badges-for="fullName"></span></label>
-            <div class="pair">
-              <input id="fullName" type="text" />
-              <button type="button" class="pa-pill pa-suggest" data-pa="fullName" aria-disabled="true" title="Click to copy PA value">—</button>
-            </div>
+    <!-- ★ NEW: Wrap PA + Dify sections to toggle visibility -->
+    <div id="resultsWrap" class="results-wrap" hidden>
+      <!-- 3) Extracted Fields (editable + PA inline) -->
+      <section class="stack">
+        <div class="panel">
+          <div class="actions" style="justify-content:flex-end;margin-bottom:6px">
+            <button id="btnResetBadges" type="button" class="btn-ghost btn-danger">Reset PA badges</button>
           </div>
+          <h2><span class="bar"></span>3) Extracted Fields (Editable with PA Suggestions)</h2>
 
-          <div class="field">
-            <label for="firstName">First name <span class="label-badges" data-badges-for="firstName"></span></label>
-            <div class="pair">
-              <input id="firstName" type="text" />
-              <button type="button" class="pa-pill pa-suggest" data-pa="firstName" aria-disabled="true" title="Click to copy PA value">—</button>
-            </div>
-          </div>
-
-          <div class="field">
-            <label for="lastName">Last name <span class="label-badges" data-badges-for="lastName"></span></label>
-            <div class="pair">
-              <input id="lastName" type="text" />
-              <button type="button" class="pa-pill pa-suggest" data-pa="lastName" aria-disabled="true" title="Click to copy PA value">—</button>
-            </div>
-          </div>
-
-          <div class="field">
-            <label for="title">Title <span class="label-badges" data-badges-for="title"></span></label>
-            <div class="pair">
-              <input id="title" type="text" />
-              <button type="button" class="pa-pill pa-suggest" data-pa="title" aria-disabled="true" title="Click to copy PA value">—</button>
-            </div>
-          </div>
-
-          <div class="field">
-            <label for="company">Company <span class="label-badges" data-badges-for="company"></span></label>
-            <div class="pair">
-              <input id="company" type="text" />
-              <button type="button" class="pa-pill pa-suggest" data-pa="company" aria-disabled="true" title="Click to copy PA value">—</button>
-            </div>
-          </div>
-
-          <div class="field">
-            <label for="department">Department <span class="label-badges" data-badges-for="department"></span></label>
-            <div class="pair">
-              <input id="department" type="text" />
-              <button type="button" class="pa-pill pa-suggest" data-pa="department" aria-disabled="true" title="Click to copy PA value">—</button>
-            </div>
-          </div>
-
-          <!-- Derived -->
-          <div class="box-derived">
-            <div class="box-derived__title">Derived from PA: Industry / Occupation / Position</div>
-            <div class="box-derived__grid">
-              <div class="field">
-                <label for="industry">Industry <span class="label-badges" data-badges-for="industry"></span></label>
-                <div class="pair">
-                  <input id="industry" type="text" />
-                  <button type="button" class="pa-pill pa-suggest" data-pa="industry" aria-disabled="true" title="Click to copy PA value">—</button>
-                </div>
-              </div>
-              <div class="field">
-                <label for="occupation">Occupation <span class="label-badges" data-badges-for="occupation"></span></label>
-                <div class="pair">
-                  <input id="occupation" type="text" />
-                  <button type="button" class="pa-pill pa-suggest" data-pa="occupation" aria-disabled="true" title="Click to copy PA value">—</button>
-                </div>
-              </div>
-              <div class="field">
-                <label for="position">Position <span class="label-badges" data-badges-for="position"></span></label>
-                <div class="pair">
-                  <input id="position" type="text" />
-                  <button type="button" class="pa-pill pa-suggest" data-pa="position" aria-disabled="true" title="Click to copy PA value">—</button>
-                </div>
+          <div class="form-grid">
+            <!-- English set -->
+            <div class="field">
+              <label for="fullName">Full name <span class="label-badges" data-badges-for="fullName"></span></label>
+              <div class="pair">
+                <input id="fullName" type="text" />
+                <button type="button" class="pa-pill pa-suggest" data-pa="fullName" aria-disabled="true" title="Click to copy PA value">—</button>
               </div>
             </div>
-          </div>
 
-          <div class="field">
-            <label for="workPhone">Work phone <span class="label-badges" data-badges-for="workPhone"></span></label>
-            <div class="pair">
-              <input id="workPhone" type="text" />
-              <button type="button" class="pa-pill pa-suggest" data-pa="workPhone" aria-disabled="true" title="Click to copy PA value">—</button>
+            <div class="field">
+              <label for="firstName">First name <span class="label-badges" data-badges-for="firstName"></span></label>
+              <div class="pair">
+                <input id="firstName" type="text" />
+                <button type="button" class="pa-pill pa-suggest" data-pa="firstName" aria-disabled="true" title="Click to copy PA value">—</button>
+              </div>
             </div>
-          </div>
 
-          <div class="field">
-            <label for="email">Email <span class="label-badges" data-badges-for="email"></span></label>
-            <div class="pair">
-              <input id="email" type="email" />
-              <button type="button" class="pa-pill pa-suggest" data-pa="email" aria-disabled="true" title="Click to copy PA value">—</button>
+            <div class="field">
+              <label for="lastName">Last name <span class="label-badges" data-badges-for="lastName"></span></label>
+              <div class="pair">
+                <input id="lastName" type="text" />
+                <button type="button" class="pa-pill pa-suggest" data-pa="lastName" aria-disabled="true" title="Click to copy PA value">—</button>
+              </div>
             </div>
-          </div>
 
-          <div class="field">
-            <label for="website">Website <span class="label-badges" data-badges-for="website"></span></label>
-            <div class="pair">
-              <input id="website" type="text" />
-              <button type="button" class="pa-pill pa-suggest" data-pa="website" aria-disabled="true" title="Click to copy PA value">—</button>
+            <div class="field">
+              <label for="title">Title <span class="label-badges" data-badges-for="title"></span></label>
+              <div class="pair">
+                <input id="title" type="text" />
+                <button type="button" class="pa-pill pa-suggest" data-pa="title" aria-disabled="true" title="Click to copy PA value">—</button>
+              </div>
             </div>
-          </div>
 
-          <div class="field" style="grid-column:1 / -1">
-            <label for="fullAddress">Full address <span class="label-badges" data-badges-for="fullAddress"></span></label>
-            <div class="pair" style="grid-template-columns:1fr minmax(160px, 240px)">
-              <textarea id="fullAddress"></textarea>
-              <div class="pa-box pa-suggest" data-pa="fullAddress" aria-disabled="true" title="Click to copy PA value">—</div>
+            <div class="field">
+              <label for="company">Company <span class="label-badges" data-badges-for="company"></span></label>
+              <div class="pair">
+                <input id="company" type="text" />
+                <button type="button" class="pa-pill pa-suggest" data-pa="company" aria-disabled="true" title="Click to copy PA value">—</button>
+              </div>
             </div>
-          </div>
 
-          <!-- Hidden (optional) -->
-          <div style="display:none;">
-            <div class="field"><label for="addressStreet">Street <span class="label-badges" data-badges-for="addressStreet"></span></label><input id="addressStreet" type="text" /></div>
-            <div class="field"><label for="country">Country <span class="label-badges" data-badges-for="country"></span></label><input id="country" type="text" /></div>
-          </div>
-
-          <hr class="hr">
-          <div class="section-caption">Chinese fields (中文)</div>
-
-          <div class="field">
-            <label for="fullName_chi">Full name (中文) <span class="label-badges" data-badges-for="fullName_chi"></span></label>
-            <div class="pair">
-              <input id="fullName_chi" type="text" />
-              <button type="button" class="pa-pill pa-suggest" data-pa="fullName_chi" aria-disabled="true" title="Click to copy PA value">—</button>
+            <div class="field">
+              <label for="department">Department <span class="label-badges" data-badges-for="department"></span></label>
+              <div class="pair">
+                <input id="department" type="text" />
+                <button type="button" class="pa-pill pa-suggest" data-pa="department" aria-disabled="true" title="Click to copy PA value">—</button>
+              </div>
             </div>
-          </div>
 
-          <div class="field">
-            <label for="firstName_chi">First name (中文) <span class="label-badges" data-badges-for="firstName_chi"></span></label>
-            <div class="pair">
-              <input id="firstName_chi" type="text" />
-              <button type="button" class="pa-pill pa-suggest" data-pa="firstName_chi" aria-disabled="true" title="Click to copy PA value">—</button>
+            <!-- Derived -->
+            <div class="box-derived">
+              <div class="box-derived__title">Derived from PA: Industry / Occupation / Position</div>
+              <div class="box-derived__grid">
+                <div class="field">
+                  <label for="industry">Industry <span class="label-badges" data-badges-for="industry"></span></label>
+                  <div class="pair">
+                    <input id="industry" type="text" />
+                    <button type="button" class="pa-pill pa-suggest" data-pa="industry" aria-disabled="true" title="Click to copy PA value">—</button>
+                  </div>
+                </div>
+                <div class="field">
+                  <label for="occupation">Occupation <span class="label-badges" data-badges-for="occupation"></span></label>
+                  <div class="pair">
+                    <input id="occupation" type="text" />
+                    <button type="button" class="pa-pill pa-suggest" data-pa="occupation" aria-disabled="true" title="Click to copy PA value">—</button>
+                  </div>
+                </div>
+                <div class="field">
+                  <label for="position">Position <span class="label-badges" data-badges-for="position"></span></label>
+                  <div class="pair">
+                    <input id="position" type="text" />
+                    <button type="button" class="pa-pill pa-suggest" data-pa="position" aria-disabled="true" title="Click to copy PA value">—</button>
+                  </div>
+                </div>
+              </div>
             </div>
-          </div>
 
-          <div class="field">
-            <label for="lastName_chi">Last name (中文) <span class="label-badges" data-badges-for="lastName_chi"></span></label>
-            <div class="pair">
-              <input id="lastName_chi" type="text" />
-              <button type="button" class="pa-pill pa-suggest" data-pa="lastName_chi" aria-disabled="true" title="Click to copy PA value">—</button>
+            <div class="field">
+              <label for="workPhone">Work phone <span class="label-badges" data-badges-for="workPhone"></span></label>
+              <div class="pair">
+                <input id="workPhone" type="text" />
+                <button type="button" class="pa-pill pa-suggest" data-pa="workPhone" aria-disabled="true" title="Click to copy PA value">—</button>
+              </div>
             </div>
-          </div>
 
-          <div class="field">
-            <label for="title_chi">Title (中文) <span class="label-badges" data-badges-for="title_chi"></span></label>
-            <div class="pair">
-              <input id="title_chi" type="text" />
-              <button type="button" class="pa-pill pa-suggest" data-pa="title_chi" aria-disabled="true" title="Click to copy PA value">—</button>
+            <div class="field">
+              <label for="email">Email <span class="label-badges" data-badges-for="email"></span></label>
+              <div class="pair">
+                <input id="email" type="email" />
+                <button type="button" class="pa-pill pa-suggest" data-pa="email" aria-disabled="true" title="Click to copy PA value">—</button>
+              </div>
             </div>
-          </div>
 
-          <div class="field">
-            <label for="company_chi">Company (中文) <span class="label-badges" data-badges-for="company_chi"></span></label>
-            <div class="pair">
-              <input id="company_chi" type="text" />
-              <button type="button" class="pa-pill pa-suggest" data-pa="company_chi" aria-disabled="true" title="Click to copy PA value">—</button>
+            <div class="field">
+              <label for="website">Website <span class="label-badges" data-badges-for="website"></span></label>
+              <div class="pair">
+                <input id="website" type="text" />
+                <button type="button" class="pa-pill pa-suggest" data-pa="website" aria-disabled="true" title="Click to copy PA value">—</button>
+              </div>
             </div>
-          </div>
 
-          <div class="field">
-            <label for="department_chi">Department (中文) <span class="label-badges" data-badges-for="department_chi"></span></label>
-            <div class="pair">
-              <input id="department_chi" type="text" />
-              <button type="button" class="pa-pill pa-suggest" data-pa="department_chi" aria-disabled="true" title="Click to copy PA value">—</button>
+            <div class="field" style="grid-column:1 / -1">
+              <label for="fullAddress">Full address <span class="label-badges" data-badges-for="fullAddress"></span></label>
+              <div class="pair" style="grid-template-columns:1fr minmax(160px, 240px)">
+                <textarea id="fullAddress"></textarea>
+                <div class="pa-box pa-suggest" data-pa="fullAddress" aria-disabled="true" title="Click to copy PA value">—</div>
+              </div>
+            </div>
+
+            <!-- Hidden (optional) -->
+            <div style="display:none;">
+              <div class="field"><label for="addressStreet">Street <span class="label-badges" data-badges-for="addressStreet"></span></label><input id="addressStreet" type="text" /></div>
+              <div class="field"><label for="country">Country <span class="label-badges" data-badges-for="country"></span></label><input id="country" type="text" /></div>
+            </div>
+
+            <hr class="hr">
+            <div class="section-caption">Chinese fields (中文)</div>
+
+            <div class="field">
+              <label for="fullName_chi">Full name (中文) <span class="label-badges" data-badges-for="fullName_chi"></span></label>
+              <div class="pair">
+                <input id="fullName_chi" type="text" />
+                <button type="button" class="pa-pill pa-suggest" data-pa="fullName_chi" aria-disabled="true" title="Click to copy PA value">—</button>
+              </div>
+            </div>
+
+            <div class="field">
+              <label for="firstName_chi">First name (中文) <span class="label-badges" data-badges-for="firstName_chi"></span></label>
+              <div class="pair">
+                <input id="firstName_chi" type="text" />
+                <button type="button" class="pa-pill pa-suggest" data-pa="firstName_chi" aria-disabled="true" title="Click to copy PA value">—</button>
+              </div>
+            </div>
+
+            <div class="field">
+              <label for="lastName_chi">Last name (中文) <span class="label-badges" data-badges-for="lastName_chi"></span></label>
+              <div class="pair">
+                <input id="lastName_chi" type="text" />
+                <button type="button" class="pa-pill pa-suggest" data-pa="lastName_chi" aria-disabled="true" title="Click to copy PA value">—</button>
+              </div>
+            </div>
+
+            <div class="field">
+              <label for="title_chi">Title (中文) <span class="label-badges" data-badges-for="title_chi"></span></label>
+              <div class="pair">
+                <input id="title_chi" type="text" />
+                <button type="button" class="pa-pill pa-suggest" data-pa="title_chi" aria-disabled="true" title="Click to copy PA value">—</button>
+              </div>
+            </div>
+
+            <div class="field">
+              <label for="company_chi">Company (中文) <span class="label-badges" data-badges-for="company_chi"></span></label>
+              <div class="pair">
+                <input id="company_chi" type="text" />
+                <button type="button" class="pa-pill pa-suggest" data-pa="company_chi" aria-disabled="true" title="Click to copy PA value">—</button>
+              </div>
+            </div>
+
+            <div class="field">
+              <label for="department_chi">Department (中文) <span class="label-badges" data-badges-for="department_chi"></span></label>
+              <div class="pair">
+                <input id="department_chi" type="text" />
+                <button type="button" class="pa-pill pa-suggest" data-pa="department_chi" aria-disabled="true" title="Click to copy PA value">—</button>
+              </div>
             </div>
           </div>
         </div>
-      </div>
 
-      <!-- 4) Dify output panel (auto-fills) -->
-      <div class="panel">
-        <h2><span class="bar"></span>4) Structured Address (<span class="badge">Dify AI</span>)</h2>
-        <div class="form-grid">
-          <div class="field"><label for="difyFlat">Flat / Unit <span class="badge">Dify</span></label><input id="difyFlat" type="text" /></div>
-          <div class="field"><label for="difyFloor">Floor <span class="badge">Dify</span></label><input id="difyFloor" type="text" /></div>
-          <div class="field"><label for="difyBlock">Block <span class="badge">Dify</span></label><input id="difyBlock" type="text" /></div>
-          <div class="field"><label for="difyStreetNumber">Street Number <span class="badge">Dify</span></label><input id="difyStreetNumber" type="text" /></div>
-          <div class="field"><label for="difyStreetName">Street Name <span class="badge">Dify</span></label><input id="difyStreetName" type="text" /></div>
-          <div class="field"><label for="difyBuildingName">Building Name <span class="badge">Dify</span></label><input id="difyBuildingName" type="text" /></div>
-          <div class="field"><label for="difyDistrict">District <span class="badge">Dify</span></label><input id="difyDistrict" type="text" /></div>
-          <div class="field"><label for="difyCountry">Country <span class="badge">Dify</span></label><input id="difyCountry" type="text" /></div>
+        <!-- 4) Dify output panel (auto-fills) -->
+        <div class="panel">
+          <h2><span class="bar"></span>4) Structured Address (<span class="badge">Dify AI</span>)</h2>
+          <div class="form-grid">
+            <div class="field"><label for="difyFlat">Flat / Unit <span class="badge">Dify</span></label><input id="difyFlat" type="text" /></div>
+            <div class="field"><label for="difyFloor">Floor <span class="badge">Dify</span></label><input id="difyFloor" type="text" /></div>
+            <div class="field"><label for="difyBlock">Block <span class="badge">Dify</span></label><input id="difyBlock" type="text" /></div>
+            <div class="field"><label for="difyStreetNumber">Street Number <span class="badge">Dify</span></label><input id="difyStreetNumber" type="text" /></div>
+            <div class="field"><label for="difyStreetName">Street Name <span class="badge">Dify</span></label><input id="difyStreetName" type="text" /></div>
+            <div class="field"><label for="difyBuildingName">Building Name <span class="badge">Dify</span></label><input id="difyBuildingName" type="text" /></div>
+            <div class="field"><label for="difyDistrict">District <span class="badge">Dify</span></label><input id="difyDistrict" type="text" /></div>
+            <div class="field"><label for="difyCountry">Country <span class="badge">Dify</span></label><input id="difyCountry" type="text" /></div>
+          </div>
         </div>
-      </div>
-    </section>
+      </section>
+    </div><!-- /results-wrap -->
   </div>
 </div>
 
@@ -576,6 +569,8 @@
   const inlineInfo=document.getElementById('inlineInfo');
   const inlineDot=inlineInfo ? inlineInfo.querySelector('.inline-dot') : null;
   const inlineText=document.getElementById('inlineText');
+
+  const resultsWrap=document.getElementById('resultsWrap'); // ★ NEW
 
   /* ========= FIELD MAPS ========= */
   const fields={
@@ -675,9 +670,7 @@
   }
 
   /* --- key normalizer --- */
-  function _normKey(s){
-    return String(s || '').toLowerCase().replace(/[\s_\-\.]/g, '');
-  }
+  function _normKey(s){ return String(s || '').toLowerCase().replace(/[\s_\-\.]/g, ''); }
 
   const timPaEl=document.getElementById('timPa');
   const timDifyEl=document.getElementById('timDify');
@@ -851,6 +844,7 @@
     for (let i = 0; i < s.length; i++) {
       const ch = s[i]; if (!openers.includes(ch)) continue;
       const stack = [ch]; let j = i + 1; let inStr = false; let strQuote = null; let escaped = false;
+
       for (; j < s.length; j++) {
         const c = s[j];
         if (inStr) { if (escaped) { escaped = false; } else if (c === '\\') { escaped = true; } else if (c === strQuote) { inStr = false; strQuote = null; } continue; }
@@ -909,7 +903,7 @@
     return { data, elapsedSec: Number(((tEnd - tStart) / 1000).toFixed(2)) };
   }
 
-  async function callDifyBlocking(address, signal) { // ★ NEW: also return raw text
+  async function callDifyBlocking(address, signal) {
     const tStart = performance.now();
 
     const body = {
@@ -934,11 +928,11 @@
     }
 
     const raw = await resp.json();
-    const textRaw = raw?.data?.outputs?.text || ''; // ★ NEW
+    const textRaw = raw?.data?.outputs?.text || '';
     const parsed = parseDifyTextToJson(textRaw);
 
     const tEnd = performance.now();
-    return { parsed, textRaw, elapsedSec: Number(((tEnd - tStart) / 1000).toFixed(2)) }; // ★ NEW
+    return { parsed, textRaw, elapsedSec: Number(((tEnd - tStart) / 1000).toFixed(2)) };
   }
 
   /* ========= File change reset ========= */
@@ -983,6 +977,9 @@
     paController = new AbortController();
     difyController = null;
 
+    // ★ NEW: reveal results area right when the process starts
+    if(resultsWrap && resultsWrap.hasAttribute('hidden')) resultsWrap.removeAttribute('hidden');
+
     const tAllStart = performance.now();
     let tPAStart, tPAEnd, tDifyStart, tDifyEnd;
     let paSec = 0, difySec = 0;
@@ -1016,8 +1013,8 @@
       tp.set(60, 'PA suggestions ready');
 
       // 2) Dify (auto-fill)
-      const paFullAddrEl = paSidecars['fullAddress']; // ★ NEW
-      const address = chooseFullAddressForDify(data) || (paFullAddrEl?.dataset?.value || '').trim(); // ★ NEW fallback
+      const paFullAddrEl = paSidecars['fullAddress'];
+      const address = chooseFullAddressForDify(data) || (paFullAddrEl?.dataset?.value || '').trim();
       if(!address){
         tp.set(100, 'Completed'); setTimeout(() => tp.show(false), 600);
         setStepState('dify','done');
@@ -1033,7 +1030,7 @@
       showInlineInfo(true,'Parsing address with Dify…');
       difyController = new AbortController();
       tDifyStart = performance.now();
-      const { parsed, textRaw, elapsedSec: dElapsed } = await callDifyBlocking(address, difyController.signal); // ★ NEW
+      const { parsed, textRaw, elapsedSec: dElapsed } = await callDifyBlocking(address, difyController.signal);
       tDifyEnd = performance.now();
       if (isStale(token)) return;
 
@@ -1049,7 +1046,7 @@
         if(difyFields.district) difyFields.district.value = parsed.district ?? '';
         if(difyFields.country) difyFields.country.value = parsed.country ?? '';
       } else {
-        // ★ NEW: soft parse to avoid empty UI if Dify returns plain text
+        // Soft parse to avoid empty UI if Dify returns plain text
         const m = (k, s) => new RegExp(`^\\s*(?:${k})\\s*:\\s*(.+)$`, 'im').exec(s)?.[1]?.trim() || '';
         const soft = (txt) => txt ? {
           flat:          m('flat|unit|room', txt),
@@ -1118,4 +1115,3 @@
 </script>
 </body>
 </html>
-``
