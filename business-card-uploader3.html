@@ -195,7 +195,7 @@
 .pair{
   display:grid;
   /* OLD: grid-template-columns: minmax(320px, 1fr) minmax(110px, 140px); */
-  grid-template-columns: minmax(0, 1fr) clamp(110px, 22vw, 180px);
+  grid-template-columns: minmax(0, 1fr) clamp(120px, 28ch, 180px);
   gap:8px; 
   align-items:stretch;
 }
@@ -203,7 +203,7 @@
 /* Address row */
 .pair.pair--address{
   /* OLD: grid-template-columns: minmax(360px, 1fr) minmax(140px, 180px); */
-  grid-template-columns: minmax(0, 1fr) clamp(140px, 26vw, 220px);
+  grid-template-columns: minmax(0, 1fr) clamp(140px, 34ch, 220px);
 }
 
   
@@ -226,6 +226,7 @@
 /* tighten sidecar sizing */
 .pa-suggest { 
   max-width: 100%;        /* NEW: never exceed its grid column */
+  inline-size: auto
 }
 .pa-suggest.pa-pill{
   display:inline-flex;
@@ -236,6 +237,7 @@
   overflow:hidden;         /* already present, keep it */
   text-overflow:ellipsis;  /* already present, keep it */
   min-height:42px;
+  max-inline-size: 28ch; 
 }
 .pa-suggest.pa-box{
   display:block;
@@ -244,6 +246,7 @@
   line-height:1.45;
   white-space:pre-wrap;
   word-break:break-word;   /* already present, keep it */
+  max-inline-size: 34ch; 
 }
 
     .pa-applied{ opacity:.5; filter:grayscale(.05); }
