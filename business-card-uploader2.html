@@ -55,15 +55,67 @@
       background: var(--bg-grad-1), var(--bg-grad-2), var(--bg-grad-3), var(--bg);
     }
 
-    /* ======= TOP THIN PROGRESS BAR ======= */
-    .top-progress {
-      position: fixed; top: 0; left: 0; width: 100%; height: 3px;
-      background: linear-gradient(90deg, var(--brand), var(--accent), var(--dify));
-      background-size: 200% 100%; animation: topbar 1.2s linear infinite;
-      opacity: 0; pointer-events: none; transition: opacity .2s ease; z-index: 10001;
-    }
-    .top-progress[aria-hidden="false"] { opacity: 1; }
-    @keyframes topbar { 0% {background-position:0% 0} 100% {background-position:200% 0} }
+/* ======= TOP PROGRESS BAR (Prominent & Interactive) ======= */
+.top-progress{
+  position: fixed; inset: 0 0 auto 0; height: 12px; z-index: 10001;
+  opacity: 0; pointer-events: none; transition: opacity .18s ease;
+}
+.top-progress[aria-hidden="false"]{ opacity: 1; pointer-events: auto; }
+
+.top-progress__track{
+  position: absolute; inset: 0;
+  background: linear-gradient(180deg, rgba(255,255,255,.08), rgba(255,255,255,.02));
+  border-bottom: 1px solid var(--border);
+  backdrop-filter: blur(4px);
+  box-shadow: 0 6px 18px rgba(0,0,0,.25);
+  overflow: hidden;
+}
+
+/* Main fill with animated stripes and glow */
+.top-progress__fill{
+  position: absolute; left: 0; top: 0; height: 100%; width: 0%;
+  background:
+    repeating-linear-gradient(135deg,
+      rgba(255,255,255,.22) 0 8px,
+      rgba(255,255,255,0) 8px 16px),
+    linear-gradient(90deg, var(--brand), var(--accent), var(--dify));
+  background-size: 16px 16px, 200% 100%;
+  animation: tp-move 1.2s linear infinite, tp-breath 1.8s ease-in-out infinite;
+  box-shadow: 0 0 20px var(--accent), 0 0 40px rgba(124,58,237,.25) inset;
+  border-right: 1px solid rgba(255,255,255,.35);
+}
+@keyframes tp-move { from{ background-position: 0 0, 0 0 } to{ background-position: 16px 0, 200% 0 } }
+@keyframes tp-breath { 0%,100%{ filter: brightness(1) } 50%{ filter: brightness(1.2) } }
+
+/* Little spark traveling at the leading edge */
+.top-progress__spark{
+  position: absolute; top: 0; width: 26px; height: 100%;
+  transform: translateX(-50%);
+  background: radial-gradient(16px 10px at 50% 50%, #fff, rgba(255,255,255,0));
+  mix-blend-mode: screen; pointer-events: none;
+  opacity: .85;
+}
+
+/* HUD (stage, percentage, cancel) */
+.top-progress__hud{
+  position: absolute; top: 16px; right: 10px;
+  display: inline-flex; align-items: center; gap: 8px;
+  padding: 6px 10px; border-radius: 999px;
+  background: var(--glass); border: 1px solid var(--border);
+  backdrop-filter: blur(8px);
+  font-size: .82rem; font-weight: 700; color: var(--text);
+  box-shadow: var(--panel-shadow);
+}
+.tp__stage{ color: var(--text-strong); }
+.tp__sep{ opacity: .6 }
+.tp__pct{ color: var(--text-dim) }
+.tp__cancel{
+  margin-left: 2px; border: 0; cursor: pointer;
+  background: linear-gradient(135deg, #ef4444, #b91c1c); color: #fff;
+  padding: 4px 8px; border-radius: 999px; font-weight: 800; line-height: 1;
+  box-shadow: 0 6px 16px rgba(239,68,68,.35);
+}
+.tp__cancel:hover{ filter: brightness(1.1) }
 
     /* ======= LAYOUT ======= */
     .wrap{max-width:1280px;margin:28px auto;padding:0 18px}
@@ -268,7 +320,21 @@
 </head>
 <body>
   <!-- Thin top progress bar -->
-  <div id="topProgress" class="top-progress" aria-hidden="true"></div>
+
+<!-- Prominent, interactive top progress bar -->
+<div id="topProgress" class="top-progress" aria-hidden="true" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-label="Processing status">
+  <div class="top-progress__track">
+    <div id="topProgressFill" class="top-progress__fill"></div>
+    <div id="topProgressSpark" class="top-progress__spark"></div>
+  </div>
+  <div class="top-progress__hud">
+    <span id="topProgressStage" class="tp__stage">Starting…</span>
+    <span class="tp__sep">•</span>
+    <span id="topProgressPct" class="tp__pct">0%</span>
+    <button id="topProgressCancel" class="tp__cancel" type="button" title="Cancel processing">✕</button>
+  </div>
+</div>
+
 
   <!-- Lightbox -->
   <div id="imgLightbox" class="img-lightbox" aria-hidden="true" aria-label="Image preview dialog" role="dialog" aria-modal="true">
@@ -526,6 +592,60 @@
       inlineText.textContent = on ? (text||'Processing…') : '';
     }
 
+    <script>
+  /* ======= PROGRESS CONTROL (prominent bar) ======= */
+  const tp = {
+    root: document.getElementById('topProgress'),
+    fill: document.getElementById('topProgressFill'),
+    spark: document.getElementById('topProgressSpark'),
+    pct: document.getElementById('topProgressPct'),
+    stage: document.getElementById('topProgressStage'),
+    cancelBtn: document.getElementById('topProgressCancel'),
+    show(on){ if(this.root) this.root.setAttribute('aria-hidden', on ? 'false':'true'); },
+    set(percent, label){
+      const p = Math.max(0, Math.min(100, Number(percent)||0));
+      if(this.fill){ this.fill.style.width = p + '%'; }
+      if(this.spark){ this.spark.style.left = p + '%'; }
+      if(this.pct){ this.pct.textContent = `${p}%`; }
+      if(this.root){ this.root.setAttribute('aria-valuenow', String(p)); }
+      if(label && this.stage){ this.stage.textContent = label; }
+    }
+  };
+
+  /* Hook cancel to abort controllers if available */
+  if (tp.cancelBtn){
+    tp.cancelBtn.addEventListener('click', () => {
+      try { paController?.abort(); } catch(_) {}
+      try { difyController?.abort(); } catch(_) {}
+      setProcessing(false, '');
+      tp.show(false);
+      if (inlineInfo) { showInlineInfo(false, ''); }
+    });
+  }
+
+  /* Override your existing progress helpers to drive the new bar */
+  function showTopProgress(on){
+    tp.show(!!on);
+    if(on){ tp.set(0, 'Starting…'); }
+  }
+
+  /* Optional: smooth scripted “estimation” between steps */
+  let _tpAnim = null;
+  function _tpAnimateTo(targetPct){
+    cancelAnimationFrame(_tpAnim);
+    const start = parseFloat(tp.fill?.style.width || '0') || 0;
+    const end = Math.max(start, targetPct);
+    const t0 = performance.now(), dur = Math.max(250, 900 * (end - start) / 25);
+    (function frame(now){
+      const k = Math.min(1, (now - t0)/dur);
+      const pct = Math.round(start + (end - start) * (0.2 + 0.8*k));
+      tp.set(pct);
+      if(k < 1) _tpAnim = requestAnimationFrame(frame);
+    })(t0);
+  }
+</script>
+
+    
     /* --- Add: key normalizer --- */
     function _normKey(s){
       return String(s || '')
@@ -550,7 +670,12 @@
       el.classList.remove('step--active','step--done');
       if(state==='active') el.classList.add('step--active');
       if(state==='done') el.classList.add('step--done');
+
+      // NEW: mirror stage text into the HUD
+      const stageName = { ocr:'OCR', pa:'Power Automate', dify:'Dify', done:'Done' }[step] || step;
+      if(state==='active'){ tp.set(undefined, `${stageName}…`); }  // keep % as-is, just update label
     }
+  
     function resetStepper(){
       setStepState('ocr','active');
       setStepState('pa','idle');
@@ -977,16 +1102,19 @@
 
       try{
         setProcessing(true, 'Preparing file…');
-
+        tp.set(5, 'Uploading');
+        
         // 0) Base64 conversion
         setStepState('ocr','active');
         const base64 = await fileToBase64(file);
         if (isStale(token)) return;
         const pureBase64=(base64.includes(','))? base64.split(',')[1] : base64;
         setStepState('ocr','done');
-
+        tp.set(25, 'OCR complete'); _tpAnimateTo(30);
+        
         // 1) Power Automate — preview only (display-only PA values)
         setStepState('pa','active');
+        tp.set(35, 'Extracting via Power Automate…'); _tpAnimateTo(55);
         showInlineInfo(true,'Extracting fields via Power Automate…');
         tPAStart = performance.now();
         const { data, elapsedSec: paElapsed } = await callPowerAutomate(pureBase64, paController.signal);
@@ -998,10 +1126,12 @@
 
         updateTimes(paSec, undefined, Number(toSec(performance.now()-tAllStart)));
         setStepState('pa','done');
-
+        tp.set(60, 'Preview ready (PA)');
+        
         // 2) Dify (auto-fill)
         const address = chooseFullAddressForDify(data);
         if(!address){
+          tp.set(100, 'Completed'); setTimeout(() => tp.show(false), 600);
           setStepState('dify','done');
           setStepState('done','done');
           const tAllEnd = performance.now();
@@ -1011,6 +1141,7 @@
         }
 
         setStepState('dify','active');
+        tp.set(70, 'Parsing address with Dify…'); _tpAnimateTo(90);
         showInlineInfo(true,'Parsing address with Dify…');
         difyController = new AbortController();
         tDifyStart = performance.now();
@@ -1032,6 +1163,7 @@
           if(msg) msg.innerHTML = `<span class="ok">OCR preview is ready.</span> <span class="err">Dify returned no parsable JSON.</span>`;
         }
 
+        tp.set(100, 'Completed'); setTimeout(() => tp.show(false), 600);       
         setStepState('dify','done');
         setStepState('done','done');
         const tAllEnd = performance.now();
@@ -1041,6 +1173,7 @@
         }
 
       }catch(e){
+        tp.set(100, 'Cancelled / Error'); setTimeout(() => tp.show(false), 1200);
         const tAllEnd = performance.now();
         const totalSec = Number(toSec(tAllEnd - tAllStart));
         const paMeasured = (typeof tPAStart==='number' && typeof tPAEnd==='number') ? Number(toSec(tPAEnd - tPAStart)) : paSec;
@@ -1053,6 +1186,7 @@
         }
       } finally {
         if(!isStale(token)) setProcessing(false, '');
+        if(!isStale(token) && !analyzeBtn?.disabled){ /* keep default behavior */ }
       }
     });
 
@@ -1071,3 +1205,4 @@
   </script>
 </body>
 </html>
+
