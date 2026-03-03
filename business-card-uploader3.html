@@ -29,10 +29,10 @@
 
       --btn-primary-from:#22d3ee; --btn-primary-to:#00a8ff; --btn-primary-text:#06202a;
 
-      /* ★ NEW: darker purple for Dify badge chips */
-      --dify-badge-bg:#4c1d95;      /* dark purple */
-      --dify-badge-bg-light:#5b21b6;/* slightly brighter for hover / light */
-      --dify-badge-text:#e9d5ff;    /* soft lavender text */
+      /* Dark purple Dify badge */
+      --dify-badge-bg:#4c1d95;
+      --dify-badge-bg-light:#5b21b6;
+      --dify-badge-text:#e9d5ff;
       --dify-badge-border:rgba(139,92,246,.55);
     }
 
@@ -98,7 +98,14 @@
     .theme-toggle .chip--on{background:linear-gradient(135deg,var(--brand),var(--accent));color:#0b1020}
     .theme-toggle .chip--off{opacity:.8}
 
-    .layout{display:grid;gap:16px;grid-template-columns:1fr}
+    /* ★ NEW: 2‑column layout — fields left, upload panel right */
+    .layout{
+      display:grid;gap:16px;
+      grid-template-columns:minmax(0,1fr) 360px; align-items:start;
+    }
+    @media (max-width:1000px){
+      .layout{ grid-template-columns:1fr; }
+    }
 
     .panel{
       background:var(--card);border:1px solid var(--border);border-radius:16px;
@@ -111,8 +118,6 @@
     .stack{display:flex;flex-direction:column;gap:16px}
 
     /* ======= FORMS ======= */
-    .row-2col{display:grid;grid-template-columns:1fr 360px;gap:12px}
-    @media (max-width:819px){.row-2col{grid-template-columns:1fr}}
     .form-grid{display:grid;gap:12px;grid-template-columns:1fr}
     @media (min-width:840px){.form-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
     @media (min-width:1200px){.form-grid{grid-template-columns:repeat(3,minmax(0,1fr))}}
@@ -133,35 +138,16 @@
     textarea{min-height:86px;resize:vertical}
 
     .actions{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
-    button{
-      background:linear-gradient(135deg,var(--brand),var(--accent));color:var(--btn-primary-text);border:0;border-radius:12px;
-      padding:10px 14px;font-size:.96rem;font-weight:700;cursor:pointer;letter-spacing:.2px
-    }
+    button{ background:linear-gradient(135deg,var(--brand),var(--accent));color:var(--btn-primary-text);border:0;border-radius:12px; padding:10px 14px;font-size:.96rem;font-weight:700;cursor:pointer;letter-spacing:.2px }
     button:hover{filter:brightness(1.1)} button:disabled{opacity:.55;cursor:not-allowed}
 
-    .btn-ghost{
-      background:transparent;color:var(--text);border:1px solid var(--border);
-      border-radius:8px;padding:6px 10px;font-size:.86rem;cursor:pointer
-    }
+    .btn-ghost{ background:transparent;color:var(--text);border:1px solid var(--border); border-radius:8px;padding:6px 10px;font-size:.86rem;cursor:pointer }
     .btn-ghost:hover{filter:brightness(1.2)}
     .btn-danger{ background:linear-gradient(135deg, #ef44441a, #ef44440f); border:1px solid rgba(239,68,68,.45) }
 
-    .btn-primary{
-      background:linear-gradient(135deg,var(--btn-primary-from),var(--btn-primary-to));
-      color:var(--btn-primary-text); border:0; border-radius:10px;
-      padding:8px 12px; font-weight:800; letter-spacing:.2px;
-      box-shadow:0 6px 18px rgba(0,168,255,.25);
-    }
-    .btn-primary:hover{ filter:brightness(1.1) }
+    .status{font-size:.92rem}.ok{color:var(--ok)} .err{color:var(--err)} .hint{font-size:.9rem;color:var(--muted)}
 
-    .status{font-size:.92rem}
-    .ok{color:var(--ok)} .err{color:var(--err)}
-    .hint{font-size:.9rem;color:var(--muted)}
-
-    .preview{
-      width:100%;max-width:340px;max-height:200px;border:1px dashed var(--border);
-      border-radius:12px;display:block;object-fit:contain;cursor:zoom-in;background:rgba(255,255,255,.03)
-    }
+    .preview{ width:100%;max-width:340px;max-height:200px;border:1px dashed var(--border); border-radius:12px;display:block;object-fit:contain;cursor:zoom-in;background:rgba(255,255,255,.03) }
     [data-theme="light"] .preview{ background:#fff }
 
     /* ======= LIGHTBOX ======= */
@@ -196,14 +182,15 @@
     .inline-dot{width:8px;height:8px;border-radius:50%;background: var(--accent); box-shadow: 0 0 10px var(--accent); animation: pulse 1.4s ease-in-out infinite; display:none}
     @keyframes pulse { 0%,100%{transform:scale(1)} 50%{transform:scale(1.2)} }
 
-    /* ======= COMPACT INLINE PA SUGGESTIONS ======= */
+    /* ======= Input + PA suggestion pairing ======= */
     .pair{ display:grid; grid-template-columns:1fr minmax(120px, 160px); gap:8px; align-items:stretch; }
     @media (max-width:520px){ .pair{ grid-template-columns:1fr; } }
+
     .pa-pill, .pa-box{
       border:1px dashed var(--pa-weak);
       background: repeating-linear-gradient(135deg, rgba(239,68,68,.15) 0 8px, rgba(239,68,68,.08) 8px 16px);
       color:var(--text-strong); border-radius:10px; cursor:pointer; position:relative;
-      transition: filter .15s ease, opacity .15s ease, background-color .15s ease; box-shadow: 0 0 0 1px rgba(239,68,68,.12) inset;
+      transition: filter .15s ease, opacity .2s ease, background-color .15s ease; box-shadow: 0 0 0 1px rgba(239,68,68,.12) inset;
     }
     [data-theme="light"] .pa-pill, [data-theme="light"] .pa-box{
       background: repeating-linear-gradient(135deg, rgba(239,68,68,.10) 0 8px, rgba(239,68,68,.05) 8px 16px);
@@ -213,8 +200,12 @@
     .pa-suggest.pa-box{ display:block; padding:10px 12px; min-height:64px; line-height:1.45; white-space:pre-wrap; word-break:break-word; }
     .pa-applied{ opacity:.5; filter:grayscale(.05); }
 
+    /* ★ NEW: Hide PA suggestions until Upload is clicked (only inputs visible) */
+    .pa-suggest{ opacity:0; visibility:hidden; pointer-events:none; }
+    .pa-reveal .pa-suggest{ opacity:1; visibility:visible; pointer-events:auto; }
+
     /* ======= DIFY BADGE (dark purple) ======= */
-    .badge{ /* ★ NEW: dark purple Dify chip */
+    .badge{
       display:inline-flex; align-items:center; gap:6px;
       font-size:.72rem; line-height:1; font-weight:700;
       padding:4px 8px; border-radius:999px;
@@ -234,18 +225,17 @@
     .box-derived__grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
     @media (max-width:819px){.box-derived__grid{grid-template-columns:1fr}}
 
-    /* ★ NEW: Compact Upload Panel tweaks (only this panel) */
-    .panel--upload{ padding:12px 12px 10px; }
-    .panel--upload .row-2col{ gap:10px; }
+    /* ★ NEW: Right sidebar upload panel — compact and sticky */
+    .panel--upload{ grid-column:2; position:sticky; top:16px; padding:12px 12px 10px; }
     .panel--upload h2{ margin-bottom:8px; }
     .panel--upload .actions{ margin-top:6px; gap:8px; }
     .panel--upload .hint{ margin-top:4px; font-size:.86rem; }
-    .panel--upload .stepper{ margin-top:6px; gap:8px; }
-    .panel--upload .timing-panel{ margin-top:6px; gap:8px; }
+    .panel--upload .stepper{ margin-top:8px; gap:8px; }
+    .panel--upload .timing-panel{ margin-top:8px; gap:8px; }
     .panel--upload .inline-info{ margin-top:4px; }
 
-    /* ★ NEW: hidden container for PA+Dify sections (shown after Upload is clicked) */
-    .results-wrap[hidden]{ display:none !important; }
+    /* ★ NEW: Main results (left column) */
+    #resultsWrap{ grid-column:1; }
   </style>
 </head>
 <body>
@@ -281,60 +271,8 @@
   <div class="subtitle">OCR ➜ PA inline suggestions (click to apply) ➜ Dify auto‑fills address ➜ Done</div>
 
   <div class="layout">
-    <!-- 1) Upload (COMPACT) -->
-    <section class="panel panel--upload"><!-- ★ NEW: panel--upload -->
-      <h2><span class="bar"></span>1) Upload Business Card</h2>
-      <div class="row-2col">
-        <div>
-          <input id="fileInput" type="file" accept="image/*,.pdf" />
-          <div class="hint">Supported: JPG/JPEG, PNG, BMP, PDF.</div>
-          <div class="actions">
-            <button id="analyzeBtn" disabled>Upload</button>
-            <span id="busy" class="status"></span>
-          </div>
-
-          <!-- Stepper -->
-          <div id="stepper" class="stepper" aria-label="Progress">
-            <div class="step step--active" data-step="ocr">
-              <span class="step__icon">🧾</span><span>OCR</span><span class="chip-spinner" aria-hidden="true"></span>
-            </div>
-            <span class="sep">→</span>
-            <div class="step" data-step="pa">
-              <span class="step__icon">🛠️</span><span>PA</span><span class="chip-spinner" aria-hidden="true"></span>
-            </div>
-            <span class="sep">→</span>
-            <div class="step" data-step="dify">
-              <span class="step__icon">🤖</span><span>Dify</span><span class="chip-spinner" aria-hidden="true"></span>
-            </div>
-            <span class="sep">→</span>
-            <div class="step" data-step="done">
-              <span class="step__icon">✅</span><span>Done</span>
-            </div>
-          </div>
-
-          <!-- Inline info -->
-          <div id="inlineInfo" class="inline-info" aria-live="polite">
-            <span class="inline-dot" aria-hidden="true"></span>
-            <span id="inlineText"></span>
-          </div>
-
-          <!-- Timings -->
-          <div id="timingPanel" class="timing-panel" aria-label="Timings">
-            <span class="chip-time chip-pa"><span class="dot"></span> PA: <span id="timPa">0.00</span>s</span>
-            <span class="chip-time chip-dify"><span class="dot"></span> Dify: <span id="timDify">0.00</span>s</span>
-            <span class="chip-time chip-total"><span class="dot"></span> Total: <span id="timTotal">0.00</span>s</span>
-          </div>
-        </div>
-
-        <div>
-          <img id="preview" class="preview" alt="Preview" role="button" tabindex="0" aria-label="Open enlarged preview" />
-          <div class="subtle" style="margin-top:6px">Click to enlarge (images only)</div>
-        </div>
-      </div>
-    </section>
-
-    <!-- ★ NEW: Wrap PA + Dify sections to toggle visibility -->
-    <div id="resultsWrap" class="results-wrap" hidden>
+    <!-- LEFT: Main results (inputs visible at load; PA sidecars revealed after Upload) -->
+    <div id="resultsWrap">
       <!-- 3) Extracted Fields (editable + PA inline) -->
       <section class="stack">
         <div class="panel">
@@ -527,7 +465,57 @@
           </div>
         </div>
       </section>
-    </div><!-- /results-wrap -->
+    </div>
+
+    <!-- RIGHT: Compact Upload Panel (sticky) -->
+    <section class="panel panel--upload">
+      <h2><span class="bar"></span>1) Upload Business Card</h2>
+
+      <input id="fileInput" type="file" accept="image/*,.pdf" />
+      <div class="hint">Supported: JPG/JPEG, PNG, BMP, PDF.</div>
+
+      <div class="actions">
+        <button id="analyzeBtn" disabled>Upload</button>
+        <span id="busy" class="status"></span>
+      </div>
+
+      <!-- Stepper -->
+      <div id="stepper" class="stepper" aria-label="Progress">
+        <div class="step step--active" data-step="ocr">
+          <span class="step__icon">🧾</span><span>OCR</span><span class="chip-spinner" aria-hidden="true"></span>
+        </div>
+        <span class="sep">→</span>
+        <div class="step" data-step="pa">
+          <span class="step__icon">🛠️</span><span>PA</span><span class="chip-spinner" aria-hidden="true"></span>
+        </div>
+        <span class="sep">→</span>
+        <div class="step" data-step="dify">
+          <span class="step__icon">🤖</span><span>Dify</span><span class="chip-spinner" aria-hidden="true"></span>
+        </div>
+        <span class="sep">→</span>
+        <div class="step" data-step="done">
+          <span class="step__icon">✅</span><span>Done</span>
+        </div>
+      </div>
+
+      <!-- Inline info -->
+      <div id="inlineInfo" class="inline-info" aria-live="polite">
+        <span class="inline-dot" aria-hidden="true"></span>
+        <span id="inlineText"></span>
+      </div>
+
+      <!-- Timings -->
+      <div id="timingPanel" class="timing-panel" aria-label="Timings">
+        <span class="chip-time chip-pa"><span class="dot"></span> PA: <span id="timPa">0.00</span>s</span>
+        <span class="chip-time chip-dify"><span class="dot"></span> Dify: <span id="timDify">0.00</span>s</span>
+        <span class="chip-time chip-total"><span class="dot"></span> Total: <span id="timTotal">0.00</span>s</span>
+      </div>
+
+      <div style="margin-top:8px">
+        <img id="preview" class="preview" alt="Preview" role="button" tabindex="0" aria-label="Open enlarged preview" />
+        <div class="subtle" style="margin-top:6px">Click to enlarge (images only)</div>
+      </div>
+    </section>
   </div>
 </div>
 
@@ -569,8 +557,6 @@
   const inlineInfo=document.getElementById('inlineInfo');
   const inlineDot=inlineInfo ? inlineInfo.querySelector('.inline-dot') : null;
   const inlineText=document.getElementById('inlineText');
-
-  const resultsWrap=document.getElementById('resultsWrap'); // ★ NEW
 
   /* ========= FIELD MAPS ========= */
   const fields={
@@ -950,6 +936,7 @@
     resetPaSuggestions();
     updateTimes(0,0,0); resetStepper();
     setProcessing(false, '');
+
     const f=fileInput.files && fileInput.files[0];
     if(!f){ if(preview) preview.src=''; return; }
     if(f.type.startsWith('image/')){
@@ -971,14 +958,14 @@
       return;
     }
 
+    // ★ NEW: reveal PA suggestions when user clicks Upload
+    document.documentElement.classList.add('pa-reveal');
+
     const token = newRequestToken();
     try{ paController?.abort(); }catch(_){}
     try{ difyController?.abort(); }catch(_){}
     paController = new AbortController();
     difyController = null;
-
-    // ★ NEW: reveal results area right when the process starts
-    if(resultsWrap && resultsWrap.hasAttribute('hidden')) resultsWrap.removeAttribute('hidden');
 
     const tAllStart = performance.now();
     let tPAStart, tPAEnd, tDifyStart, tDifyEnd;
