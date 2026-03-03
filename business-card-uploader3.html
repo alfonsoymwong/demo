@@ -265,7 +265,12 @@
       border-radius:8px;
     }
 
-    .pa-applied{ opacity:.5; filter:grayscale(.05); }
+    /* === DIM AFTER COPY — stronger visual feedback === */
+    .pa-applied{
+      opacity:.45;                   /* stronger dim */
+      filter: grayscale(.08) saturate(.9);
+      transition: opacity .18s ease, filter .18s ease;
+    }
 
     /* Hide PA suggestions until Upload is clicked (only inputs visible) */
     .pa-suggest{ opacity:0; visibility:hidden; pointer-events:none; }
@@ -845,7 +850,7 @@
     });
   }
 
-  // UPDATED: set title to the full value for native tooltip visibility
+  // Set tooltip to full value for visibility; leave clickable after applied
   function setPaSuggestion(key, rawVal){
     const el = paSidecars[key]; if(!el) return;
     const val = normalizeValue(rawVal).trim();
@@ -859,8 +864,8 @@
       el.removeAttribute('aria-disabled'); 
       el.dataset.value = val; 
       el.textContent = val; 
-      el.title = val;               // <-- show full content on hover
-      el.classList.remove('pa-applied');
+      el.title = val;               // full content on hover
+      el.classList.remove('pa-applied'); // reset dim until applied
     }
   }
 
@@ -868,7 +873,7 @@
     Object.keys(LABELS).forEach(k => { setPaSuggestion(k, getPaValue(paData, k)); });
   }
 
-  /* Click to apply from PA boxes */
+  /* Click to apply from PA boxes — DIM after copy */
   document.addEventListener('click', (e)=>{
     const el = e.target.closest('[data-pa]');
     if(!el) return;
@@ -878,7 +883,7 @@
     if(!key || !(key in fields) || !val) return;
     fields[key].value = val;
     addPABadge(key);
-    el.classList.add('pa-applied');
+    el.classList.add('pa-applied');  // <— dim after apply
     if(msg) msg.innerHTML = `<span class="ok">Applied ${LABELS[key] || key} from PA.</span>`;
   });
 
