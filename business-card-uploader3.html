@@ -230,53 +230,51 @@
 
     /* ======= COMPACT INLINE PA SUGGESTIONS ======= */
     .pair{
-      display:grid; grid-template-columns:1fr minmax(140px, 220px); gap:8px; align-items:stretch;
+      /* Input wider; PA suggestion shorter */
+      display:grid; grid-template-columns:1fr minmax(120px, 160px); gap:8px; align-items:stretch;
     }
     @media (max-width:520px){
       .pair{ grid-template-columns:1fr; }
     }
 
+    /* Distinct PA suggestion visuals (no PA label text) */
     .pa-pill, .pa-box{
-      border:1px dashed var(--border);
-      background:rgba(255,255,255,.03);
-      color:var(--text);
+      border:1px dashed var(--pa-weak);
+      background:
+        repeating-linear-gradient(135deg,
+          rgba(239,68,68,.15) 0 8px,
+          rgba(239,68,68,.08) 8px 16px);
+      color:var(--text-strong);
       border-radius:10px;
       cursor:pointer;
       position:relative;
-      transition: filter .15s ease;
-      box-shadow: 0 0 0 1px rgba(255,255,255,.02) inset;
+      transition: filter .15s ease, opacity .15s ease, background-color .15s ease;
+      box-shadow: 0 0 0 1px rgba(239,68,68,.12) inset;
     }
-    [data-theme="light"] .pa-pill, [data-theme="light"] .pa-box{ background:#fff; }
+    [data-theme="light"] .pa-pill, [data-theme="light"] .pa-box{
+      background:
+        repeating-linear-gradient(135deg,
+          rgba(239,68,68,.10) 0 8px,
+          rgba(239,68,68,.05) 8px 16px);
+      color:#0f172a;
+    }
 
-    .pa-pill{
+    /* Unify via helper class for clarity */
+    .pa-suggest.pa-pill{
       display:inline-flex; align-items:center; gap:8px;
       padding:8px 10px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
       min-height:42px;
     }
-    .pa-pill::before{
-      content:'PA';
-      font-size:.72rem; font-weight:800;
-      color:#fff; background:var(--pa);
-      border-radius:999px; padding:2px 6px; letter-spacing:.2px;
-    }
-
-    .pa-box{
+    .pa-suggest.pa-box{
       display:block; padding:10px 12px; min-height:64px; line-height:1.45; white-space:pre-wrap; word-break:break-word;
     }
-    .pa-box::before{
-      content:'PA';
-      position:absolute; top:6px; right:8px;
-      font-size:.7rem; font-weight:800;
-      color:#fff; background:var(--pa);
-      border-radius:999px; padding:2px 6px; letter-spacing:.2px;
-      opacity:.9;
-    }
 
-    .pa-pill[aria-disabled="true"], .pa-box[aria-disabled="true"]{
-      opacity:.55; cursor:default; filter:grayscale(.1);
-    }
-    .pa-pill:hover:not([aria-disabled="true"]), .pa-box:hover:not([aria-disabled="true"]){
-      filter:brightness(1.08);
+    /* Remove any old PA badge visuals inside the suggestion (no ::before chips) */
+
+    /* Dim state after copy */
+    .pa-applied{
+      opacity:.5;
+      filter:grayscale(.05);
     }
 
     /* ======= DERIVED BOX ======= */
@@ -396,7 +394,7 @@
             <label for="fullName">Full name <span class="label-badges" data-badges-for="fullName"></span></label>
             <div class="pair">
               <input id="fullName" type="text" />
-              <button type="button" class="pa-pill" data-pa="fullName" aria-disabled="true" title="Click to copy PA value">—</button>
+              <button type="button" class="pa-pill pa-suggest" data-pa="fullName" aria-disabled="true" title="Click to copy PA value">—</button>
             </div>
           </div>
 
@@ -404,7 +402,7 @@
             <label for="firstName">First name <span class="label-badges" data-badges-for="firstName"></span></label>
             <div class="pair">
               <input id="firstName" type="text" />
-              <button type="button" class="pa-pill" data-pa="firstName" aria-disabled="true" title="Click to copy PA value">—</button>
+              <button type="button" class="pa-pill pa-suggest" data-pa="firstName" aria-disabled="true" title="Click to copy PA value">—</button>
             </div>
           </div>
 
@@ -412,7 +410,7 @@
             <label for="lastName">Last name <span class="label-badges" data-badges-for="lastName"></span></label>
             <div class="pair">
               <input id="lastName" type="text" />
-              <button type="button" class="pa-pill" data-pa="lastName" aria-disabled="true" title="Click to copy PA value">—</button>
+              <button type="button" class="pa-pill pa-suggest" data-pa="lastName" aria-disabled="true" title="Click to copy PA value">—</button>
             </div>
           </div>
 
@@ -420,7 +418,7 @@
             <label for="title">Title <span class="label-badges" data-badges-for="title"></span></label>
             <div class="pair">
               <input id="title" type="text" />
-              <button type="button" class="pa-pill" data-pa="title" aria-disabled="true" title="Click to copy PA value">—</button>
+              <button type="button" class="pa-pill pa-suggest" data-pa="title" aria-disabled="true" title="Click to copy PA value">—</button>
             </div>
           </div>
 
@@ -428,7 +426,7 @@
             <label for="company">Company <span class="label-badges" data-badges-for="company"></span></label>
             <div class="pair">
               <input id="company" type="text" />
-              <button type="button" class="pa-pill" data-pa="company" aria-disabled="true" title="Click to copy PA value">—</button>
+              <button type="button" class="pa-pill pa-suggest" data-pa="company" aria-disabled="true" title="Click to copy PA value">—</button>
             </div>
           </div>
 
@@ -436,7 +434,7 @@
             <label for="department">Department <span class="label-badges" data-badges-for="department"></span></label>
             <div class="pair">
               <input id="department" type="text" />
-              <button type="button" class="pa-pill" data-pa="department" aria-disabled="true" title="Click to copy PA value">—</button>
+              <button type="button" class="pa-pill pa-suggest" data-pa="department" aria-disabled="true" title="Click to copy PA value">—</button>
             </div>
           </div>
 
@@ -448,21 +446,21 @@
                 <label for="industry">Industry <span class="label-badges" data-badges-for="industry"></span></label>
                 <div class="pair">
                   <input id="industry" type="text" />
-                  <button type="button" class="pa-pill" data-pa="industry" aria-disabled="true" title="Click to copy PA value">—</button>
+                  <button type="button" class="pa-pill pa-suggest" data-pa="industry" aria-disabled="true" title="Click to copy PA value">—</button>
                 </div>
               </div>
               <div class="field">
                 <label for="occupation">Occupation <span class="label-badges" data-badges-for="occupation"></span></label>
                 <div class="pair">
                   <input id="occupation" type="text" />
-                  <button type="button" class="pa-pill" data-pa="occupation" aria-disabled="true" title="Click to copy PA value">—</button>
+                  <button type="button" class="pa-pill pa-suggest" data-pa="occupation" aria-disabled="true" title="Click to copy PA value">—</button>
                 </div>
               </div>
               <div class="field">
                 <label for="position">Position <span class="label-badges" data-badges-for="position"></span></label>
                 <div class="pair">
                   <input id="position" type="text" />
-                  <button type="button" class="pa-pill" data-pa="position" aria-disabled="true" title="Click to copy PA value">—</button>
+                  <button type="button" class="pa-pill pa-suggest" data-pa="position" aria-disabled="true" title="Click to copy PA value">—</button>
                 </div>
               </div>
             </div>
@@ -472,7 +470,7 @@
             <label for="workPhone">Work phone <span class="label-badges" data-badges-for="workPhone"></span></label>
             <div class="pair">
               <input id="workPhone" type="text" />
-              <button type="button" class="pa-pill" data-pa="workPhone" aria-disabled="true" title="Click to copy PA value">—</button>
+              <button type="button" class="pa-pill pa-suggest" data-pa="workPhone" aria-disabled="true" title="Click to copy PA value">—</button>
             </div>
           </div>
 
@@ -480,7 +478,7 @@
             <label for="email">Email <span class="label-badges" data-badges-for="email"></span></label>
             <div class="pair">
               <input id="email" type="email" />
-              <button type="button" class="pa-pill" data-pa="email" aria-disabled="true" title="Click to copy PA value">—</button>
+              <button type="button" class="pa-pill pa-suggest" data-pa="email" aria-disabled="true" title="Click to copy PA value">—</button>
             </div>
           </div>
 
@@ -488,15 +486,15 @@
             <label for="website">Website <span class="label-badges" data-badges-for="website"></span></label>
             <div class="pair">
               <input id="website" type="text" />
-              <button type="button" class="pa-pill" data-pa="website" aria-disabled="true" title="Click to copy PA value">—</button>
+              <button type="button" class="pa-pill pa-suggest" data-pa="website" aria-disabled="true" title="Click to copy PA value">—</button>
             </div>
           </div>
 
           <div class="field" style="grid-column:1 / -1">
             <label for="fullAddress">Full address <span class="label-badges" data-badges-for="fullAddress"></span></label>
-            <div class="pair" style="grid-template-columns:1fr minmax(200px, 380px)">
+            <div class="pair" style="grid-template-columns:1fr minmax(160px, 240px)">
               <textarea id="fullAddress"></textarea>
-              <div class="pa-box" data-pa="fullAddress" aria-disabled="true" title="Click to copy PA value">—</div>
+              <div class="pa-box pa-suggest" data-pa="fullAddress" aria-disabled="true" title="Click to copy PA value">—</div>
             </div>
           </div>
 
@@ -513,7 +511,7 @@
             <label for="fullName_chi">Full name (中文) <span class="label-badges" data-badges-for="fullName_chi"></span></label>
             <div class="pair">
               <input id="fullName_chi" type="text" />
-              <button type="button" class="pa-pill" data-pa="fullName_chi" aria-disabled="true" title="Click to copy PA value">—</button>
+              <button type="button" class="pa-pill pa-suggest" data-pa="fullName_chi" aria-disabled="true" title="Click to copy PA value">—</button>
             </div>
           </div>
 
@@ -521,7 +519,7 @@
             <label for="firstName_chi">First name (中文) <span class="label-badges" data-badges-for="firstName_chi"></span></label>
             <div class="pair">
               <input id="firstName_chi" type="text" />
-              <button type="button" class="pa-pill" data-pa="firstName_chi" aria-disabled="true" title="Click to copy PA value">—</button>
+              <button type="button" class="pa-pill pa-suggest" data-pa="firstName_chi" aria-disabled="true" title="Click to copy PA value">—</button>
             </div>
           </div>
 
@@ -529,7 +527,7 @@
             <label for="lastName_chi">Last name (中文) <span class="label-badges" data-badges-for="lastName_chi"></span></label>
             <div class="pair">
               <input id="lastName_chi" type="text" />
-              <button type="button" class="pa-pill" data-pa="lastName_chi" aria-disabled="true" title="Click to copy PA value">—</button>
+              <button type="button" class="pa-pill pa-suggest" data-pa="lastName_chi" aria-disabled="true" title="Click to copy PA value">—</button>
             </div>
           </div>
 
@@ -537,7 +535,7 @@
             <label for="title_chi">Title (中文) <span class="label-badges" data-badges-for="title_chi"></span></label>
             <div class="pair">
               <input id="title_chi" type="text" />
-              <button type="button" class="pa-pill" data-pa="title_chi" aria-disabled="true" title="Click to copy PA value">—</button>
+              <button type="button" class="pa-pill pa-suggest" data-pa="title_chi" aria-disabled="true" title="Click to copy PA value">—</button>
             </div>
           </div>
 
@@ -545,7 +543,7 @@
             <label for="company_chi">Company (中文) <span class="label-badges" data-badges-for="company_chi"></span></label>
             <div class="pair">
               <input id="company_chi" type="text" />
-              <button type="button" class="pa-pill" data-pa="company_chi" aria-disabled="true" title="Click to copy PA value">—</button>
+              <button type="button" class="pa-pill pa-suggest" data-pa="company_chi" aria-disabled="true" title="Click to copy PA value">—</button>
             </div>
           </div>
 
@@ -553,7 +551,7 @@
             <label for="department_chi">Department (中文) <span class="label-badges" data-badges-for="department_chi"></span></label>
             <div class="pair">
               <input id="department_chi" type="text" />
-              <button type="button" class="pa-pill" data-pa="department_chi" aria-disabled="true" title="Click to copy PA value">—</button>
+              <button type="button" class="pa-pill pa-suggest" data-pa="department_chi" aria-disabled="true" title="Click to copy PA value">—</button>
             </div>
           </div>
         </div>
@@ -660,7 +658,7 @@
 
   /* ========= HELPERS ========= */
   function fileToBase64(file){ return new Promise((resolve,reject)=>{ const r=new FileReader(); r.readAsDataURL(file); r.onload=()=>resolve(r.result); r.onerror=reject; }); }
-  function escapeHtml(s){ return String(s).replace(/[&<>"'`]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;','`':'&#96;'}[c])); }
+  function escapeHtml(s){ return String(s).replace(/[&<>\"'`]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;','`':'&#96;'}[c])); }
   function toSec(ms){ return (ms/1000).toFixed(2); }
   function showInlineInfo(on, text){
     if(!inlineInfo || !inlineText) return;
@@ -754,7 +752,7 @@
     showInlineInfo(!!on, text || (on ? 'Processing…' : ''));
   }
 
-  /* ========= BADGES (PA applied) ========= */
+  /* ========= BADGES (PA applied to inputs, not in PA suggestion box) ========= */
   function addPABadge(fieldId){
     const slot = document.querySelector(`.label-badges[data-badges-for="${fieldId}"]`);
     if(!slot) return;
@@ -844,8 +842,8 @@
       if (!el) return;
       el.setAttribute('aria-disabled','true');
       el.dataset.value = '';
-      if(el.classList.contains('pa-box')) el.textContent = '—';
-      else el.textContent = '—';
+      el.textContent = '—';
+      el.classList.remove('pa-applied'); // clear dim state on reset
     });
   }
 
@@ -855,11 +853,13 @@
     if(!val){
       el.setAttribute('aria-disabled','true');
       el.dataset.value = '';
-      if(el.classList.contains('pa-box')) el.textContent = '—'; else el.textContent = '—';
+      el.textContent = '—';
+      el.classList.remove('pa-applied');
     }else{
       el.removeAttribute('aria-disabled');
       el.dataset.value = val;
-      if(el.classList.contains('pa-box')) el.textContent = val; else el.textContent = val;
+      el.textContent = val;
+      el.classList.remove('pa-applied');
     }
   }
 
@@ -878,7 +878,8 @@
     const val = el.dataset.value || '';
     if(!key || !(key in fields) || !val) return;
     fields[key].value = val;
-    addPABadge(key);
+    addPABadge(key);            // badge appears next to input label (not inside suggestion)
+    el.classList.add('pa-applied'); // dim the suggestion after it's copied
     if(msg) msg.innerHTML = `<span class="ok">Applied ${LABELS[key] || key} from PA.</span>`;
   });
 
@@ -895,11 +896,11 @@
     let s = text.replace(/^\uFEFF/, '').trim();
     try { return JSON.parse(s); } catch (_) {}
     s = s.replace(/```(?:json|JSON)?\s*([\s\S]*?)\s*```/g, '$1').trim();
-    s = s
-      .replace(/&quot;/g, '"').replace(/&#34;/g, '"')
-      .replace(/&apos;/g, "'").replace(/&#39;/g, "'")
-      .replace(/&amp;/g, '&').replace(/&lt;/g, '<')
-      .replace(/&gt;/g, '>').replace(/&nbsp;/g, ' ');
+    s =
+      s.replace(/&quot;/g, '"').replace(/&#34;/g, '"')
+       .replace(/&apos;/g, "'").replace(/&#39;/g, "'")
+       .replace(/&amp;/g, '&').replace(/&lt;/g, '<')
+       .replace(/&gt;/g, '>').replace(/&nbsp;/g, ' ');
     s = s.replace(/[“”]/g, '"').replace(/[‘’]/g, "'");
 
     try { return JSON.parse(s); } catch (_) {}
