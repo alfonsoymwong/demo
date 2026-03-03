@@ -184,15 +184,29 @@
 
     /* ======= Input + PA suggestion pairing ======= */
     /* Input (left) much wider than PA suggestion (right) */
-    .pair{
-      display:grid;
-      grid-template-columns: minmax(320px, 1fr) minmax(110px, 140px); /* ← wider input, narrower PA */
-      gap:8px; align-items:stretch;
+
+    /* NEW — ensure grid children don't force columns to overflow */
+    .pair > * { 
+      min-width: 0;           /* critical for inputs/buttons inside CSS Grid */
     }
-    /* Wider text area row */
-    .pair.pair--address{
-      grid-template-columns: minmax(360px, 1fr) minmax(140px, 180px);
-    }
+    
+
+/* REPLACE these rules */
+.pair{
+  display:grid;
+  /* OLD: grid-template-columns: minmax(320px, 1fr) minmax(110px, 140px); */
+  grid-template-columns: minmax(0, 1fr) clamp(110px, 22vw, 180px);
+  gap:8px; 
+  align-items:stretch;
+}
+
+/* Address row */
+.pair.pair--address{
+  /* OLD: grid-template-columns: minmax(360px, 1fr) minmax(140px, 180px); */
+  grid-template-columns: minmax(0, 1fr) clamp(140px, 26vw, 220px);
+}
+
+  
     @media (max-width:560px){
       .pair, .pair.pair--address{ grid-template-columns:1fr; }
     }
@@ -207,8 +221,31 @@
       background: repeating-linear-gradient(135deg, rgba(239,68,68,.10) 0 8px, rgba(239,68,68,.05) 8px 16px);
       color:#0f172a;
     }
-    .pa-suggest.pa-pill{ display:inline-flex; align-items:center; gap:8px; padding:8px 10px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; min-height:42px; }
-    .pa-suggest.pa-box{ display:block; padding:10px 12px; min-height:64px; line-height:1.45; white-space:pre-wrap; word-break:break-word; }
+
+    
+/* tighten sidecar sizing */
+.pa-suggest { 
+  max-width: 100%;        /* NEW: never exceed its grid column */
+}
+.pa-suggest.pa-pill{
+  display:inline-flex;
+  align-items:center;
+  gap:8px;
+  padding:8px 10px;
+  white-space:nowrap;
+  overflow:hidden;         /* already present, keep it */
+  text-overflow:ellipsis;  /* already present, keep it */
+  min-height:42px;
+}
+.pa-suggest.pa-box{
+  display:block;
+  padding:10px 12px;
+  min-height:64px;
+  line-height:1.45;
+  white-space:pre-wrap;
+  word-break:break-word;   /* already present, keep it */
+}
+
     .pa-applied{ opacity:.5; filter:grayscale(.05); }
 
     /* Hide PA suggestions until Upload is clicked (only inputs visible) */
