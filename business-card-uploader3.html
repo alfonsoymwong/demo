@@ -182,31 +182,26 @@
     .inline-dot{width:8px;height:8px;border-radius:50%;background: var(--accent); box-shadow: 0 0 10px var(--accent); animation: pulse 1.4s ease-in-out infinite; display:none}
     @keyframes pulse { 0%,100%{transform:scale(1)} 50%{transform:scale(1.2)} }
 
-    /* ======= Input + PA suggestion pairing ======= */
-    /* Input (left) much wider than PA suggestion (right) */
+    /* ======= Input + PA suggestion pairing (updated) ======= */
 
-    /* NEW — ensure grid children don't force columns to overflow */
+    /* Ensure grid children (inputs/buttons) don't overflow their columns */
     .pair > * { 
-      min-width: 0;           /* critical for inputs/buttons inside CSS Grid */
+      min-width: 0;
     }
-    
 
-/* REPLACE these rules */
-.pair{
-  display:grid;
-  /* OLD: grid-template-columns: minmax(320px, 1fr) minmax(110px, 140px); */
-  grid-template-columns: minmax(0, 1fr) clamp(120px, 28ch, 180px);
-  gap:8px; 
-  align-items:stretch;
-}
+    /* Make editable input much wider; PA suggestion column is compact */
+    .pair{
+      display:grid;
+      grid-template-columns: minmax(0, 1fr) clamp(100px, 16ch, 140px);
+      gap:8px; 
+      align-items:stretch;
+    }
 
-/* Address row */
-.pair.pair--address{
-  /* OLD: grid-template-columns: minmax(360px, 1fr) minmax(140px, 180px); */
-  grid-template-columns: minmax(0, 1fr) clamp(140px, 34ch, 220px);
-}
+    /* Address row — keep sidecar slightly wider for readability */
+    .pair.pair--address{
+      grid-template-columns: minmax(0, 1fr) clamp(120px, 22ch, 200px);
+    }
 
-  
     @media (max-width:560px){
       .pair, .pair.pair--address{ grid-template-columns:1fr; }
     }
@@ -222,32 +217,53 @@
       color:#0f172a;
     }
 
-    
-/* tighten sidecar sizing */
-.pa-suggest { 
-  max-width: 100%;        /* NEW: never exceed its grid column */
-  inline-size: auto
-}
-.pa-suggest.pa-pill{
-  display:inline-flex;
-  align-items:center;
-  gap:8px;
-  padding:8px 10px;
-  white-space:nowrap;
-  overflow:hidden;         /* already present, keep it */
-  text-overflow:ellipsis;  /* already present, keep it */
-  min-height:42px;
-  max-inline-size: 28ch; 
-}
-.pa-suggest.pa-box{
-  display:block;
-  padding:10px 12px;
-  min-height:64px;
-  line-height:1.45;
-  white-space:pre-wrap;
-  word-break:break-word;   /* already present, keep it */
-  max-inline-size: 34ch; 
-}
+    /* PA suggestion base — do not let it expand its column */
+    .pa-suggest { 
+      max-width: 100%;
+      inline-size: auto;
+    }
+
+    /* Pill (inline) — compact & horizontally scrollable if overflowing */
+    .pa-suggest.pa-pill{
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+      padding:8px 10px;
+      white-space:nowrap;
+      overflow:auto;                 /* allow horizontal scroll */
+      text-overflow:clip;            /* no ellipsis; we can scroll */
+      min-height:42px;
+      max-inline-size:16ch;          /* compact width */
+      scrollbar-width:thin;          /* Firefox */
+    }
+    .pa-suggest.pa-pill::-webkit-scrollbar{
+      height:6px;
+    }
+    .pa-suggest.pa-pill::-webkit-scrollbar-thumb{
+      background: rgba(255,255,255,.25);
+      border-radius:6px;
+    }
+
+    /* Box (multiline, e.g. full address) — compact & scrollable */
+    .pa-suggest.pa-box{
+      display:block;
+      padding:10px 12px;
+      min-height:64px;
+      line-height:1.45;
+      white-space:pre-wrap;
+      word-break:break-word;
+      max-inline-size:22ch;          /* a bit wider than pill */
+      max-height:140px;              /* limit height to keep column tight */
+      overflow:auto;                 /* show scrollbars when needed */
+      scrollbar-width:thin;
+    }
+    .pa-suggest.pa-box::-webkit-scrollbar{
+      width:8px;
+    }
+    .pa-suggest.pa-box::-webkit-scrollbar-thumb{
+      background: rgba(0,0,0,.25);
+      border-radius:8px;
+    }
 
     .pa-applied{ opacity:.5; filter:grayscale(.05); }
 
@@ -653,7 +669,7 @@
 
   /* ========= HELPERS ========= */
   function fileToBase64(file){ return new Promise((resolve,reject)=>{ const r=new FileReader(); r.readAsDataURL(file); r.onload=()=>resolve(r.result); r.onerror=reject; }); }
-  function escapeHtml(s){ return String(s).replace(/[&<>\"'`]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;','\'':'&#39;','`':'&#96;'}[c])); }
+  function escapeHtml(s){ return String(s).replace(/[&<>\"'`]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;','`':'&#96;'}[c])); }
   function toSec(ms){ return (ms/1000).toFixed(2); }
   function showInlineInfo(on, text){
     if(!inlineInfo || !inlineText) return;
@@ -824,17 +840,27 @@
       el.setAttribute('aria-disabled','true');
       el.dataset.value = '';
       el.textContent = '—';
+      el.removeAttribute('title');
       el.classList.remove('pa-applied');
     });
   }
 
+  // UPDATED: set title to the full value for native tooltip visibility
   function setPaSuggestion(key, rawVal){
     const el = paSidecars[key]; if(!el) return;
     const val = normalizeValue(rawVal).trim();
     if(!val){
-      el.setAttribute('aria-disabled','true'); el.dataset.value = ''; el.textContent = '—'; el.classList.remove('pa-applied');
+      el.setAttribute('aria-disabled','true'); 
+      el.dataset.value = ''; 
+      el.textContent = '—'; 
+      el.removeAttribute('title');
+      el.classList.remove('pa-applied');
     }else{
-      el.removeAttribute('aria-disabled'); el.dataset.value = val; el.textContent = val; el.classList.remove('pa-applied');
+      el.removeAttribute('aria-disabled'); 
+      el.dataset.value = val; 
+      el.textContent = val; 
+      el.title = val;               // <-- show full content on hover
+      el.classList.remove('pa-applied');
     }
   }
 
@@ -1138,6 +1164,17 @@
     }
   });
 
+  /* ========= Optional UX: vertical wheel -> horizontal scroll on pill ========= */
+  document.addEventListener('wheel', (e) => {
+    const target = e.target.closest('.pa-suggest.pa-pill');
+    if (!target) return;
+    if (target.scrollWidth <= target.clientWidth) return; // not overflowing
+    if (Math.abs(e.deltaY) > Math.abs(e.deltaX)) {
+      target.scrollLeft += e.deltaY; // vertical wheel → horizontal scroll
+      e.preventDefault();
+    }
+  }, { passive: false });
+
   /* ========= Lightbox ========= */
   function openLightbox(){ if(!preview?.src) return; imgLightboxImg.src=preview.src; imgLightbox.setAttribute('aria-hidden','false'); document.body.style.overflow='hidden'; imgLightboxClose.focus(); }
   function closeLightbox(){ imgLightbox.setAttribute('aria-hidden','true'); document.body.style.overflow=''; imgLightboxImg.removeAttribute('src'); preview.focus(); }
@@ -1153,4 +1190,3 @@
 </script>
 </body>
 </html>
-``
