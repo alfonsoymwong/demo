@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="en">
+<html lang="en" data-theme="dark">
 <head>
   <meta charset="utf-8" />
   <title>AI Business Card Application Form Filling (v2.0)</title>
@@ -35,7 +35,7 @@
       --pa-sg-border: rgba(239,68,68,.55);
       --pa-sg-text: #ffecec;
 
-      --applied-dim: .42; /* if you later enable dimming after copy */
+      --applied-dim: .42;
     }
 
     /* ================= THEME: LIGHT OVERRIDES ================= */
@@ -110,7 +110,7 @@
     .row-2col{display:grid;grid-template-columns:1fr 360px;gap:12px}
     @media (max-width:819px){.row-2col{grid-template-columns:1fr}}
     .form-grid{display:grid;gap:12px;grid-template-columns:1fr}
-    @media (min-width:840px){.form-grid{grid-template-columns:repeat(3,minmax(0,1fr))}} /* 3-up compact */
+    @media (min-width:840px){.form-grid{grid-template-columns:repeat(3,minmax(0,1fr))}}
     @media (min-width:1200px){.form-grid{grid-template-columns:repeat(3,minmax(0,1fr))}}
 
     .field{display:flex;flex-direction:column;gap:8px}
@@ -127,7 +127,7 @@
       border:1px solid rgba(124,58,237,.35)
     }
 
-    /* Inputs (make clearly editable) */
+    /* Inputs */
     input[type="text"],input[type="email"],textarea{
       width:100%;padding:10px 12px;border:1px solid var(--input-border);border-radius:12px;
       font-size:.96rem;color:var(--text-strong);background:var(--input-bg);
@@ -138,7 +138,6 @@
     [data-theme="light"] input:focus,[data-theme="light"] textarea:focus{ background:#ffffff }
     textarea{min-height:86px;resize:vertical}
 
-    /* Applied feedback on inputs (temporary glow) */
     .just-filled{ animation: filledFlash 1200ms ease-out 1; }
     @keyframes filledFlash{
       0%{ box-shadow:0 0 0 0 rgba(16,185,129,.0), 0 0 0 0 rgba(16,185,129,.0); }
@@ -181,10 +180,10 @@
     .chip-dify{background:var(--dify-weak);outline:1px solid rgba(124,58,237,.35)} .chip-dify .dot{background:var(--dify)}
     .chip-total{background:var(--total-weak);outline:1px solid rgba(34,211,238,.35)} .chip-total .dot{background:var(--total)}
 
-    /* ======= INLINE LAYOUT: make input wider and suggestion narrower ======= */
+    /* ======= INLINE LAYOUT ======= */
     .pair{
       display:grid;
-      grid-template-columns: 1fr minmax(120px, 180px); /* input grows; PA is narrow */
+      grid-template-columns: 1fr minmax(120px, 170px); /* input wider; suggestion narrower */
       gap:8px; align-items:stretch;
     }
     @media (max-width:560px){ .pair{ grid-template-columns:1fr; } }
@@ -199,7 +198,7 @@
       outline: none;
     }
     .pa-pill{ display:flex; align-items:center; gap:8px; padding:10px 12px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; min-height:44px; }
-    .pa-box{ display:block; padding:12px; min-height:72px; line-height:1.5; white-space:pre-wrap; word-break:break-word; }
+    .pa-box{ display:block; padding:12px; min-height:44px; line-height:1.45; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
 
     .pa-pill:not([aria-disabled="true"]):hover, .pa-box:not([aria-disabled="true"]):hover{
       filter:brightness(1.08); box-shadow:0 8px 22px rgba(239,68,68,.12);
@@ -207,3 +206,291 @@
     .pa-pill:not([aria-disabled="true"]):active, .pa-box:not([aria-disabled="true"]):active{ transform: translateY(1px); }
     .pa-pill[aria-disabled="true"], .pa-box[aria-disabled="true"]{ cursor:default; }
 
+    /* Small helper to place a transient copied hint (no explicit label shown though) */
+    .copied-hint{
+      position:absolute; right:8px; top:8px; font-size:.72rem; color:#fff;
+      background: rgba(16,185,129,.9); padding:2px 6px; border-radius:6px; display:none;
+    }
+    .pa-box.copied .copied-hint{ display:inline-block; }
+
+    /* Hide PA badge by default; show when field has data-from="pa" */
+    .badge-pa{ display:none; }
+    .field[data-from="pa"] .badge-pa{ display:inline-flex; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="page-head">
+      <h1><span class="glow-dot"></span> AI Business Card Application Form Filling (v2.0)</h1>
+      <button class="theme-toggle" id="toggleTheme" type="button" aria-pressed="false" title="Toggle theme">
+        <span class="chip chip--on">Dark</span>
+        <span class="chip chip--off">Light</span>
+      </button>
+    </div>
+    <p class="subtitle">Click the red-striped PA suggestion to copy it into the field. After copying, a PA badge will appear on the label.</p>
+
+    <div class="layout">
+      <!-- ===================== Applicant Info (with PA copy) ===================== -->
+      <section class="panel">
+        <h2><span class="bar"></span> Applicant Information</h2>
+
+        <div class="form-grid">
+
+          <!-- Name (example pair) -->
+          <div class="field" id="field-name">
+            <label for="full_name">
+              Full Name
+              <span class="label-badges">
+                <span class="badge-pa" aria-label="Filled from PA">PA</span>
+              </span>
+            </label>
+            <div class="pair">
+              <input id="full_name" type="text" placeholder="Enter your full name" autocomplete="name" />
+              <button class="pa-box" type="button" data-for="full_name" title="Click to copy PA suggestion">
+                <span class="copied-hint" aria-hidden="true">Copied</span>
+                Alfonso K. Wong
+              </button>
+            </div>
+            <div class="hint">Tip: Click the right-side red area to apply.</div>
+          </div>
+
+          <!-- Title -->
+          <div class="field" id="field-title">
+            <label for="job_title">
+              Job Title
+              <span class="label-badges">
+                <span class="badge-pa" aria-label="Filled from PA">PA</span>
+              </span>
+            </label>
+            <div class="pair">
+              <input id="job_title" type="text" placeholder="e.g., Vice President, Solution Management" />
+              <button class="pa-box" type="button" data-for="job_title" title="Click to copy PA suggestion">
+                <span class="copied-hint" aria-hidden="true">Copied</span>
+                Vice President, Solution Management
+              </button>
+            </div>
+          </div>
+
+          <!-- Email -->
+          <div class="field" id="field-email">
+            <label for="email">
+              Email
+              <span class="label-badges">
+                <span class="badge-pa" aria-label="Filled from PA">PA</span>
+              </span>
+            </label>
+            <div class="pair">
+              <input id="email" type="email" placeholder="you@company.com" autocomplete="email" />
+              <button class="pa-box" type="button" data-for="email" title="Click to copy PA suggestion">
+                <span class="copied-hint" aria-hidden="true">Copied</span>
+                alfonso.wong@company.com
+              </button>
+            </div>
+          </div>
+
+          <!-- Phone -->
+          <div class="field" id="field-phone">
+            <label for="phone">
+              Phone
+              <span class="label-badges">
+                <span class="badge-pa" aria-label="Filled from PA">PA</span>
+              </span>
+            </label>
+            <div class="pair">
+              <input id="phone" type="text" placeholder="+852 1234 5678" inputmode="tel" autocomplete="tel" />
+              <button class="pa-box" type="button" data-for="phone" title="Click to copy PA suggestion">
+                <span class="copied-hint" aria-hidden="true">Copied</span>
+                +852 9123 4567
+              </button>
+            </div>
+          </div>
+
+          <!-- Department -->
+          <div class="field" id="field-dept">
+            <label for="department">
+              Department
+              <span class="label-badges">
+                <span class="badge-pa" aria-label="Filled from PA">PA</span>
+              </span>
+            </label>
+            <div class="pair">
+              <input id="department" type="text" placeholder="Department" />
+              <button class="pa-box" type="button" data-for="department" title="Click to copy PA suggestion">
+                <span class="copied-hint" aria-hidden="true">Copied</span>
+                Solution Management
+              </button>
+            </div>
+          </div>
+
+          <!-- Office Location -->
+          <div class="field" id="field-office">
+            <label for="office_location">
+              Office Location
+              <span class="label-badges">
+                <span class="badge-pa" aria-label="Filled from PA">PA</span>
+              </span>
+            </label>
+            <div class="pair">
+              <input id="office_location" type="text" placeholder="City / Office" />
+              <button class="pa-box" type="button" data-for="office_location" title="Click to copy PA suggestion">
+                <span class="copied-hint" aria-hidden="true">Copied</span>
+                Hong Kong
+              </button>
+            </div>
+          </div>
+
+        </div>
+      </section>
+
+      <!-- ===================== Dify Section (label restored) ===================== -->
+      <section class="panel">
+        <h2><span class="bar"></span> Dify (Auto-fill Metrics)</h2>
+        <div class="stepper" aria-label="Progress">
+          <div class="step step--done"><span>Extract</span></div>
+          <div class="step step--active"><span>Map</span></div>
+          <div class="step"><span>Apply</span></div>
+        </div>
+
+        <div class="timing-panel" aria-label="Timings">
+          <span class="chip-time chip-pa"><span class="dot"></span> PA 0.42s</span>
+          <span class="chip-time chip-dify"><span class="dot"></span> Dify 0.86s</span>
+          <span class="chip-time chip-total"><span class="dot"></span> Total 1.28s</span>
+        </div>
+
+        <div class="stack" style="margin-top:10px">
+          <div class="field">
+            <label>Model Notes <span class="badge">dify</span></label>
+            <textarea placeholder="Auto-generated mapping notes…">Name, Title, Email confidently mapped from PA suggestions.</textarea>
+          </div>
+          <div class="actions">
+            <button type="button">Re-run Dify</button>
+            <button class="btn-ghost" type="button">View Logs</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- ===================== Actions ===================== -->
+      <section class="panel">
+        <h2><span class="bar"></span> Submit</h2>
+        <div class="actions">
+          <button type="button" id="applyAll">Apply All PA Suggestions</button>
+          <button class="btn-ghost btn-danger" type="button" id="clearPA">Clear PA-filled</button>
+        </div>
+        <p class="hint">“Apply All” fills all empty fields with their PA suggestions and marks them with the PA badge.</p>
+      </section>
+    </div>
+  </div>
+
+  <script>
+    // Theme toggle
+    (function(){
+      const btn = document.getElementById('toggleTheme');
+      const root = document.documentElement;
+      const set = (light) => {
+        root.setAttribute('data-theme', light ? 'light' : 'dark');
+        btn.setAttribute('aria-pressed', String(light));
+        btn.querySelector('.chip--on').textContent = light ? 'Light' : 'Dark';
+        btn.querySelector('.chip--off').textContent = light ? 'Dark' : 'Light';
+      };
+      btn.addEventListener('click', () => set(root.getAttribute('data-theme') !== 'light'));
+    })();
+
+    // Helpers
+    function getFieldContainer(inputEl){
+      return inputEl?.closest('.field');
+    }
+    function markFromPA(inputEl){
+      const field = getFieldContainer(inputEl);
+      if(field){ field.setAttribute('data-from','pa'); }
+    }
+    function unmarkFromPA(inputEl){
+      const field = getFieldContainer(inputEl);
+      if(field){ field.removeAttribute('data-from'); }
+    }
+    function applySuggestionToInput(inputEl, value){
+      inputEl.value = value;
+      inputEl.classList.remove('just-filled'); // retrigger animation
+      // Force reflow to replay animation
+      void inputEl.offsetWidth;
+      inputEl.classList.add('just-filled');
+      markFromPA(inputEl);
+      inputEl.dispatchEvent(new Event('input', {bubbles:true}));
+      inputEl.dispatchEvent(new Event('change', {bubbles:true}));
+    }
+
+    // Click-to-copy on PA suggestions
+    document.addEventListener('click', (e)=>{
+      const pa = e.target.closest('.pa-box');
+      if(!pa) return;
+      const targetId = pa.getAttribute('data-for');
+      const input = document.getElementById(targetId);
+      if(!input) return;
+
+      // Extract visible text content (trim whitespace/newlines)
+      const text = Array.from(pa.childNodes)
+        .filter(n=>n.nodeType===Node.TEXT_NODE)
+        .map(n=>n.textContent)
+        .join(' ')
+        .replace(/\s+/g,' ')
+        .trim();
+
+      applySuggestionToInput(input, text);
+
+      // Visual feedback on the PA pill (no explicit "copy" label visible)
+      pa.classList.add('copied');
+      setTimeout(()=>pa.classList.remove('copied'), 900);
+    });
+
+    // Clear PA-filled (only fields marked data-from="pa")
+    document.getElementById('clearPA').addEventListener('click', ()=>{
+      document.querySelectorAll('.field[data-from="pa"]').forEach(field=>{
+        const input = field.querySelector('input, textarea');
+        if(input){
+          input.value = '';
+          input.classList.remove('just-filled');
+          unmarkFromPA(input);
+        }
+      });
+    });
+
+    // Apply All (only fill empties)
+    document.getElementById('applyAll').addEventListener('click', ()=>{
+      document.querySelectorAll('.pa-box[data-for]').forEach(pa=>{
+        const id = pa.getAttribute('data-for');
+        const input = document.getElementById(id);
+        if(!input || input.value.trim().length) return;
+
+        const text = Array.from(pa.childNodes)
+          .filter(n=>n.nodeType===Node.TEXT_NODE)
+          .map(n=>n.textContent)
+          .join(' ')
+          .replace(/\s+/g,' ')
+          .trim();
+
+        applySuggestionToInput(input, text);
+        pa.classList.add('copied');
+        setTimeout(()=>pa.classList.remove('copied'), 700);
+      });
+    });
+
+    // If user edits a field manually after PA, remove PA badge
+    document.addEventListener('input', (e)=>{
+      const el = e.target;
+      if(!(el instanceof HTMLInputElement || el instanceof HTMLTextAreaElement)) return;
+      const field = getFieldContainer(el);
+      if(!field) return;
+      if(el.value.trim() === ''){
+        // empty: remove badge
+        unmarkFromPA(el);
+      } else {
+        // If typed manually, we can choose to keep or clear PA.
+        // Here: if user typed (not from PA), clear PA badge.
+        // We detect manual typing by checking if just-filled animation isn't active.
+        if(!el.classList.contains('just-filled')){
+          unmarkFromPA(el);
+        }
+      }
+    });
+  </script>
+</body>
+</html>
