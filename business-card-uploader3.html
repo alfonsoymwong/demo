@@ -392,9 +392,9 @@
       <section class="stack">
         <div class="panel">
           <div class="actions" style="justify-content:flex-end;margin-bottom:6px">
-            <button id="btnResetBadges" type="button" class="btn-ghost btn-danger">Reset PA badges</button>
+            <button id="btnResetBadges" type="button" class="btn-ghost btn-danger">Reset AI badges</button>
           </div>
-          <h2><span class="bar"></span>3) Extracted Fields (Editable with PA Suggestions)</h2>
+          <h2><span class="bar"></span>Application Data (with AI Suggestions)</h2>
 
           <div class="form-grid">
             <!-- English set -->
@@ -815,7 +815,7 @@
     if(slot.querySelector('.badge-pa')) return;
     const b = document.createElement('span');
     b.className = 'badge-pa';
-    b.textContent = 'PA';
+    b.textContent = 'AI';
     slot.appendChild(b);
   }
   function clearAllBadges(){
@@ -967,8 +967,8 @@
       ind.type = 'button';
       ind.className = 'pa-indicator';
       ind.setAttribute('data-pa', key);
-      ind.setAttribute('aria-label', `PA suggestion for ${LABELS[key] || key}`);
-      ind.innerHTML = `<span class="pa-indicator__dot" aria-hidden="true"></span> PA`;
+      ind.setAttribute('aria-label', `AI suggestion for ${LABELS[key] || key}`);
+      ind.innerHTML = `<span class="pa-indicator__dot" aria-hidden="true"></span> AI`;
       host.appendChild(ind);
     }
     ind.removeAttribute('aria-disabled');
@@ -999,7 +999,7 @@
         if (typeof window.markPairDone === 'function' && fields[key].value === value){
           window.markPairDone(key);
         }
-        if(msg) msg.innerHTML = `<span class="ok">Applied ${LABELS[key] || key} from PA.</span>`;
+        if(msg) msg.innerHTML = `<span class="ok">Applied ${LABELS[key] || key} from AI.</span>`;
       }
     };
   }
@@ -1212,7 +1212,7 @@
         setStepState('done','done');
         const tAllEnd = performance.now();
         updateTimes(paSec, 0, Number(toSec(tAllEnd - tAllStart)));
-        if(msg) msg.innerHTML = `<span class="ok">OCR ready (PA suggestions shown). No address found for Dify.</span>`;
+        if(msg) msg.innerHTML = `<span class="ok">OCR ready (AI suggestions shown). No address found for Dify.</span>`;
         return;
       }
 
@@ -1271,7 +1271,7 @@
       const tAllEnd = performance.now();
       updateTimes(paSec, difySec, Number(toSec(tAllEnd - tAllStart)));
       if(!msg?.textContent){
-        if(msg) msg.innerHTML = `<span class="ok">OCR ready. PA suggestions available (compact). Dify structured address auto-filled.</span>`;
+        if(msg) msg.innerHTML = `<span class="ok">OCR ready. AI suggestions available (compact). Dify structured address auto-filled.</span>`;
       }
 
     }catch(e){
