@@ -183,25 +183,17 @@
     @keyframes pulse { 0%,100%{transform:scale(1)} 50%{transform:scale(1.2)} }
 
     /* ======= Input + PA suggestion pairing (updated) ======= */
-
-    /* Ensure grid children (inputs/buttons) don't overflow their columns */
-    .pair > * { 
-      min-width: 0;
-    }
-
-    /* Make editable input much wider; PA suggestion column is compact */
+    .pair > * { min-width: 0; }
     .pair{
       display:grid;
       grid-template-columns: minmax(0, 1fr) clamp(100px, 16ch, 140px);
       gap:8px; 
       align-items:stretch;
+      position: relative; /* NEW: for indicator positioning */
     }
-
-    /* Address row — keep sidecar slightly wider for readability */
     .pair.pair--address{
       grid-template-columns: minmax(0, 1fr) clamp(120px, 22ch, 200px);
     }
-
     @media (max-width:560px){
       .pair, .pair.pair--address{ grid-template-columns:1fr; }
     }
@@ -211,63 +203,54 @@
       background: repeating-linear-gradient(135deg, rgba(239,68,68,.15) 0 8px, rgba(239,68,68,.08) 8px 16px);
       color:var(--text-strong); border-radius:10px; cursor:pointer; position:relative;
       transition: filter .15s ease, opacity .2s ease, background-color .15s ease; box-shadow: 0 0 0 1px rgba(239,68,68,.12) inset;
+      /* UPDATED: small font and compact padding */
+      font-size: .82rem;            /* NEW/UPDATED: smaller font */
+      line-height: 1.25;            /* NEW/UPDATED */
     }
+    .pa-pill{ padding:6px 8px; }   /* NEW/UPDATED: tighter */
+    .pa-box{ padding:8px 10px; }   /* NEW/UPDATED */
     [data-theme="light"] .pa-pill, [data-theme="light"] .pa-box{
       background: repeating-linear-gradient(135deg, rgba(239,68,68,.10) 0 8px, rgba(239,68,68,.05) 8px 16px);
       color:#0f172a;
     }
 
-    /* PA suggestion base — do not let it expand its column */
     .pa-suggest { 
       max-width: 100%;
       inline-size: auto;
     }
 
-    /* Pill (inline) — compact & horizontally scrollable if overflowing */
     .pa-suggest.pa-pill{
       display:inline-flex;
       align-items:center;
       gap:8px;
-      padding:8px 10px;
+      padding:6px 8px;
       white-space:nowrap;
-      overflow:auto;                 /* allow horizontal scroll */
-      text-overflow:clip;            /* no ellipsis; we can scroll */
-      min-height:42px;
-      max-inline-size:16ch;          /* compact width */
-      scrollbar-width:thin;          /* Firefox */
-    }
-    .pa-suggest.pa-pill::-webkit-scrollbar{
-      height:6px;
-    }
-    .pa-suggest.pa-pill::-webkit-scrollbar-thumb{
-      background: rgba(255,255,255,.25);
-      border-radius:6px;
-    }
-
-    /* Box (multiline, e.g. full address) — compact & scrollable */
-    .pa-suggest.pa-box{
-      display:block;
-      padding:10px 12px;
-      min-height:64px;
-      line-height:1.45;
-      white-space:pre-wrap;
-      word-break:break-word;
-      max-inline-size:22ch;          /* a bit wider than pill */
-      max-height:140px;              /* limit height to keep column tight */
-      overflow:auto;                 /* show scrollbars when needed */
+      overflow:auto;
+      text-overflow:clip;
+      min-height:36px;              /* UPDATED smaller */
+      max-inline-size:16ch;
       scrollbar-width:thin;
     }
-    .pa-suggest.pa-box::-webkit-scrollbar{
-      width:8px;
-    }
-    .pa-suggest.pa-box::-webkit-scrollbar-thumb{
-      background: rgba(0,0,0,.25);
-      border-radius:8px;
-    }
+    .pa-suggest.pa-pill::-webkit-scrollbar{ height:6px; }
+    .pa-suggest.pa-pill::-webkit-scrollbar-thumb{ background: rgba(255,255,255,.25); border-radius:6px; }
 
-    /* === DIM AFTER COPY — stronger visual feedback === */
+    .pa-suggest.pa-box{
+      display:block;
+      padding:8px 10px;
+      min-height:52px;              /* UPDATED smaller */
+      line-height:1.35;             /* UPDATED */
+      white-space:pre-wrap;
+      word-break:break-word;
+      max-inline-size:22ch;
+      max-height:120px;             /* UPDATED smaller */
+      overflow:auto;
+      scrollbar-width:thin;
+    }
+    .pa-suggest.pa-box::-webkit-scrollbar{ width:8px; }
+    .pa-suggest.pa-box::-webkit-scrollbar-thumb{ background: rgba(0,0,0,.25); border-radius:8px; }
+
     .pa-applied{
-      opacity:.45;                   /* stronger dim */
+      opacity:.45;
       filter: grayscale(.08) saturate(.9);
       transition: opacity .18s ease, filter .18s ease;
     }
@@ -308,6 +291,93 @@
 
     /* Left column container */
     #resultsWrap{ grid-column:1; }
+
+    /* =========================================================
+       NEW: COMPACT PA UI (no sidecar column space taken)
+       - Adds a tiny indicator button inside the input (right end)
+       - Shows a floating popover with the PA value on hover/focus
+       ========================================================= */
+    .pa-compact .pair{
+      grid-template-columns: 1fr;  /* collapse sidecar column */
+    }
+    .pa-compact .pa-suggest{
+      display:none !important;     /* hide the sidecar pill/box entirely */
+    }
+    /* Indicator button pinned inside input field */
+    .pa-indicator{
+      position:absolute;
+      right:8px; top:50%; transform:translateY(-50%);
+      display:inline-flex; align-items:center; gap:6px;
+      border:1px dashed rgba(239,68,68,.45);
+      background:rgba(239,68,68,.12);
+      color: var(--text-strong);
+      border-radius:8px;
+      font-size:.72rem;             /* small label */
+      font-weight:800;
+      padding:3px 8px;
+      cursor:pointer;
+      line-height:1;
+      z-index:2;
+      box-shadow:0 0 0 1px rgba(239,68,68,.08) inset;
+      user-select:none;
+    }
+    [data-theme="light"] .pa-indicator{
+      background:rgba(239,68,68,.08);
+      color:#0f172a;
+    }
+    .pa-indicator[aria-disabled="true"]{
+      opacity:.4; pointer-events:none;
+    }
+    .pa-indicator__dot{
+      width:8px;height:8px;border-radius:50%;
+      background: var(--pa);
+      box-shadow:0 0 8px rgba(239,68,68,.45);
+    }
+
+    /* Floating popover */
+    .pa-popover{
+      position:absolute;
+      right:8px; top: calc(100% + 6px);
+      min-width: 220px;
+      max-width: 360px;
+      background: var(--glass);
+      border:1px solid var(--border);
+      border-radius:10px;
+      box-shadow: var(--panel-shadow);
+      padding:8px 10px;
+      color: var(--text);
+      display:none;
+    }
+    .pa-popover__title{
+      font-size:.78rem; font-weight:800; opacity:.85; margin-bottom:6px;
+      display:flex; align-items:center; gap:6px;
+    }
+    .pa-popover__val{
+      font-size:.86rem; line-height:1.35; color:var(--text-strong); word-break:break-word;
+      max-height:160px; overflow:auto;
+    }
+    .pa-popover__hint{
+      font-size:.74rem; color:var(--muted); margin-top:6px;
+    }
+    .pa-popover__apply{
+      margin-top:8px; display:inline-flex; align-items:center; gap:6px;
+      border:1px solid var(--border); background:transparent; color:var(--text);
+      border-radius:8px; padding:6px 10px; font-size:.82rem; cursor:pointer;
+    }
+    .pa-popover__apply:hover{ filter:brightness(1.08) }
+
+    /* Show popover when indicator or input is hovered/focused */
+    .pair:has(.pa-indicator:focus) .pa-popover,
+    .pair:hover .pa-popover,
+    .pair:focus-within .pa-popover{
+      display:block;
+    }
+
+    /* For textarea rows (address), align indicator at top-right */
+    .pair.pair--address .pa-indicator{
+      top: 10px; transform:none;
+    }
+
   </style>
 </head>
 <body>
@@ -343,9 +413,8 @@
   <div class="subtitle">OCR ➜ PA inline suggestions (click to apply) ➜ Dify auto‑fills address ➜ Done</div>
 
   <div class="layout">
-    <!-- LEFT: Main results (inputs visible at load; PA sidecars revealed after Upload) -->
+    <!-- LEFT: Main results -->
     <div id="resultsWrap">
-      <!-- Input Fields (editable + AI suggestion) -->
       <section class="stack">
         <div class="panel">
           <div class="actions" style="justify-content:flex-end;margin-bottom:6px">
@@ -360,6 +429,7 @@
               <div class="pair">
                 <input id="fullName" type="text" />
                 <button type="button" class="pa-pill pa-suggest" data-pa="fullName" aria-disabled="true" title="Click to copy PA value">—</button>
+                <!-- NEW: compact indicator & popover get injected by JS -->
               </div>
             </div>
 
@@ -539,7 +609,7 @@
       </section>
     </div>
 
-    <!-- RIGHT: Compact Upload Panel (sticky) -->
+    <!-- RIGHT: Upload Panel -->
     <section class="panel panel--upload">
       <h2><span class="bar"></span>Upload Business Card</h2>
 
@@ -848,6 +918,9 @@
       el.removeAttribute('title');
       el.classList.remove('pa-applied');
     });
+    // NEW: also remove indicators/popovers
+    document.querySelectorAll('.pa-indicator').forEach(n => n.remove());
+    document.querySelectorAll('.pa-popover').forEach(n => n.remove());
   }
 
   // Set tooltip to full value for visibility; leave clickable after applied
@@ -860,12 +933,20 @@
       el.textContent = '—'; 
       el.removeAttribute('title');
       el.classList.remove('pa-applied');
+      // NEW: disable indicator if exists
+      const host = el.closest('.pair');
+      const ind = host?.querySelector(`.pa-indicator[data-pa="${key}"]`);
+      if (ind){ ind.setAttribute('aria-disabled','true'); ind.dataset.value = ''; }
+      const pop = host?.querySelector(`.pa-popover[data-pa="${key}"]`);
+      if (pop){ pop.remove(); }
     }else{
       el.removeAttribute('aria-disabled'); 
       el.dataset.value = val; 
       el.textContent = val; 
-      el.title = val;               // full content on hover
-      el.classList.remove('pa-applied'); // reset dim until applied
+      el.title = val;               
+      el.classList.remove('pa-applied');
+      // NEW: (re)build indicator & popover
+      buildCompactPA(key, val, el);
     }
   }
 
@@ -877,15 +958,82 @@
   document.addEventListener('click', (e)=>{
     const el = e.target.closest('[data-pa]');
     if(!el) return;
+    // ignore clicks on popover container root (handled separately)
+    if (el.classList.contains('pa-popover')) return;
+
     if(el.getAttribute('aria-disabled') === 'true') return;
     const key = el.getAttribute('data-pa');
     const val = el.dataset.value || '';
     if(!key || !(key in fields) || !val) return;
     fields[key].value = val;
     addPABadge(key);
-    el.classList.add('pa-applied');  // <— dim after apply
+    // Dim sidecar if exists & the indicator
+    const sidecar = paSidecars[key];
+    sidecar?.classList.add('pa-applied');
+    const host = sidecar?.closest('.pair') || document.querySelector(`#${key}`)?.closest('.pair');
+    host?.querySelector(`.pa-indicator[data-pa="${key}"]`)?.classList.add('pa-applied');
+
     if(msg) msg.innerHTML = `<span class="ok">Applied ${LABELS[key] || key} from PA.</span>`;
   });
+
+  /* ========= COMPACT PA: indicator + popover (NEW) ========= */
+  function buildCompactPA(key, value, sidecarEl){
+    const host = sidecarEl.closest('.pair');
+    if(!host) return;
+
+    // 1) Ensure indicator exists
+    let ind = host.querySelector(`.pa-indicator[data-pa="${key}"]`);
+    if(!ind){
+      ind = document.createElement('button');
+      ind.type = 'button';
+      ind.className = 'pa-indicator';
+      ind.setAttribute('data-pa', key);
+      ind.setAttribute('aria-label', `PA suggestion for ${LABELS[key] || key}`);
+      ind.innerHTML = `<span class="pa-indicator__dot" aria-hidden="true"></span> PA`;
+      host.appendChild(ind);
+    }
+    ind.removeAttribute('aria-disabled');
+    ind.dataset.value = value;
+
+    // 2) Ensure popover exists
+    let pop = host.querySelector(`.pa-popover[data-pa="${key}"]`);
+    if(!pop){
+      pop = document.createElement('div');
+      pop.className = 'pa-popover';
+      pop.setAttribute('data-pa', key);
+      pop.innerHTML = `
+        <div class="pa-popover__title"><span class="pa-indicator__dot" aria-hidden="true"></span> ${LABELS[key] || key}</div>
+        <div class="pa-popover__val"></div>
+        <div class="pa-popover__hint">Click “Apply” or the PA tag to copy into the field.</div>
+        <button type="button" class="pa-popover__apply">Apply to field</button>
+      `;
+      host.appendChild(pop);
+    }
+    pop.querySelector('.pa-popover__val').textContent = value;
+
+    // Click on indicator applies
+    ind.onclick = () => {
+      if(ind.getAttribute('aria-disabled') === 'true') return;
+      const el = { getAttribute:()=>key, dataset:{ value } };
+      const evt = new Event('click', { bubbles:true });
+      // route to global handler by forging dataset on element
+      Object.defineProperty(evt, 'target', { value: ind });
+      // direct apply (avoid bubbling complexities)
+      if (fields[key]){
+        fields[key].value = value;
+        addPABadge(key);
+        ind.classList.add('pa-applied');
+        sidecarEl?.classList.add('pa-applied');
+        if(msg) msg.innerHTML = `<span class="ok">Applied ${LABELS[key] || key} from PA.</span>`;
+      }
+    };
+    // Popover Apply button
+    const applyBtn = pop.querySelector('.pa-popover__apply');
+    applyBtn.onclick = () => ind.click();
+  }
+
+  // Enable compact PA mode globally
+  document.documentElement.classList.add('pa-compact');  // NEW
 
   /* ========= DIFY HELPERS ========= */
   function chooseFullAddressForDify(flowData){
@@ -1149,7 +1297,7 @@
       const tAllEnd = performance.now();
       updateTimes(paSec, difySec, Number(toSec(tAllEnd - tAllStart)));
       if(!msg?.textContent){
-        if(msg) msg.innerHTML = `<span class="ok">OCR ready. PA suggestions available inline. Dify structured address auto-filled.</span>`;
+        if(msg) msg.innerHTML = `<span class="ok">OCR ready. PA suggestions available (compact). Dify structured address auto-filled.</span>`;
       }
 
     }catch(e){
