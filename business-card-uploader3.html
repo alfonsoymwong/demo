@@ -189,7 +189,7 @@
       grid-template-columns: minmax(0, 1fr) clamp(100px, 16ch, 140px);
       gap:8px; 
       align-items:stretch;
-      position: relative; /* NEW: for indicator positioning */
+      position: relative; /* for indicator & popover positioning */
     }
     .pair.pair--address{
       grid-template-columns: minmax(0, 1fr) clamp(120px, 22ch, 200px);
@@ -203,12 +203,10 @@
       background: repeating-linear-gradient(135deg, rgba(239,68,68,.15) 0 8px, rgba(239,68,68,.08) 8px 16px);
       color:var(--text-strong); border-radius:10px; cursor:pointer; position:relative;
       transition: filter .15s ease, opacity .2s ease, background-color .15s ease; box-shadow: 0 0 0 1px rgba(239,68,68,.12) inset;
-      /* UPDATED: small font and compact padding */
-      font-size: .82rem;            /* NEW/UPDATED: smaller font */
-      line-height: 1.25;            /* NEW/UPDATED */
+      font-size: .82rem; line-height: 1.25;
     }
-    .pa-pill{ padding:6px 8px; }   /* NEW/UPDATED: tighter */
-    .pa-box{ padding:8px 10px; }   /* NEW/UPDATED */
+    .pa-pill{ padding:6px 8px; }
+    .pa-box{ padding:8px 10px; }
     [data-theme="light"] .pa-pill, [data-theme="light"] .pa-box{
       background: repeating-linear-gradient(135deg, rgba(239,68,68,.10) 0 8px, rgba(239,68,68,.05) 8px 16px);
       color:#0f172a;
@@ -227,7 +225,7 @@
       white-space:nowrap;
       overflow:auto;
       text-overflow:clip;
-      min-height:36px;              /* UPDATED smaller */
+      min-height:36px;
       max-inline-size:16ch;
       scrollbar-width:thin;
     }
@@ -237,23 +235,19 @@
     .pa-suggest.pa-box{
       display:block;
       padding:8px 10px;
-      min-height:52px;              /* UPDATED smaller */
-      line-height:1.35;             /* UPDATED */
+      min-height:52px;
+      line-height:1.35;
       white-space:pre-wrap;
       word-break:break-word;
       max-inline-size:22ch;
-      max-height:120px;             /* UPDATED smaller */
+      max-height:120px;
       overflow:auto;
       scrollbar-width:thin;
     }
     .pa-suggest.pa-box::-webkit-scrollbar{ width:8px; }
     .pa-suggest.pa-box::-webkit-scrollbar-thumb{ background: rgba(0,0,0,.25); border-radius:8px; }
 
-    .pa-applied{
-      opacity:.45;
-      filter: grayscale(.08) saturate(.9);
-      transition: opacity .18s ease, filter .18s ease;
-    }
+    .pa-applied{ opacity:.45; filter: grayscale(.08) saturate(.9); }
 
     /* Hide PA suggestions until Upload is clicked (only inputs visible) */
     .pa-suggest{ opacity:0; visibility:hidden; pointer-events:none; }
@@ -293,78 +287,45 @@
     #resultsWrap{ grid-column:1; }
 
     /* =========================================================
-       NEW: COMPACT PA UI (no sidecar column space taken)
-       - Adds a tiny indicator button inside the input (right end)
-       - Shows a floating popover with the PA value on hover/focus
+       COMPACT PA UI
+       - Indicator button inside input (right end)
+       - Floating popover on hover/focus (now value only)
        ========================================================= */
-    .pa-compact .pair{
-      grid-template-columns: 1fr;  /* collapse sidecar column */
-    }
-    .pa-compact .pa-suggest{
-      display:none !important;     /* hide the sidecar pill/box entirely */
-    }
-    /* Indicator button pinned inside input field */
+    .pa-compact .pair{ grid-template-columns: 1fr; }
+    .pa-compact .pa-suggest{ display:none !important; }
+
     .pa-indicator{
-      position:absolute;
-      right:8px; top:50%; transform:translateY(-50%);
+      position:absolute; right:8px; top:50%; transform:translateY(-50%);
       display:inline-flex; align-items:center; gap:6px;
       border:1px dashed rgba(239,68,68,.45);
       background:rgba(239,68,68,.12);
       color: var(--text-strong);
-      border-radius:8px;
-      font-size:.72rem;             /* small label */
-      font-weight:800;
-      padding:3px 8px;
-      cursor:pointer;
-      line-height:1;
-      z-index:2;
-      box-shadow:0 0 0 1px rgba(239,68,68,.08) inset;
-      user-select:none;
+      border-radius:8px; font-size:.72rem; font-weight:800;
+      padding:3px 8px; cursor:pointer; line-height:1; z-index:2;
+      box-shadow:0 0 0 1px rgba(239,68,68,.08) inset; user-select:none;
     }
     [data-theme="light"] .pa-indicator{
-      background:rgba(239,68,68,.08);
-      color:#0f172a;
+      background:rgba(239,68,68,.08); color:#0f172a;
     }
-    .pa-indicator[aria-disabled="true"]{
-      opacity:.4; pointer-events:none;
-    }
+    .pa-indicator[aria-disabled="true"]{ opacity:.4; pointer-events:none; }
     .pa-indicator__dot{
       width:8px;height:8px;border-radius:50%;
       background: var(--pa);
       box-shadow:0 0 8px rgba(239,68,68,.45);
     }
 
-    /* Floating popover */
+    /* Floating popover: value only */
     .pa-popover{
-      position:absolute;
-      right:8px; top: calc(100% + 6px);
-      min-width: 220px;
-      max-width: 360px;
-      background: var(--glass);
-      border:1px solid var(--border);
-      border-radius:10px;
-      box-shadow: var(--panel-shadow);
-      padding:8px 10px;
-      color: var(--text);
-      display:none;
-    }
-    .pa-popover__title{
-      font-size:.78rem; font-weight:800; opacity:.85; margin-bottom:6px;
-      display:flex; align-items:center; gap:6px;
+      position:absolute; right:8px; top: calc(100% + 6px);
+      min-width: 220px; max-width: 360px;
+      background: var(--glass); border:1px solid var(--border);
+      border-radius:10px; box-shadow: var(--panel-shadow);
+      padding:8px 10px; color: var(--text); display:none;
     }
     .pa-popover__val{
-      font-size:.86rem; line-height:1.35; color:var(--text-strong); word-break:break-word;
-      max-height:160px; overflow:auto;
+      font-size:.86rem; line-height:1.35; color:var(--text-strong);
+      word-break:break-word; max-height:160px; overflow:auto;
     }
-    .pa-popover__hint{
-      font-size:.74rem; color:var(--muted); margin-top:6px;
-    }
-    .pa-popover__apply{
-      margin-top:8px; display:inline-flex; align-items:center; gap:6px;
-      border:1px solid var(--border); background:transparent; color:var(--text);
-      border-radius:8px; padding:6px 10px; font-size:.82rem; cursor:pointer;
-    }
-    .pa-popover__apply:hover{ filter:brightness(1.08) }
 
     /* Show popover when indicator or input is hovered/focused */
     .pair:has(.pa-indicator:focus) .pa-popover,
@@ -374,10 +335,7 @@
     }
 
     /* For textarea rows (address), align indicator at top-right */
-    .pair.pair--address .pa-indicator{
-      top: 10px; transform:none;
-    }
-
+    .pair.pair--address .pa-indicator{ top: 10px; transform:none; }
   </style>
 </head>
 <body>
@@ -429,7 +387,7 @@
               <div class="pair">
                 <input id="fullName" type="text" />
                 <button type="button" class="pa-pill pa-suggest" data-pa="fullName" aria-disabled="true" title="Click to copy PA value">—</button>
-                <!-- NEW: compact indicator & popover get injected by JS -->
+                <!-- Compact indicator & popover injected by JS -->
               </div>
             </div>
 
@@ -918,12 +876,12 @@
       el.removeAttribute('title');
       el.classList.remove('pa-applied');
     });
-    // NEW: also remove indicators/popovers
+    // Remove indicators/popovers
     document.querySelectorAll('.pa-indicator').forEach(n => n.remove());
     document.querySelectorAll('.pa-popover').forEach(n => n.remove());
   }
 
-  // Set tooltip to full value for visibility; leave clickable after applied
+  // Set tooltip to full value for visibility; keep clickable after applied
   function setPaSuggestion(key, rawVal){
     const el = paSidecars[key]; if(!el) return;
     const val = normalizeValue(rawVal).trim();
@@ -933,7 +891,6 @@
       el.textContent = '—'; 
       el.removeAttribute('title');
       el.classList.remove('pa-applied');
-      // NEW: disable indicator if exists
       const host = el.closest('.pair');
       const ind = host?.querySelector(`.pa-indicator[data-pa="${key}"]`);
       if (ind){ ind.setAttribute('aria-disabled','true'); ind.dataset.value = ''; }
@@ -945,7 +902,7 @@
       el.textContent = val; 
       el.title = val;               
       el.classList.remove('pa-applied');
-      // NEW: (re)build indicator & popover
+      // Build compact PA (value-only popover)
       buildCompactPA(key, val, el);
     }
   }
@@ -976,7 +933,7 @@
     if(msg) msg.innerHTML = `<span class="ok">Applied ${LABELS[key] || key} from PA.</span>`;
   });
 
-  /* ========= COMPACT PA: indicator + popover (NEW) ========= */
+  /* ========= COMPACT PA: indicator + VALUE-ONLY popover ========= */
   function buildCompactPA(key, value, sidecarEl){
     const host = sidecarEl.closest('.pair');
     if(!host) return;
@@ -995,30 +952,22 @@
     ind.removeAttribute('aria-disabled');
     ind.dataset.value = value;
 
-    // 2) Ensure popover exists
+    // 2) Ensure VALUE-ONLY popover exists (no title, no hint, no apply)
     let pop = host.querySelector(`.pa-popover[data-pa="${key}"]`);
     if(!pop){
       pop = document.createElement('div');
       pop.className = 'pa-popover';
       pop.setAttribute('data-pa', key);
       pop.innerHTML = `
-        <div class="pa-popover__title"><span class="pa-indicator__dot" aria-hidden="true"></span> ${LABELS[key] || key}</div>
         <div class="pa-popover__val"></div>
-        <div class="pa-popover__hint">Click “Apply” or the PA tag to copy into the field.</div>
-        <button type="button" class="pa-popover__apply">Apply to field</button>
       `;
       host.appendChild(pop);
     }
     pop.querySelector('.pa-popover__val').textContent = value;
 
-    // Click on indicator applies
+    // Indicator click still applies the value
     ind.onclick = () => {
       if(ind.getAttribute('aria-disabled') === 'true') return;
-      const el = { getAttribute:()=>key, dataset:{ value } };
-      const evt = new Event('click', { bubbles:true });
-      // route to global handler by forging dataset on element
-      Object.defineProperty(evt, 'target', { value: ind });
-      // direct apply (avoid bubbling complexities)
       if (fields[key]){
         fields[key].value = value;
         addPABadge(key);
@@ -1027,13 +976,10 @@
         if(msg) msg.innerHTML = `<span class="ok">Applied ${LABELS[key] || key} from PA.</span>`;
       }
     };
-    // Popover Apply button
-    const applyBtn = pop.querySelector('.pa-popover__apply');
-    applyBtn.onclick = () => ind.click();
   }
 
   // Enable compact PA mode globally
-  document.documentElement.classList.add('pa-compact');  // NEW
+  document.documentElement.classList.add('pa-compact');
 
   /* ========= DIFY HELPERS ========= */
   function chooseFullAddressForDify(flowData){
