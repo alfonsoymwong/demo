@@ -29,7 +29,7 @@
 
       --btn-primary-from:#22d3ee; --btn-primary-to:#00a8ff; --btn-primary-text:#06202a;
 
-      /* Dark purple Dify badge */
+      /* Dify badge */
       --dify-badge-bg:#4c1d95;
       --dify-badge-bg-light:#5b21b6;
       --dify-badge-text:#e9d5ff;
@@ -182,7 +182,7 @@
     .inline-dot{width:8px;height:8px;border-radius:50%;background: var(--accent); box-shadow: 0 0 10px var(--accent); animation: pulse 1.4s ease-in-out infinite; display:none}
     @keyframes pulse { 0%,100%{transform:scale(1)} 50%{transform:scale(1.2)} }
 
-    /* ======= Input + PA suggestion pairing (updated) ======= */
+    /* ======= Input + PA suggestion pairing (original layout) ======= */
     .pair > * { min-width: 0; }
     .pair{
       display:grid;
@@ -212,7 +212,7 @@
       color:#0f172a;
     }
 
-    .pa-suggest {
+    .pa-suggest { 
       max-width: 100%;
       inline-size: auto;
     }
@@ -249,7 +249,7 @@
 
     .pa-applied{ opacity:.45; filter: grayscale(.08) saturate(.9); }
 
-    /* Hide PA suggestions until Upload is clicked (only inputs visible) */
+    /* Hide PA suggestions until Upload is clicked */
     .pa-suggest{ opacity:0; visibility:hidden; pointer-events:none; }
     .pa-reveal .pa-suggest{ opacity:1; visibility:visible; pointer-events:auto; }
 
@@ -274,7 +274,7 @@
     .box-derived__grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
     @media (max-width:819px){.box-derived__grid{grid-template-columns:1fr}}
 
-    /* Right sidebar upload panel — compact and sticky */
+    /* Upload panel */
     .panel--upload{ grid-column:2; position:sticky; top:16px; padding:12px 12px 10px; }
     .panel--upload h2{ margin-bottom:8px; }
     .panel--upload .actions{ margin-top:6px; gap:8px; }
@@ -288,8 +288,6 @@
 
     /* =========================================================
        COMPACT PA UI
-       - Indicator button inside input (right end)
-       - Floating popover on hover/focus (now value only)
        ========================================================= */
     .pa-compact .pair{ grid-template-columns: 1fr; }
     .pa-compact .pa-suggest{ display:none !important; }
@@ -314,7 +312,7 @@
       box-shadow:0 0 8px rgba(239,68,68,.45);
     }
 
-    /* Floating popover: value only */
+    /* Floating popover: value only (default under; overridden later) */
     .pa-popover{
       position:absolute; right:8px; top: calc(100% + 6px);
       min-width: 220px; max-width: 360px;
@@ -327,14 +325,12 @@
       word-break:break-word; max-height:160px; overflow:auto;
     }
 
-    /* Show popover when indicator or input is hovered/focused */
     .pair:has(.pa-indicator:focus) .pa-popover,
     .pair:hover .pa-popover,
     .pair:focus-within .pa-popover{
       display:block;
     }
 
-    /* For textarea rows (address), align indicator at top-right */
     .pair.pair--address .pa-indicator{ top: 10px; transform:none; }
   </style>
 </head>
@@ -879,6 +875,7 @@
     // Remove indicators/popovers
     document.querySelectorAll('.pa-indicator').forEach(n => n.remove());
     document.querySelectorAll('.pa-popover').forEach(n => n.remove());
+    document.querySelectorAll('.pair.pa-done').forEach(n => n.classList.remove('pa-done'));
   }
 
   // Set tooltip to full value for visibility; keep clickable after applied
@@ -886,9 +883,9 @@
     const el = paSidecars[key]; if(!el) return;
     const val = normalizeValue(rawVal).trim();
     if(!val){
-      el.setAttribute('aria-disabled','true');
-      el.dataset.value = '';
-      el.textContent = '—';
+      el.setAttribute('aria-disabled','true'); 
+      el.dataset.value = ''; 
+      el.textContent = '—'; 
       el.removeAttribute('title');
       el.classList.remove('pa-applied');
       const host = el.closest('.pair');
@@ -897,10 +894,10 @@
       const pop = host?.querySelector(`.pa-popover[data-pa="${key}"]`);
       if (pop){ pop.remove(); }
     }else{
-      el.removeAttribute('aria-disabled');
-      el.dataset.value = val;
-      el.textContent = val;
-      el.title = val;
+      el.removeAttribute('aria-disabled'); 
+      el.dataset.value = val; 
+      el.textContent = val; 
+      el.title = val;               
       el.classList.remove('pa-applied');
       // Build compact PA (value-only popover)
       buildCompactPA(key, val, el);
@@ -924,7 +921,7 @@
     if(!key || !(key in fields) || !val) return;
     fields[key].value = val;
     addPABadge(key);
-    // Dim sidecar if exists & the indicator
+    // Dim sidecar & indicator
     const sidecar = paSidecars[key];
     sidecar?.classList.add('pa-applied');
     const host = sidecar?.closest('.pair') || document.querySelector(`#${key}`)?.closest('.pair');
@@ -1288,53 +1285,58 @@
   document.addEventListener('keydown',(e)=>{ if(e.key==='Escape' && imgLightbox.getAttribute('aria-hidden')==='false') closeLightbox(); });
 </script>
 
-<!-- ========= DROP-IN PATCH: PA UI Compact + Opaque + Above-Popover ========= -->
+<!-- ========= DROP-IN: PA Suggest width = content + smaller font + popover above with colored bg ========= -->
 <style>
-  /* Compact, opaque value-only look for PA suggestions */
-  .pa-suggest {
-    font-size: 0.8rem !important;
-    line-height: 1.25 !important;
-    border: 1px solid rgba(239,68,68,0.6) !important;
-    background: #ffffff !important;           /* opaque (light) */
-    color: #0f172a !important;
-    box-shadow: none !important;
-    background-image: none !important;        /* remove stripe pattern */
+  /* 1) Shrink-wrap the right column to the PA value width */
+  .pair{
+    grid-template-columns: minmax(0, 1fr) max-content !important;
   }
-  [data-theme="dark"] .pa-suggest {
-    background: #0f172a !important;           /* opaque (dark) */
+  /* Keep responsive single-column on mobile as before */
+  @media (max-width:560px){
+    .pair, .pair.pair--address{ grid-template-columns:1fr !important; }
+  }
+
+  /* 2) PA suggestions: smaller font & content-based width */
+  .pa-suggest{
+    font-size: 0.78rem !important;
+    line-height: 1.25 !important;
+    inline-size: max-content !important;   /* width = content */
+    max-inline-size: none !important;
+    background: #ffffff !important;        /* opaque */
+    color: #0f172a !important;
+    border: 1px solid rgba(239,68,68,0.6) !important;
+    box-shadow: none !important;
+    background-image: none !important;
+  }
+  [data-theme="dark"] .pa-suggest{
+    background: #0f172a !important;
     color: #e5e7eb !important;
     border-color: rgba(239,68,68,0.55) !important;
   }
 
-  /* Pill: tighter paddings & width */
-  .pa-suggest.pa-pill {
-    padding: 4px 6px !important;
-    min-height: 30px !important;
+  /* Pills: compact, single line */
+  .pa-suggest.pa-pill{
+    white-space: nowrap !important;
+    padding: 3px 6px !important;
     border-radius: 8px !important;
-    max-inline-size: 18ch !important;         /* compact width */
-    overflow: auto;
-    white-space: nowrap;
+    min-height: 26px !important;
   }
 
-  /* Box: tighter, compact width (e.g., Full address) */
-  .pa-suggest.pa-box {
-    padding: 8px 10px !important;
-    min-height: 46px !important;
+  /* Boxes (address): wrap as needed, width = longest line but capped */
+  .pa-suggest.pa-box{
+    white-space: pre-wrap !important;
+    word-break: break-word !important;
+    padding: 6px 8px !important;
     border-radius: 10px !important;
-    max-inline-size: 26ch !important;
-    overflow: auto;
-    white-space: pre-wrap;
-    word-break: break-word;
+    inline-size: max-content !important;
+    max-inline-size: 38ch !important; /* prevent overly long lines from breaking layout */
   }
 
-  /* Keep a subtle state change when applied */
-  .pa-applied.pa-suggest {
-    filter: none !important;
-    opacity: 0.6 !important;                   /* slightly dim */
-  }
+  /* Applied state: dim a bit, keep opaque */
+  .pa-applied.pa-suggest{ opacity: .6 !important; filter: none !important; }
 
-  /* Indicator: smaller & opaque */
-  .pa-indicator {
+  /* Indicator: smaller & opaque to match */
+  .pa-indicator{
     font-size: 0.7rem !important;
     padding: 2px 6px !important;
     border-radius: 6px !important;
@@ -1342,52 +1344,63 @@
     background: #ffffff !important;
     color: #0f172a !important;
   }
-  [data-theme="dark"] .pa-indicator {
-    background: #0f172a !important;
-    color: #e5e7eb !important;
+  [data-theme="dark"] .pa-indicator{
+    background:#0f172a !important; color:#e5e7eb !important;
   }
 
-  /* Popover ABOVE the field instead of under */
-  .pa-popover {
+  /* 3) Popover ABOVE the field + colored background for visual purpose */
+  .pa-popover{
     right: 8px !important;
     top: auto !important;
-    bottom: calc(100% + 6px) !important;       /* show above */
-    background: var(--glass) !important;
-    border: 1px solid var(--border) !important;
+    bottom: calc(100% + 6px) !important; /* show above */
     border-radius: 10px !important;
     padding: 8px 10px !important;
+    border: 1px solid rgba(34,211,238,.45) !important; /* accent border */
+    background: linear-gradient(180deg, rgba(34,211,238,.20), rgba(0,168,255,.18)) !important; /* colored bg */
+    color: var(--text-strong) !important;
+    box-shadow: 0 10px 24px rgba(0,0,0,.25) !important;
   }
-  .pa-popover__val {
+  [data-theme="light"] .pa-popover{
+    background: linear-gradient(180deg, rgba(34,211,238,.16), rgba(0,168,255,.12)) !important;
+    border-color: rgba(34,211,238,.55) !important;
+  }
+  .pa-popover__val{
     font-size: 0.84rem !important;
     line-height: 1.35 !important;
   }
 
   /* After applying a value: hide popover & disable hover */
-  .pair.pa-done .pa-popover {
-    display: none !important;
-  }
-  .pair.pa-done .pa-indicator {
-    opacity: 0.45 !important;
-    pointer-events: none !important;
-  }
-  /* Optional: fully disable the sidecar after applied */
-  .pair.pa-done .pa-suggest {
-    pointer-events: none !important;
-  }
+  .pair.pa-done .pa-popover{ display: none !important; }
+  .pair.pa-done .pa-indicator{ opacity: 0.45 !important; pointer-events: none !important; }
+  .pair.pa-done .pa-suggest{ pointer-events: none !important; } /* optional hard-disable */
 </style>
 
 <script>
-  (function dropInPAOverrides(){
-    /**
-     * Behavior:
-     * - Popover already moved above by CSS.
-     * - After a PA value is applied (copied), we mark the pair as "done" to:
-     *   • hide hover text
-     *   • dim/disable indicator
-     *   • (optionally) disable sidecar interactions
-     */
+  (function enhancePaSizingAndPopover(){
+    /* Pixel-accurate width: measure text with canvas and set width to text + padding + border */
+    function autosizePa(el){
+      if(!el) return;
+      const value = el.textContent || '';
+      const cs = getComputedStyle(el);
+      const font = `${cs.fontStyle} ${cs.fontVariant} ${cs.fontWeight} ${cs.fontSize} / ${cs.lineHeight} ${cs.fontFamily}`;
+      const padX = (parseFloat(cs.paddingLeft)||0) + (parseFloat(cs.paddingRight)||0);
+      const borderX = (parseFloat(cs.borderLeftWidth)||0) + (parseFloat(cs.borderRightWidth)||0);
 
-    // Mark the .pair for a key as "done"
+      const canvas = autosizePa._c || (autosizePa._c = document.createElement('canvas'));
+      const ctx = autosizePa._ctx || (autosizePa._ctx = canvas.getContext('2d'));
+      ctx.font = font;
+
+      if (el.classList.contains('pa-box')){
+        const lines = value.split(/\r?\n/);
+        const maxLinePx = lines.reduce((m, line)=>Math.max(m, ctx.measureText(line).width), 0);
+        el.style.width = Math.ceil(maxLinePx + padX + borderX) + 'px';
+      } else {
+        const w = ctx.measureText(value).width;
+        el.style.width = Math.ceil(w + padX + borderX) + 'px';
+      }
+    }
+
+    // Mark a pair "done" so popover is removed/disabled after copy
     function markPairDone(key){
       try{
         const sidecar = document.querySelector(`[data-pa="${key}"].pa-suggest`);
@@ -1396,21 +1409,44 @@
         if (host && !host.classList.contains('pa-done')) {
           host.classList.add('pa-done');
           const ind = host.querySelector(`.pa-indicator[data-pa="${key}"]`);
-          if (ind) {
-            ind.setAttribute('aria-disabled','true');
-            ind.classList.add('pa-applied');
-          }
+          if (ind) { ind.setAttribute('aria-disabled','true'); ind.classList.add('pa-applied'); }
         }
       }catch(_){}
     }
 
-    // When user clicks any PA element, wait for your original handler to write the value,
-    // then if the input's value equals PA value, mark it done.
+    // Hook setPaSuggestion to apply smaller font & autosize on every value change
+    const originalSet = window.setPaSuggestion;
+    if (typeof originalSet === 'function') {
+      window.setPaSuggestion = function(key, rawVal){
+        originalSet(key, rawVal);
+        const el = document.querySelector(`[data-pa="${key}"]`);
+        if (el && el.getAttribute('aria-disabled') !== 'true') {
+          el.style.fontSize = '0.78rem';
+          autosizePa(el);
+          requestAnimationFrame(() => autosizePa(el));
+        }
+      };
+    }
+
+    // Hook populatePaSuggestions: autosize all active suggests after bulk fill
+    const originalPopulate = window.populatePaSuggestions;
+    if (typeof originalPopulate === 'function') {
+      window.populatePaSuggestions = function(data){
+        originalPopulate(data);
+        document.querySelectorAll('.pa-suggest[aria-disabled="false"]').forEach(el => {
+          el.style.fontSize = '0.78rem';
+          autosizePa(el);
+        });
+        requestAnimationFrame(() => {
+          document.querySelectorAll('.pa-suggest[aria-disabled="false"]').forEach(autosizePa);
+        });
+      };
+    }
+
+    // After a click (copy), if input value equals PA value, mark pair done to remove hover text
     document.addEventListener('click', function(e){
       const clickable = e.target.closest('[data-pa]');
       if(!clickable) return;
-
-      // Run right after the original handler
       setTimeout(() => {
         try{
           const key = clickable.getAttribute('data-pa');
@@ -1421,15 +1457,20 @@
           }
         }catch(_){}
       }, 0);
-    }, true); // capture
+    }, true);
 
-    // Defensive: if popovers are created dynamically, ensure they are above
+    // Ensure any dynamically created .pa-popover stays ABOVE the field
     const mo = new MutationObserver((muts)=>{
       muts.forEach(m => {
         m.addedNodes.forEach(n => {
-          if (n instanceof HTMLElement && n.classList?.contains('pa-popover')) {
+          if (!(n instanceof HTMLElement)) return;
+          if (n.classList && n.classList.contains('pa-popover')) {
             n.style.top = 'auto';
             n.style.bottom = 'calc(100% + 6px)';
+          }
+          if (n.matches && n.matches('.pa-suggest')) {
+            n.style.fontSize = '0.78rem';
+            autosizePa(n);
           }
         });
       });
@@ -1437,7 +1478,7 @@
     try { mo.observe(document.body, { childList: true, subtree: true }); } catch(_){}
   })();
 </script>
-<!-- ========= END DROP-IN PATCH ========= -->
+<!-- ========= END DROP-IN ========= -->
 
 </body>
 </html>
