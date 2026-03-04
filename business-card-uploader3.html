@@ -34,6 +34,13 @@
       --dify-badge-bg-light:#5b21b6;
       --dify-badge-text:#e9d5ff;
       --dify-badge-border:rgba(139,92,246,.55);
+
+      /* === NEW: PA soft backgrounds (fully opaque) === */
+      /* Light theme values overridden below */
+      --pa-soft-bg:#0E1B25;           /* dark: deep inky blue */
+      --pa-soft-text:#e5e7eb;
+      --pa-soft-border: rgba(34,211,238,.55);
+      --pa-pop-border: rgba(34,211,238,.55);
     }
 
     /* ================= THEME: LIGHT OVERRIDES ================= */
@@ -50,6 +57,12 @@
       --pa-weak: rgba(239,68,68,.10);
       --dify-weak: rgba(124,58,237,.08);
       --total-weak: rgba(34,211,238,.10);
+
+      /* Soft azure (fully opaque) for light theme */
+      --pa-soft-bg:#EBF6FF;           /* light: very soft azure */
+      --pa-soft-text:#0b1020;
+      --pa-soft-border: rgba(2,132,199,.55);   /* cyan/sky tone */
+      --pa-pop-border: rgba(2,132,199,.65);
     }
 
     *{box-sizing:border-box}
@@ -1305,22 +1318,17 @@
     .pair, .pair.pair--address{ grid-template-columns:1fr !important; }
   }
 
-  /* 2) PA suggestions: smaller font & content-based width */
+  /* 2) PA suggestions: smaller font & content-based width with soft opaque background */
   .pa-suggest{
-    font-size: 0.76rem !important;             /* tightened from 0.78rem */
+    font-size: 0.74rem !important;             /* compact */
     line-height: 1.25 !important;
     inline-size: max-content !important;       /* width = content */
     max-inline-size: none !important;
-    background: #ffffff !important;            /* opaque (light) */
-    color: #0f172a !important;
-    border: 1px solid rgba(239,68,68,0.6) !important;
+    background: var(--pa-soft-bg) !important;  /* fully opaque soft color */
+    color: var(--pa-soft-text) !important;
+    border: 1px solid var(--pa-soft-border) !important;
     box-shadow: none !important;
     background-image: none !important;
-  }
-  [data-theme="dark"] .pa-suggest{
-    background: #0f172a !important;            /* opaque (dark) */
-    color: #e5e7eb !important;
-    border-color: rgba(239,68,68,0.55) !important;
   }
 
   /* Pills: compact, single line */
@@ -1338,26 +1346,23 @@
     padding: 6px 8px !important;
     border-radius: 10px !important;
     inline-size: max-content !important;
-    max-inline-size: 30ch !important;          /* shorter box cap (was 38ch) */
+    max-inline-size: 30ch !important;          /* shorter box cap for compactness */
   }
 
   /* Applied state: dim a bit, keep opaque */
   .pa-applied.pa-suggest{ opacity: .6 !important; filter: none !important; }
 
-  /* Indicator: smaller & opaque to match */
+  /* Indicator: smaller & soft opaque */
   .pa-indicator{
-    font-size: 0.7rem !important;
+    font-size: 0.72rem !important;
     padding: 2px 6px !important;
     border-radius: 6px !important;
-    border: 1px solid rgba(239,68,68,0.6) !important;
-    background: #ffffff !important;
-    color: #0f172a !important;
-  }
-  [data-theme="dark"] .pa-indicator{
-    background:#0f172a !important; color:#e5e7eb !important;
+    border: 1px solid var(--pa-soft-border) !important;
+    background: var(--pa-soft-bg) !important;
+    color: var(--pa-soft-text) !important;
   }
 
-  /* 3) Popover ABOVE the field + fully opaque background + clean separation */
+  /* 3) Popover ABOVE the field + soft opaque background + crisp border */
   .pa-popover{
     right: 8px !important;
     top: auto !important;
@@ -1365,20 +1370,15 @@
     border-radius: 10px !important;
     padding: 8px 10px !important;
     z-index: 10010 !important;                 /* stay above labels */
-    border: 1px solid rgba(34,211,238,.55) !important;
-    background: #ffffff !important;            /* solid opaque (light) */
-    color: #0f172a !important;
+    border: 1px solid var(--pa-pop-border) !important;
+    background: var(--pa-soft-bg) !important;  /* fully opaque soft color */
+    color: var(--pa-soft-text) !important;
     box-shadow: 0 12px 28px rgba(0,0,0,.35) !important;
     margin-top: -2px !important;               /* tiny separation from label region */
     max-width: min(92vw, 36ch) !important;     /* prevent overflow */
   }
-  [data-theme="dark"] .pa-popover{
-    background: #0b1020 !important;            /* solid opaque (dark) */
-    color: #e5e7eb !important;
-    border-color: rgba(34,211,238,.55) !important;
-  }
   .pa-popover__val{
-    font-size: 0.80rem !important;             /* smaller hover text (was 0.84rem) */
+    font-size: 0.80rem !important;
     line-height: 1.32 !important;
     word-break: break-word !important;
     white-space: pre-wrap !important;
@@ -1386,8 +1386,8 @@
 
   /* After applying a value: fully hide suggestion UI */
   .pair.pa-done .pa-popover{ display: none !important; }
-  .pair.pa-done .pa-indicator{ display: none !important; }  /* hide, not just disable */
-  .pair.pa-done .pa-suggest{ display: none !important; }    /* hide suggestion */
+  .pair.pa-done .pa-indicator{ display: none !important; }
+  .pair.pa-done .pa-suggest{ display: none !important; }
 </style>
 
 <script>
@@ -1438,7 +1438,7 @@
         originalSet(key, rawVal);
         const el = document.querySelector(`[data-pa="${key}"]`);
         if (el && el.getAttribute('aria-disabled') !== 'true') {
-          el.style.fontSize = '0.76rem';
+          el.style.fontSize = '0.74rem';
           autosizePa(el);
           requestAnimationFrame(() => autosizePa(el));
         }
@@ -1451,7 +1451,7 @@
       window.populatePaSuggestions = function(data){
         originalPopulate(data);
         document.querySelectorAll('.pa-suggest[aria-disabled="false"]').forEach(el => {
-          el.style.fontSize = '0.76rem';
+          el.style.fontSize = '0.74rem';
           autosizePa(el);
         });
         requestAnimationFrame(() => {
@@ -1486,7 +1486,7 @@
             n.style.bottom = 'calc(100% + 6px)';
           }
           if (n.matches && n.matches('.pa-suggest')) {
-            n.style.fontSize = '0.76rem';
+            n.style.fontSize = '0.74rem';
             autosizePa(n);
           }
         });
