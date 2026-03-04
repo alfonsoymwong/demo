@@ -326,15 +326,20 @@
     }
 
     /* Floating popover: value only (default under; overridden later) */
+
+    /* Floating popover: value only (default under; overridden later) */
     .pa-popover{
       position:absolute; right:8px; top: calc(100% + 6px);
-      min-width: 220px; max-width: 360px;
+      /* Compact width: remove the wide min-width */
+      min-width: unset;                      /* ← NEW */
+      width: fit-content;                    /* ← NEW */
+      max-width: 180px;                      /* ← NEW: pick 160–200px as you prefer */
+      box-sizing: border-box;                /* ← NEW */
       background: var(--glass); border:1px solid var(--border);
       border-radius:10px; box-shadow: var(--panel-shadow);
       padding:8px 10px; color: var(--text); display:none;
-      max-width: 180px !important;   /* <-- ADD THIS */
-      width: max-content !important; /* keep autosizing */
     }
+
     .pa-popover__val{
       font-size:.86rem; line-height:1.35; color:var(--text-strong);
       word-break:break-word; max-height:160px; overflow:auto;
