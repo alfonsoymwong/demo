@@ -187,7 +187,7 @@
     .pair{
       display:grid;
       grid-template-columns: minmax(0, 1fr) clamp(100px, 16ch, 140px);
-      gap:8px; 
+      gap:8px;
       align-items:stretch;
       position: relative; /* for indicator & popover positioning */
     }
@@ -212,7 +212,7 @@
       color:#0f172a;
     }
 
-    .pa-suggest { 
+    .pa-suggest {
       max-width: 100%;
       inline-size: auto;
     }
@@ -702,7 +702,7 @@
 
   /* ========= HELPERS ========= */
   function fileToBase64(file){ return new Promise((resolve,reject)=>{ const r=new FileReader(); r.readAsDataURL(file); r.onload=()=>resolve(r.result); r.onerror=reject; }); }
-  function escapeHtml(s){ return String(s).replace(/[&<>\"'`]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;','`':'&#96;'}[c])); }
+  function escapeHtml(s){ return String(s).replace(/[&<>"'`]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;','`':'&#96;'}[c])); }
   function toSec(ms){ return (ms/1000).toFixed(2); }
   function showInlineInfo(on, text){
     if(!inlineInfo || !inlineText) return;
@@ -886,9 +886,9 @@
     const el = paSidecars[key]; if(!el) return;
     const val = normalizeValue(rawVal).trim();
     if(!val){
-      el.setAttribute('aria-disabled','true'); 
-      el.dataset.value = ''; 
-      el.textContent = '—'; 
+      el.setAttribute('aria-disabled','true');
+      el.dataset.value = '';
+      el.textContent = '—';
       el.removeAttribute('title');
       el.classList.remove('pa-applied');
       const host = el.closest('.pair');
@@ -897,10 +897,10 @@
       const pop = host?.querySelector(`.pa-popover[data-pa="${key}"]`);
       if (pop){ pop.remove(); }
     }else{
-      el.removeAttribute('aria-disabled'); 
-      el.dataset.value = val; 
-      el.textContent = val; 
-      el.title = val;               
+      el.removeAttribute('aria-disabled');
+      el.dataset.value = val;
+      el.textContent = val;
+      el.title = val;
       el.classList.remove('pa-applied');
       // Build compact PA (value-only popover)
       buildCompactPA(key, val, el);
@@ -1287,5 +1287,157 @@
   }
   document.addEventListener('keydown',(e)=>{ if(e.key==='Escape' && imgLightbox.getAttribute('aria-hidden')==='false') closeLightbox(); });
 </script>
+
+<!-- ========= DROP-IN PATCH: PA UI Compact + Opaque + Above-Popover ========= -->
+<style>
+  /* Compact, opaque value-only look for PA suggestions */
+  .pa-suggest {
+    font-size: 0.8rem !important;
+    line-height: 1.25 !important;
+    border: 1px solid rgba(239,68,68,0.6) !important;
+    background: #ffffff !important;           /* opaque (light) */
+    color: #0f172a !important;
+    box-shadow: none !important;
+    background-image: none !important;        /* remove stripe pattern */
+  }
+  [data-theme="dark"] .pa-suggest {
+    background: #0f172a !important;           /* opaque (dark) */
+    color: #e5e7eb !important;
+    border-color: rgba(239,68,68,0.55) !important;
+  }
+
+  /* Pill: tighter paddings & width */
+  .pa-suggest.pa-pill {
+    padding: 4px 6px !important;
+    min-height: 30px !important;
+    border-radius: 8px !important;
+    max-inline-size: 18ch !important;         /* compact width */
+    overflow: auto;
+    white-space: nowrap;
+  }
+
+  /* Box: tighter, compact width (e.g., Full address) */
+  .pa-suggest.pa-box {
+    padding: 8px 10px !important;
+    min-height: 46px !important;
+    border-radius: 10px !important;
+    max-inline-size: 26ch !important;
+    overflow: auto;
+    white-space: pre-wrap;
+    word-break: break-word;
+  }
+
+  /* Keep a subtle state change when applied */
+  .pa-applied.pa-suggest {
+    filter: none !important;
+    opacity: 0.6 !important;                   /* slightly dim */
+  }
+
+  /* Indicator: smaller & opaque */
+  .pa-indicator {
+    font-size: 0.7rem !important;
+    padding: 2px 6px !important;
+    border-radius: 6px !important;
+    border: 1px solid rgba(239,68,68,0.6) !important;
+    background: #ffffff !important;
+    color: #0f172a !important;
+  }
+  [data-theme="dark"] .pa-indicator {
+    background: #0f172a !important;
+    color: #e5e7eb !important;
+  }
+
+  /* Popover ABOVE the field instead of under */
+  .pa-popover {
+    right: 8px !important;
+    top: auto !important;
+    bottom: calc(100% + 6px) !important;       /* show above */
+    background: var(--glass) !important;
+    border: 1px solid var(--border) !important;
+    border-radius: 10px !important;
+    padding: 8px 10px !important;
+  }
+  .pa-popover__val {
+    font-size: 0.84rem !important;
+    line-height: 1.35 !important;
+  }
+
+  /* After applying a value: hide popover & disable hover */
+  .pair.pa-done .pa-popover {
+    display: none !important;
+  }
+  .pair.pa-done .pa-indicator {
+    opacity: 0.45 !important;
+    pointer-events: none !important;
+  }
+  /* Optional: fully disable the sidecar after applied */
+  .pair.pa-done .pa-suggest {
+    pointer-events: none !important;
+  }
+</style>
+
+<script>
+  (function dropInPAOverrides(){
+    /**
+     * Behavior:
+     * - Popover already moved above by CSS.
+     * - After a PA value is applied (copied), we mark the pair as "done" to:
+     *   • hide hover text
+     *   • dim/disable indicator
+     *   • (optionally) disable sidecar interactions
+     */
+
+    // Mark the .pair for a key as "done"
+    function markPairDone(key){
+      try{
+        const sidecar = document.querySelector(`[data-pa="${key}"].pa-suggest`);
+        const host = sidecar ? sidecar.closest('.pair')
+                             : document.querySelector(`#${key}`)?.closest('.pair');
+        if (host && !host.classList.contains('pa-done')) {
+          host.classList.add('pa-done');
+          const ind = host.querySelector(`.pa-indicator[data-pa="${key}"]`);
+          if (ind) {
+            ind.setAttribute('aria-disabled','true');
+            ind.classList.add('pa-applied');
+          }
+        }
+      }catch(_){}
+    }
+
+    // When user clicks any PA element, wait for your original handler to write the value,
+    // then if the input's value equals PA value, mark it done.
+    document.addEventListener('click', function(e){
+      const clickable = e.target.closest('[data-pa]');
+      if(!clickable) return;
+
+      // Run right after the original handler
+      setTimeout(() => {
+        try{
+          const key = clickable.getAttribute('data-pa');
+          const val = clickable.dataset.value || '';
+          const target = document.getElementById(key);
+          if (target && val && target.value === val) {
+            markPairDone(key);
+          }
+        }catch(_){}
+      }, 0);
+    }, true); // capture
+
+    // Defensive: if popovers are created dynamically, ensure they are above
+    const mo = new MutationObserver((muts)=>{
+      muts.forEach(m => {
+        m.addedNodes.forEach(n => {
+          if (n instanceof HTMLElement && n.classList?.contains('pa-popover')) {
+            n.style.top = 'auto';
+            n.style.bottom = 'calc(100% + 6px)';
+          }
+        });
+      });
+    });
+    try { mo.observe(document.body, { childList: true, subtree: true }); } catch(_){}
+  })();
+</script>
+<!-- ========= END DROP-IN PATCH ========= -->
+
 </body>
 </html>
