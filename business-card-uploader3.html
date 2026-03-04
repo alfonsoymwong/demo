@@ -1138,7 +1138,8 @@
     resetPaSuggestions();
     updateTimes(0,0,0); resetStepper();
     setProcessing(false, '');
-
+    clearAllBadges();
+    
     const f=fileInput.files && fileInput.files[0];
     if(!f){ if(preview) preview.src=''; return; }
     if(f.type.startsWith('image/')){
