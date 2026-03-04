@@ -883,9 +883,9 @@
     const el = paSidecars[key]; if(!el) return;
     const val = normalizeValue(rawVal).trim();
     if(!val){
-      el.setAttribute('aria-disabled','true'); 
-      el.dataset.value = ''; 
-      el.textContent = '—'; 
+      el.setAttribute('aria-disabled','true');
+      el.dataset.value = '';
+      el.textContent = '—';
       el.removeAttribute('title');
       el.classList.remove('pa-applied');
       const host = el.closest('.pair');
@@ -894,10 +894,10 @@
       const pop = host?.querySelector(`.pa-popover[data-pa="${key}"]`);
       if (pop){ pop.remove(); }
     }else{
-      el.removeAttribute('aria-disabled'); 
-      el.dataset.value = val; 
-      el.textContent = val; 
-      el.title = val;               
+      el.removeAttribute('aria-disabled');
+      el.dataset.value = val;
+      el.textContent = val;
+      el.title = val;
       el.classList.remove('pa-applied');
       // Build compact PA (value-only popover)
       buildCompactPA(key, val, el);
@@ -908,7 +908,7 @@
     Object.keys(LABELS).forEach(k => { setPaSuggestion(k, getPaValue(paData, k)); });
   }
 
-  /* Click to apply from PA boxes — DIM after copy */
+  /* Click to apply from PA boxes — now also hide immediately after copy */
   document.addEventListener('click', (e)=>{
     const el = e.target.closest('[data-pa]');
     if(!el) return;
@@ -926,6 +926,11 @@
     sidecar?.classList.add('pa-applied');
     const host = sidecar?.closest('.pair') || document.querySelector(`#${key}`)?.closest('.pair');
     host?.querySelector(`.pa-indicator[data-pa="${key}"]`)?.classList.add('pa-applied');
+
+    // NEW: immediately hide if applied equals value
+    if (typeof window.markPairDone === 'function' && fields[key].value === val){
+      window.markPairDone(key);
+    }
 
     if(msg) msg.innerHTML = `<span class="ok">Applied ${LABELS[key] || key} from PA.</span>`;
   });
@@ -962,7 +967,7 @@
     }
     pop.querySelector('.pa-popover__val').textContent = value;
 
-    // Indicator click still applies the value
+    // Indicator click applies the value and now hides if matched
     ind.onclick = () => {
       if(ind.getAttribute('aria-disabled') === 'true') return;
       if (fields[key]){
@@ -970,6 +975,10 @@
         addPABadge(key);
         ind.classList.add('pa-applied');
         sidecarEl?.classList.add('pa-applied');
+        // NEW: immediately hide if applied equals value
+        if (typeof window.markPairDone === 'function' && fields[key].value === value){
+          window.markPairDone(key);
+        }
         if(msg) msg.innerHTML = `<span class="ok">Applied ${LABELS[key] || key} from PA.</span>`;
       }
     };
@@ -1285,7 +1294,7 @@
   document.addEventListener('keydown',(e)=>{ if(e.key==='Escape' && imgLightbox.getAttribute('aria-hidden')==='false') closeLightbox(); });
 </script>
 
-<!-- ========= DROP-IN: PA Suggest width = content + smaller font + popover above with colored bg ========= -->
+<!-- ========= DROP-IN: PA Suggest width = content + smaller font + popover above (UPDATED) ========= -->
 <style>
   /* 1) Shrink-wrap the right column to the PA value width */
   .pair{
@@ -1298,18 +1307,18 @@
 
   /* 2) PA suggestions: smaller font & content-based width */
   .pa-suggest{
-    font-size: 0.78rem !important;
+    font-size: 0.76rem !important;             /* tightened from 0.78rem */
     line-height: 1.25 !important;
-    inline-size: max-content !important;   /* width = content */
+    inline-size: max-content !important;       /* width = content */
     max-inline-size: none !important;
-    background: #ffffff !important;        /* opaque */
+    background: #ffffff !important;            /* opaque (light) */
     color: #0f172a !important;
     border: 1px solid rgba(239,68,68,0.6) !important;
     box-shadow: none !important;
     background-image: none !important;
   }
   [data-theme="dark"] .pa-suggest{
-    background: #0f172a !important;
+    background: #0f172a !important;            /* opaque (dark) */
     color: #e5e7eb !important;
     border-color: rgba(239,68,68,0.55) !important;
   }
@@ -1329,7 +1338,7 @@
     padding: 6px 8px !important;
     border-radius: 10px !important;
     inline-size: max-content !important;
-    max-inline-size: 38ch !important; /* prevent overly long lines from breaking layout */
+    max-inline-size: 30ch !important;          /* shorter box cap (was 38ch) */
   }
 
   /* Applied state: dim a bit, keep opaque */
@@ -1348,31 +1357,37 @@
     background:#0f172a !important; color:#e5e7eb !important;
   }
 
-  /* 3) Popover ABOVE the field + colored background for visual purpose */
+  /* 3) Popover ABOVE the field + fully opaque background + clean separation */
   .pa-popover{
     right: 8px !important;
     top: auto !important;
-    bottom: calc(100% + 6px) !important; /* show above */
+    bottom: calc(100% + 6px) !important;       /* show above */
     border-radius: 10px !important;
     padding: 8px 10px !important;
-    border: 1px solid rgba(34,211,238,.45) !important; /* accent border */
-    background: linear-gradient(180deg, rgba(34,211,238,.20), rgba(0,168,255,.18)) !important; /* colored bg */
-    color: var(--text-strong) !important;
-    box-shadow: 0 10px 24px rgba(0,0,0,.25) !important;
+    z-index: 10010 !important;                 /* stay above labels */
+    border: 1px solid rgba(34,211,238,.55) !important;
+    background: #ffffff !important;            /* solid opaque (light) */
+    color: #0f172a !important;
+    box-shadow: 0 12px 28px rgba(0,0,0,.35) !important;
+    margin-top: -2px !important;               /* tiny separation from label region */
+    max-width: min(92vw, 36ch) !important;     /* prevent overflow */
   }
-  [data-theme="light"] .pa-popover{
-    background: linear-gradient(180deg, rgba(34,211,238,.16), rgba(0,168,255,.12)) !important;
+  [data-theme="dark"] .pa-popover{
+    background: #0b1020 !important;            /* solid opaque (dark) */
+    color: #e5e7eb !important;
     border-color: rgba(34,211,238,.55) !important;
   }
   .pa-popover__val{
-    font-size: 0.84rem !important;
-    line-height: 1.35 !important;
+    font-size: 0.80rem !important;             /* smaller hover text (was 0.84rem) */
+    line-height: 1.32 !important;
+    word-break: break-word !important;
+    white-space: pre-wrap !important;
   }
 
-  /* After applying a value: hide popover & disable hover */
+  /* After applying a value: fully hide suggestion UI */
   .pair.pa-done .pa-popover{ display: none !important; }
-  .pair.pa-done .pa-indicator{ opacity: 0.45 !important; pointer-events: none !important; }
-  .pair.pa-done .pa-suggest{ pointer-events: none !important; } /* optional hard-disable */
+  .pair.pa-done .pa-indicator{ display: none !important; }  /* hide, not just disable */
+  .pair.pa-done .pa-suggest{ display: none !important; }    /* hide suggestion */
 </style>
 
 <script>
@@ -1400,8 +1415,8 @@
       }
     }
 
-    // Mark a pair "done" so popover is removed/disabled after copy
-    function markPairDone(key){
+    // Mark a pair "done" so popover/indicator/suggest are removed/disabled after copy
+    function markPairDoneInternal(key){
       try{
         const sidecar = document.querySelector(`[data-pa="${key}"].pa-suggest`);
         const host = sidecar ? sidecar.closest('.pair')
@@ -1413,6 +1428,8 @@
         }
       }catch(_){}
     }
+    // Expose for immediate hide calls elsewhere
+    window.markPairDone = markPairDoneInternal;
 
     // Hook setPaSuggestion to apply smaller font & autosize on every value change
     const originalSet = window.setPaSuggestion;
@@ -1421,7 +1438,7 @@
         originalSet(key, rawVal);
         const el = document.querySelector(`[data-pa="${key}"]`);
         if (el && el.getAttribute('aria-disabled') !== 'true') {
-          el.style.fontSize = '0.78rem';
+          el.style.fontSize = '0.76rem';
           autosizePa(el);
           requestAnimationFrame(() => autosizePa(el));
         }
@@ -1434,7 +1451,7 @@
       window.populatePaSuggestions = function(data){
         originalPopulate(data);
         document.querySelectorAll('.pa-suggest[aria-disabled="false"]').forEach(el => {
-          el.style.fontSize = '0.78rem';
+          el.style.fontSize = '0.76rem';
           autosizePa(el);
         });
         requestAnimationFrame(() => {
@@ -1443,7 +1460,7 @@
       };
     }
 
-    // After a click (copy), if input value equals PA value, mark pair done to remove hover text
+    // After a click (copy), if input value equals PA value, mark pair done (safety net)
     document.addEventListener('click', function(e){
       const clickable = e.target.closest('[data-pa]');
       if(!clickable) return;
@@ -1453,7 +1470,7 @@
           const val = clickable.dataset.value || '';
           const target = document.getElementById(key);
           if (target && val && target.value === val) {
-            markPairDone(key);
+            markPairDoneInternal(key);
           }
         }catch(_){}
       }, 0);
@@ -1469,7 +1486,7 @@
             n.style.bottom = 'calc(100% + 6px)';
           }
           if (n.matches && n.matches('.pa-suggest')) {
-            n.style.fontSize = '0.78rem';
+            n.style.fontSize = '0.76rem';
             autosizePa(n);
           }
         });
