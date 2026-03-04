@@ -1153,6 +1153,7 @@
     Object.values(difyFields).forEach(el => { if(el) el.value = ''; });
     resetPaSuggestions();
     updateTimes(0,0,0); resetStepper();
+    clearAllBadges();
 
     const file=fileInput.files && fileInput.files[0];
     if(!file){
