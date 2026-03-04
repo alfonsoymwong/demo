@@ -184,13 +184,10 @@
 
     /* ======= Input + PA suggestion pairing (original layout) ======= */
     .pair > * { min-width: 0; }
-    .pair{
-      display:grid;
-      grid-template-columns: minmax(0, 1fr) clamp(100px, 16ch, 140px);
-      gap:8px;
-      align-items:stretch;
-      position: relative; /* for indicator & popover positioning */
-    }
+
+/* 1) Right column shrinks to content width */
+.pair{ grid-template-columns: minmax(0, 1fr) max-content !important; }
+
     .pair.pair--address{
       grid-template-columns: minmax(0, 1fr) clamp(120px, 22ch, 200px);
     }
@@ -212,10 +209,14 @@
       color:#0f172a;
     }
 
-    .pa-suggest { 
-      max-width: 100%;
-      inline-size: auto;
-    }
+
+/* 2) PA suggestion width = content (no stretch) */
+.pa-suggest{
+  inline-size: max-content !important;    /* <— main switch */
+  max-inline-size: none !important;       /* remove caps to allow full shrink */
+  display: inline-block !important;
+}
+
 
     .pa-suggest.pa-pill{
       display:inline-flex;
