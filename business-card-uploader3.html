@@ -29,11 +29,16 @@
 
       --btn-primary-from:#22d3ee; --btn-primary-to:#00a8ff; --btn-primary-text:#06202a;
 
-      /* Dark purple Dify badge */
+      /* Dify badge */
       --dify-badge-bg:#4c1d95;
       --dify-badge-bg-light:#5b21b6;
       --dify-badge-text:#e9d5ff;
       --dify-badge-border:rgba(139,92,246,.55);
+
+      /* Popover defaults (solid) */
+      --pa-popover-bg:#12162a;
+      --pa-popover-border:rgba(255,255,255,.14);
+      --pa-popover-shadow:0 10px 24px rgba(0,0,0,.45);
     }
 
     /* ================= THEME: LIGHT OVERRIDES ================= */
@@ -50,6 +55,10 @@
       --pa-weak: rgba(239,68,68,.10);
       --dify-weak: rgba(124,58,237,.08);
       --total-weak: rgba(34,211,238,.10);
+
+      --pa-popover-bg:#ffffff;
+      --pa-popover-border:rgba(17,24,39,.14);
+      --pa-popover-shadow:0 10px 24px rgba(2,6,23,.18);
     }
 
     *{box-sizing:border-box}
@@ -182,14 +191,14 @@
     .inline-dot{width:8px;height:8px;border-radius:50%;background: var(--accent); box-shadow: 0 0 10px var(--accent); animation: pulse 1.4s ease-in-out infinite; display:none}
     @keyframes pulse { 0%,100%{transform:scale(1)} 50%{transform:scale(1.2)} }
 
-    /* ======= Input + PA suggestion pairing (updated) ======= */
+    /* ======= Input + PA suggestion pairing ======= */
     .pair > * { min-width: 0; }
     .pair{
       display:grid;
       grid-template-columns: minmax(0, 1fr) clamp(100px, 16ch, 140px);
       gap:8px; 
       align-items:stretch;
-      position: relative; /* for indicator & popover positioning */
+      position: relative;
     }
     .pair.pair--address{
       grid-template-columns: minmax(0, 1fr) clamp(120px, 22ch, 200px);
@@ -212,36 +221,19 @@
       color:#0f172a;
     }
 
-    .pa-suggest { 
-      max-width: 100%;
-      inline-size: auto;
-    }
+    .pa-suggest { max-width: 100%; inline-size: auto; }
 
     .pa-suggest.pa-pill{
-      display:inline-flex;
-      align-items:center;
-      gap:8px;
-      padding:6px 8px;
-      white-space:nowrap;
-      overflow:auto;
-      text-overflow:clip;
-      min-height:36px;
-      max-inline-size:16ch;
+      display:inline-flex; align-items:center; gap:8px; padding:6px 8px;
+      white-space:nowrap; overflow:auto; text-overflow:clip; min-height:36px; max-inline-size:16ch;
       scrollbar-width:thin;
     }
     .pa-suggest.pa-pill::-webkit-scrollbar{ height:6px; }
     .pa-suggest.pa-pill::-webkit-scrollbar-thumb{ background: rgba(255,255,255,.25); border-radius:6px; }
 
     .pa-suggest.pa-box{
-      display:block;
-      padding:8px 10px;
-      min-height:52px;
-      line-height:1.35;
-      white-space:pre-wrap;
-      word-break:break-word;
-      max-inline-size:22ch;
-      max-height:120px;
-      overflow:auto;
+      display:block; padding:8px 10px; min-height:52px; line-height:1.35;
+      white-space:pre-wrap; word-break:break-word; max-inline-size:22ch; max-height:120px; overflow:auto;
       scrollbar-width:thin;
     }
     .pa-suggest.pa-box::-webkit-scrollbar{ width:8px; }
@@ -288,8 +280,8 @@
 
     /* =========================================================
        COMPACT PA UI
-       - Indicator button inside input (right end)
-       - Floating popover on hover/focus (now value only)
+       - Indicator inside input (right end)
+       - Value-only popover (above, compact, solid background)
        ========================================================= */
     .pa-compact .pair{ grid-template-columns: 1fr; }
     .pa-compact .pa-suggest{ display:none !important; }
@@ -300,8 +292,8 @@
       border:1px dashed rgba(239,68,68,.45);
       background:rgba(239,68,68,.12);
       color: var(--text-strong);
-      border-radius:8px; font-size:.72rem; font-weight:800;
-      padding:3px 8px; cursor:pointer; line-height:1; z-index:2;
+      border-radius:8px; font-size:.70rem; font-weight:800;
+      padding:2px 7px; cursor:pointer; line-height:1; z-index:2;
       box-shadow:0 0 0 1px rgba(239,68,68,.08) inset; user-select:none;
     }
     [data-theme="light"] .pa-indicator{
@@ -314,18 +306,36 @@
       box-shadow:0 0 8px rgba(239,68,68,.45);
     }
 
-    /* Floating popover: value only */
+    /* Popover: ABOVE, compact, solid, with arrow; higher z-index to avoid bleed */
     .pa-popover{
-      position:absolute; right:8px; top: calc(100% + 6px);
-      min-width: 220px; max-width: 360px;
-      background: var(--glass); border:1px solid var(--border);
-      border-radius:10px; box-shadow: var(--panel-shadow);
-      padding:8px 10px; color: var(--text); display:none;
+      position:absolute;
+      right: 8px;
+      top: auto !important;
+      bottom: calc(100% + 6px) !important;     /* show above input */
+      min-width: max-content;
+      max-width: 280px;
+      background: var(--pa-popover-bg) !important; /* solid */
+      border: 1px solid var(--pa-popover-border) !important;
+      border-radius: 8px;
+      box-shadow: var(--pa-popover-shadow);
+      padding: 6px 8px;                         /* compact */
+      color: var(--text);
+      display:none;
+      z-index: 2000;                            /* float above labels/rows */
     }
     .pa-popover__val{
-      font-size:.86rem; line-height:1.35; color:var(--text-strong);
-      word-break:break-word; max-height:160px; overflow:auto;
+      font-size:.78rem;                         /* smaller font */
+      line-height:1.25;                         /* compact lines */
+      color: var(--text-strong);
+      word-break:break-word;
+      max-height:140px; overflow:auto;
     }
+    .pa-popover::before,
+    .pa-popover::after{
+      content:""; position:absolute; right:18px; width:0; height:0; border:6px solid transparent;
+    }
+    .pa-popover::before{ bottom:-7px; border-top-color:var(--pa-popover-border); }
+    .pa-popover::after{  bottom:-6px; border-top-color:var(--pa-popover-bg); }
 
     /* Show popover when indicator or input is hovered/focused */
     .pair:has(.pa-indicator:focus) .pa-popover,
@@ -387,7 +397,6 @@
               <div class="pair">
                 <input id="fullName" type="text" />
                 <button type="button" class="pa-pill pa-suggest" data-pa="fullName" aria-disabled="true" title="Click to copy PA value">—</button>
-                <!-- Compact indicator & popover injected by JS -->
               </div>
             </div>
 
@@ -902,7 +911,7 @@
       el.textContent = val; 
       el.title = val;               
       el.classList.remove('pa-applied');
-      // Build compact PA (value-only popover)
+      // Build compact PA (value-only popover above)
       buildCompactPA(key, val, el);
     }
   }
@@ -911,29 +920,38 @@
     Object.keys(LABELS).forEach(k => { setPaSuggestion(k, getPaValue(paData, k)); });
   }
 
-  /* Click to apply from PA boxes — DIM after copy */
+  /* Click to apply from PA boxes — DIM after copy & hide popover */
   document.addEventListener('click', (e)=>{
     const el = e.target.closest('[data-pa]');
     if(!el) return;
-    // ignore clicks on popover container root (handled separately)
+
+    // ignore clicks on popover container (not an apply target)
     if (el.classList.contains('pa-popover')) return;
 
     if(el.getAttribute('aria-disabled') === 'true') return;
     const key = el.getAttribute('data-pa');
     const val = el.dataset.value || '';
     if(!key || !(key in fields) || !val) return;
+
+    // Apply value
     fields[key].value = val;
     addPABadge(key);
-    // Dim sidecar if exists & the indicator
+
+    // Dim sidecar and indicator
     const sidecar = paSidecars[key];
     sidecar?.classList.add('pa-applied');
     const host = sidecar?.closest('.pair') || document.querySelector(`#${key}`)?.closest('.pair');
-    host?.querySelector(`.pa-indicator[data-pa="${key}"]`)?.classList.add('pa-applied');
+    const ind = host?.querySelector(`.pa-indicator[data-pa="${key}"]`);
+    ind?.classList.add('pa-applied');
+
+    // Hide the popover after apply
+    const pop = host?.querySelector(`.pa-popover[data-pa="${key}"]`);
+    if (pop) pop.style.display = 'none';
 
     if(msg) msg.innerHTML = `<span class="ok">Applied ${LABELS[key] || key} from PA.</span>`;
   });
 
-  /* ========= COMPACT PA: indicator + VALUE-ONLY popover ========= */
+  /* ========= COMPACT PA: indicator + VALUE-ONLY popover (above) ========= */
   function buildCompactPA(key, value, sidecarEl){
     const host = sidecarEl.closest('.pair');
     if(!host) return;
@@ -952,20 +970,18 @@
     ind.removeAttribute('aria-disabled');
     ind.dataset.value = value;
 
-    // 2) Ensure VALUE-ONLY popover exists (no title, no hint, no apply)
+    // 2) Ensure VALUE-ONLY popover exists (no title, no hint, no apply button)
     let pop = host.querySelector(`.pa-popover[data-pa="${key}"]`);
     if(!pop){
       pop = document.createElement('div');
       pop.className = 'pa-popover';
       pop.setAttribute('data-pa', key);
-      pop.innerHTML = `
-        <div class="pa-popover__val"></div>
-      `;
+      pop.innerHTML = `<div class="pa-popover__val"></div>`;
       host.appendChild(pop);
     }
     pop.querySelector('.pa-popover__val').textContent = value;
 
-    // Indicator click still applies the value
+    // 3) Indicator click applies value and hides popover
     ind.onclick = () => {
       if(ind.getAttribute('aria-disabled') === 'true') return;
       if (fields[key]){
@@ -973,6 +989,11 @@
         addPABadge(key);
         ind.classList.add('pa-applied');
         sidecarEl?.classList.add('pa-applied');
+
+        // Hide the popover after apply
+        const thisPop = host.querySelector(`.pa-popover[data-pa="${key}"]`);
+        if (thisPop) thisPop.style.display = 'none';
+
         if(msg) msg.innerHTML = `<span class="ok">Applied ${LABELS[key] || key} from PA.</span>`;
       }
     };
@@ -988,304 +1009,3 @@
     const parts=[flowData?.addressStreet, flowData?.country].filter(Boolean);
     return parts.length? parts.join(', '): '';
   }
-
-  function parseDifyTextToJson(text) {
-    if (!text || typeof text !== 'string') return null;
-    let s = text.replace(/^\uFEFF/, '').trim();
-    try { return JSON.parse(s); } catch (_) {}
-    s = s.replace(/```(?:json|JSON)?\s*([\s\S]*?)\s*```/g, '$1').trim();
-    s = s
-      .replace(/&quot;/g, '"').replace(/&#34;/g, '"')
-      .replace(/&apos;/g, "'").replace(/&#39;/g, "'")
-      .replace(/&amp;/g, '&').replace(/&lt;/g, '<')
-      .replace(/&gt;/g, '>').replace(/&nbsp;/g, ' ');
-    s = s.replace(/[“”]/g, '"').replace(/[‘’]/g, "'");
-    try { return JSON.parse(s); } catch (_) {}
-
-    const openers = ['{', '[']; const closers = { '{': '}', '[': ']' };
-    for (let i = 0; i < s.length; i++) {
-      const ch = s[i]; if (!openers.includes(ch)) continue;
-      const stack = [ch]; let j = i + 1; let inStr = false; let strQuote = null; let escaped = false;
-
-      for (; j < s.length; j++) {
-        const c = s[j];
-        if (inStr) { if (escaped) { escaped = false; } else if (c === '\\') { escaped = true; } else if (c === strQuote) { inStr = false; strQuote = null; } continue; }
-        else { if (c === '"' || c === "'") { inStr = true; strQuote = c; continue; } }
-        if (c === '{' || c === '[') { stack.push(c); continue; }
-        if (c === '}' || c === ']') {
-          const last = stack[stack.length - 1]; if (!last || closers[last] !== c) break;
-          stack.pop();
-          if (stack.length === 0) {
-            let candidate = s.slice(i, j + 1);
-            candidate = candidate.replace(/,\s*}/g, '}').replace(/,\s*]/g, ']');
-            try { return JSON.parse(candidate); } catch {
-              const fixedKeys = candidate.replace(/'([\w\-]+)'\s*:/g, '"$1":');
-              try { return JSON.parse(fixedKeys); } catch {
-                const fixedVals = fixedKeys.replace(/:\s*'([^']*)'/g, ':"$1"');
-                try { return JSON.parse(fixedVals); } catch {}
-              }
-            }
-            break;
-          }
-        }
-      }
-    }
-    return null;
-  }
-
-  /* ========= Request scoping & cancellation ========= */
-  let currentRequestToken = 0;
-  function newRequestToken(){ currentRequestToken += 1; return currentRequestToken; }
-  function isStale(token){ return token !== currentRequestToken; }
-  let paController = null;
-  let difyController = null;
-
-  /* ========= API wrappers ========= */
-  async function callPowerAutomate(pureBase64, signal) {
-    const tStart = performance.now();
-    const payload = { fileName: 'uploaded', fileContent: pureBase64 };
-
-    const res = await fetch(FLOW_URL, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(payload),
-      signal
-    });
-
-    if (!res.ok && res.status !== 202) {
-      const t = await res.text().catch(() => '');
-      throw new Error(`Power Automate HTTP ${res.status}${t ? ': ' + t : ''}`);
-    }
-
-    let data = null;
-    try { data = await res.json(); }
-    catch { throw new Error('The flow did not return JSON. Ensure the flow ends with a Response action.'); }
-
-    const tEnd = performance.now();
-    return { data, elapsedSec: Number(((tEnd - tStart) / 1000).toFixed(2)) };
-  }
-
-  async function callDifyBlocking(address, signal) {
-    const tStart = performance.now();
-
-    const body = {
-      inputs: { user_query: `Parse this address: ${address}` },
-      response_mode: 'blocking',
-      user: DIFY_USER_ID
-    };
-
-    const resp = await fetch(DIFY_URL, {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${DIFY_API_KEY}`,
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify(body),
-      signal
-    });
-
-    if (!resp.ok) {
-      const txt = await resp.text().catch(() => '');
-      throw new Error(`Dify error ${resp.status}${txt ? ': ' + txt : ''}`);
-    }
-
-    const raw = await resp.json();
-    const textRaw = raw?.data?.outputs?.text || '';
-    const parsed = parseDifyTextToJson(textRaw);
-
-    const tEnd = performance.now();
-    return { parsed, textRaw, elapsedSec: Number(((tEnd - tStart) / 1000).toFixed(2)) };
-  }
-
-  /* ========= File change reset ========= */
-  fileInput.addEventListener('change',()=>{
-    if(analyzeBtn) analyzeBtn.disabled=!fileInput.files||fileInput.files.length===0;
-
-    newRequestToken();
-    try{ paController?.abort(); }catch(_){}
-    try{ difyController?.abort(); }catch(_){}
-    paController = null; difyController = null;
-
-    if(msg) msg.textContent='';
-    Object.values(fields).forEach(el => { if(el) el.value = ''; });
-    Object.values(difyFields).forEach(el => { if(el) el.value = ''; });
-    resetPaSuggestions();
-    updateTimes(0,0,0); resetStepper();
-    setProcessing(false, '');
-
-    const f=fileInput.files && fileInput.files[0];
-    if(!f){ if(preview) preview.src=''; return; }
-    if(f.type.startsWith('image/')){
-      const r=new FileReader(); r.onload=()=>{ if(preview) preview.src=r.result; }; r.readAsDataURL(f);
-    }else{ if(preview) preview.src=''; }
-  });
-
-  /* ========= Main handler ========= */
-  analyzeBtn.addEventListener('click', async ()=>{
-    if(msg) msg.textContent='';
-    Object.values(fields).forEach(el => { if(el) el.value = ''; });
-    Object.values(difyFields).forEach(el => { if(el) el.value = ''; });
-    resetPaSuggestions();
-    updateTimes(0,0,0); resetStepper();
-
-    const file=fileInput.files && fileInput.files[0];
-    if(!file){
-      if(msg) msg.innerHTML='<span class="err">Please choose a file.</span>';
-      return;
-    }
-
-    // Reveal PA suggestions when user clicks Upload
-    document.documentElement.classList.add('pa-reveal');
-
-    const token = newRequestToken();
-    try{ paController?.abort(); }catch(_){}
-    try{ difyController?.abort(); }catch(_){}
-    paController = new AbortController();
-    difyController = null;
-
-    const tAllStart = performance.now();
-    let tPAStart, tPAEnd, tDifyStart, tDifyEnd;
-    let paSec = 0, difySec = 0;
-
-    try{
-      setProcessing(true, 'Preparing file…');
-      tp.set(5, 'Uploading');
-
-      // 0) Base64
-      setStepState('ocr','active');
-      const base64 = await fileToBase64(file);
-      if (isStale(token)) return;
-      const pureBase64=(base64.includes(','))? base64.split(',')[1] : base64;
-      setStepState('ocr','done');
-      tp.set(25, 'OCR complete'); _tpAnimateTo(30);
-
-      // 1) Power Automate — inline suggestions
-      setStepState('pa','active');
-      tp.set(35, 'Extracting via Power Automate…'); _tpAnimateTo(55);
-      showInlineInfo(true,'Extracting fields via Power Automate…');
-      tPAStart = performance.now();
-      const { data, elapsedSec: paElapsed } = await callPowerAutomate(pureBase64, paController.signal);
-      tPAEnd = performance.now();
-      if (isStale(token)) return;
-
-      paSec = paElapsed;
-      populatePaSuggestions(data);
-
-      updateTimes(paSec, undefined, Number(toSec(performance.now()-tAllStart)));
-      setStepState('pa','done');
-      tp.set(60, 'PA suggestions ready');
-
-      // 2) Dify (auto-fill)
-      const paFullAddrEl = paSidecars['fullAddress'];
-      const address = chooseFullAddressForDify(data) || (paFullAddrEl?.dataset?.value || '').trim();
-      if(!address){
-        tp.set(100, 'Completed'); setTimeout(() => tp.show(false), 600);
-        setStepState('dify','done');
-        setStepState('done','done');
-        const tAllEnd = performance.now();
-        updateTimes(paSec, 0, Number(toSec(tAllEnd - tAllStart)));
-        if(msg) msg.innerHTML = `<span class="ok">OCR ready (PA suggestions shown). No address found for Dify.</span>`;
-        return;
-      }
-
-      setStepState('dify','active');
-      tp.set(70, 'Parsing address with Dify…'); _tpAnimateTo(90);
-      showInlineInfo(true,'Parsing address with Dify…');
-      difyController = new AbortController();
-      tDifyStart = performance.now();
-      const { parsed, textRaw, elapsedSec: dElapsed } = await callDifyBlocking(address, difyController.signal);
-      tDifyEnd = performance.now();
-      if (isStale(token)) return;
-
-      difySec = dElapsed;
-
-      if(parsed){
-        if(difyFields.flat) difyFields.flat.value = parsed.flat ?? '';
-        if(difyFields.floor) difyFields.floor.value = parsed.floor ?? '';
-        if(difyFields.block) difyFields.block.value = parsed.block ?? '';
-        if(difyFields.streetNumber) difyFields.streetNumber.value = parsed.streetNumber ?? '';
-        if(difyFields.streetName) difyFields.streetName.value = parsed.streetName ?? '';
-        if(difyFields.buildingName) difyFields.buildingName.value = parsed.buildingName ?? '';
-        if(difyFields.district) difyFields.district.value = parsed.district ?? '';
-        if(difyFields.country) difyFields.country.value = parsed.country ?? '';
-      } else {
-        // Soft parse to avoid empty UI if Dify returns plain text
-        const m = (k, s) => new RegExp(`^\\s*(?:${k})\\s*:\\s*(.+)$`, 'im').exec(s)?.[1]?.trim() || '';
-        const soft = (txt) => txt ? {
-          flat:          m('flat|unit|room', txt),
-          floor:         m('floor', txt),
-          block:         m('block|tower', txt),
-          streetNumber:  m('street\\s*number|no\\.?', txt),
-          streetName:    m('street\\s*name|street', txt),
-          buildingName:  m('building\\s*name|building', txt),
-          district:      m('district|area', txt),
-          country:       m('country|region', txt),
-        } : null;
-
-        const guessed = soft(textRaw || '');
-        if (guessed) {
-          if(difyFields.flat) difyFields.flat.value = guessed.flat;
-          if(difyFields.floor) difyFields.floor.value = guessed.floor;
-          if(difyFields.block) difyFields.block.value = guessed.block;
-          if(difyFields.streetNumber) difyFields.streetNumber.value = guessed.streetNumber;
-          if(difyFields.streetName) difyFields.streetName.value = guessed.streetName;
-          if(difyFields.buildingName) difyFields.buildingName.value = guessed.buildingName;
-          if(difyFields.district) difyFields.district.value = guessed.district;
-          if(difyFields.country) difyFields.country.value = guessed.country;
-        } else {
-          if(msg) msg.innerHTML = `<span class="ok">OCR ready.</span> <span class="err">Dify returned no parsable JSON.</span>`;
-        }
-      }
-
-      tp.set(100, 'Completed'); setTimeout(() => tp.show(false), 600);
-      setStepState('dify','done');
-      setStepState('done','done');
-      const tAllEnd = performance.now();
-      updateTimes(paSec, difySec, Number(toSec(tAllEnd - tAllStart)));
-      if(!msg?.textContent){
-        if(msg) msg.innerHTML = `<span class="ok">OCR ready. PA suggestions available (compact). Dify structured address auto-filled.</span>`;
-      }
-
-    }catch(e){
-      tp.set(100, 'Cancelled / Error'); setTimeout(() => tp.show(false), 1200);
-      const tAllEnd = performance.now();
-      const totalSec = Number(toSec(tAllEnd - tAllStart));
-      const paMeasured = (typeof tPAStart==='number' && typeof tPAEnd==='number') ? Number(toSec(tPAEnd - tPAStart)) : paSec;
-      const difyMeasured = (typeof tDifyStart==='number' && typeof tDifyEnd==='number') ? Number(toSec(tDifyEnd - tDifyStart)) : difySec;
-      updateTimes(paMeasured || 0, difyMeasured || 0, totalSec);
-
-      if (e?.name !== 'AbortError') {
-        console.error(e);
-        if(msg) msg.innerHTML=`<span class="err">Error: ${escapeHtml(e.message)}</span>`;
-      }
-    } finally {
-      if(!isStale(token)) setProcessing(false, '');
-    }
-  });
-
-  /* ========= Optional UX: vertical wheel -> horizontal scroll on pill ========= */
-  document.addEventListener('wheel', (e) => {
-    const target = e.target.closest('.pa-suggest.pa-pill');
-    if (!target) return;
-    if (target.scrollWidth <= target.clientWidth) return; // not overflowing
-    if (Math.abs(e.deltaY) > Math.abs(e.deltaX)) {
-      target.scrollLeft += e.deltaY; // vertical wheel → horizontal scroll
-      e.preventDefault();
-    }
-  }, { passive: false });
-
-  /* ========= Lightbox ========= */
-  function openLightbox(){ if(!preview?.src) return; imgLightboxImg.src=preview.src; imgLightbox.setAttribute('aria-hidden','false'); document.body.style.overflow='hidden'; imgLightboxClose.focus(); }
-  function closeLightbox(){ imgLightbox.setAttribute('aria-hidden','true'); document.body.style.overflow=''; imgLightboxImg.removeAttribute('src'); preview.focus(); }
-  if(preview){
-    preview.addEventListener('click',openLightbox);
-    preview.addEventListener('keydown',(e)=>{ if(e.key==='Enter'||e.key===' '){ e.preventDefault(); openLightbox(); }});
-  }
-  if(imgLightboxClose) imgLightboxClose.addEventListener('click',closeLightbox);
-  if(imgLightbox){
-    imgLightbox.addEventListener('click',(e)=>{ if(e.target===imgLightbox) closeLightbox(); });
-  }
-  document.addEventListener('keydown',(e)=>{ if(e.key==='Escape' && imgLightbox.getAttribute('aria-hidden')==='false') closeLightbox(); });
-</script>
-</body>
-</html>
