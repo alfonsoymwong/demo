@@ -29,6 +29,7 @@
 
       --btn-primary-from:#22d3ee; --btn-primary-to:#00a8ff; --btn-primary-text:#06202a;
 
+      /* Dify badge */
       --dify-badge-bg:#4c1d95;
       --dify-badge-bg-light:#5b21b6;
       --dify-badge-text:#e9d5ff;
@@ -75,6 +76,11 @@
     }
     @keyframes tp-move { from{ background-position: 0 0, 0 0 } to{ background-position: 16px 0, 200% 0 } }
     @keyframes tp-breath { 0%,100%{ filter: brightness(1) } 50%{ filter: brightness(1.2) } }
+    .top-progress__spark{ position: absolute; top: 0; left: 0; right: auto; width: 26px; height: 100%; transform: translateX(-50%); background: radial-gradient(16px 10px at 50% 50%, #fff, rgba(255,255,255,0)); mix-blend-mode: screen; opacity: .85; }
+    .top-progress__hud{ position: absolute; top: 16px; right: 10px; display: inline-flex; align-items: center; gap: 8px; padding: 6px 10px; border-radius: 999px; background: var(--glass); border: 1px solid var(--border); backdrop-filter: blur(8px); font-size: .82rem; font-weight: 700; color: var(--text); box-shadow: var(--panel-shadow); }
+    .tp__stage{ color: var(--text-strong); } .tp__sep{ opacity: .6 } .tp__pct{ color: var(--text-dim) }
+    .tp__cancel{ margin-left: 2px; border: 0; cursor: pointer; background: linear-gradient(135deg, #ef4444, #b91c1c); color: #fff; padding: 4px 8px; border-radius: 999px; font-weight: 800; line-height: 1; box-shadow: 0 6px 16px rgba(239,68,68,.35); }
+    .tp__cancel:hover{ filter: brightness(1.1) }
 
     /* ======= LAYOUT ======= */
     .wrap{max-width:1280px;margin:28px auto;padding:0 18px}
@@ -92,11 +98,14 @@
     .theme-toggle .chip--on{background:linear-gradient(135deg,var(--brand),var(--accent));color:#0b1020}
     .theme-toggle .chip--off{opacity:.8}
 
+    /* Two columns: left (content), right (upload) */
     .layout{
       display:grid;gap:16px;
       grid-template-columns:minmax(0,1fr) 360px; align-items:start;
     }
-    @media (max-width:1000px){ .layout{ grid-template-columns:1fr; } }
+    @media (max-width:1000px){
+      .layout{ grid-template-columns:1fr; }
+    }
 
     .panel{
       background:var(--card);border:1px solid var(--border);border-radius:16px;
@@ -138,17 +147,49 @@
 
     .status{font-size:.92rem}.ok{color:var(--ok)} .err{color:var(--err)} .hint{font-size:.9rem;color:var(--muted)}
 
-    /* ======= LIGHTBOX, STEPPER, etc. left intact (styles trimmed for brevity) ======= */
+    .preview{ width:100%;max-width:340px;max-height:200px;border:1px dashed var(--border); border-radius:12px;display:block;object-fit:contain;cursor:zoom-in;background:rgba(255,255,255,.03) }
+    [data-theme="light"] .preview{ background:#fff }
 
-    /* ======= PA UI base ======= */
+    /* ======= LIGHTBOX ======= */
+    .img-lightbox{position:fixed;inset:0;background:rgba(2,6,23,.9);display:none;align-items:center;justify-content:center;z-index:10000}
+    .img-lightbox[aria-hidden="false"]{display:flex}
+    .img-lightbox__img{max-width:92vw;max-height:92vh;object-fit:contain;border-radius:8px;box-shadow:0 10px 30px rgba(0,0,0,.6);background:#111}
+    .img-lightbox__close{position:absolute;top:12px;right:16px;color:var(--text);font-size:28px;line-height:1;cursor:pointer;background:transparent;border:0;padding:6px;border-radius:6px}
+    .img-lightbox__close:focus{outline:2px solid #fff;outline-offset:2px}
+
+    .section-caption{grid-column:1 / -1;color:var(--text-dim);font-size:.92rem;margin-top:6px;opacity:.9}
+    hr.hr{grid-column:1 / -1;border:none;border-top:1px solid var(--border);margin:6px 0}
+
+    /* ======= STEPPER ======= */
+    .stepper{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-top:10px}
+    .step{display:flex;align-items:center;gap:8px;background:var(--glass);border:1px solid var(--border);border-radius:999px;padding:6px 10px;font-size:.86rem; position:relative}
+    .step__icon{width:20px;height:20px;display:inline-grid;place-items:center;border-radius:6px;background:rgba(255,255,255,.08)}
+    .step--active{box-shadow:0 0 0 2px var(--step-active) inset}
+    .step--done{box-shadow:0 0 0 2px var(--step-done) inset; opacity:.9}
+    .sep{opacity:.4}
+    .chip-spinner { width:14px;height:14px;border-radius:50%;border:2px solid rgba(255,255,255,.25);border-top-color: var(--accent);animation: spin .8s linear infinite;display:none; }
+    .step--active .chip-spinner { display:inline-block; }
+    @keyframes spin{to{transform:rotate(360deg)}}
+
+    /* ======= TIMINGS & INFO ======= */
+    .timing-panel{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-top:10px}
+    .chip-time{display:inline-flex;align-items:center;gap:8px;padding:6px 10px;border-radius:999px;font-weight:700;font-size:.86rem;color:#0b1020}
+    .chip-time .dot{width:8px;height:8px;border-radius:50%}
+    .chip-pa{background:var(--pa-weak);outline:1px solid rgba(239,68,68,.35)} .chip-pa .dot{background:var(--pa)}
+    .chip-dify{background:var(--dify-weak);outline:1px solid rgba(124,58,237,.35)} .chip-dify .dot{background:var(--dify)}
+    .chip-total{background:var(--total-weak);outline:1px solid rgba(34,211,238,.35)} .chip-total .dot{background:var(--total)}
+    .inline-info{display:flex;align-items:center;gap:10px;margin-top:6px;color:var(--muted);font-size:.9rem}
+    .inline-dot{width:8px;height:8px;border-radius:50%;background: var(--accent); box-shadow: 0 0 10px var(--accent); animation: pulse 1.4s ease-in-out infinite; display:none}
+    @keyframes pulse { 0%,100%{transform:scale(1)} 50%{transform:scale(1.2)} }
+
+    /* ======= Input + PA suggestion pairing (original layout) ======= */
     .pair > * { min-width: 0; }
     .pair{
       display:grid;
       grid-template-columns: minmax(0, 1fr) clamp(100px, 16ch, 140px);
       gap:8px;
       align-items:stretch;
-      position: relative;
-      overflow: visible; /* so popover can render outside */
+      position: relative; /* for indicator & popover positioning */
     }
     .pair.pair--address{
       grid-template-columns: minmax(0, 1fr) clamp(120px, 22ch, 200px);
@@ -157,7 +198,7 @@
       .pair, .pair.pair--address{ grid-template-columns:1fr; }
     }
 
-    .pa-pill,.pa-box{
+    .pa-pill, .pa-box{
       border:1px dashed var(--pa-weak);
       background: repeating-linear-gradient(135deg, rgba(239,68,68,.15) 0 8px, rgba(239,68,68,.08) 8px 16px);
       color:var(--text-strong); border-radius:10px; cursor:pointer; position:relative;
@@ -166,21 +207,91 @@
     }
     .pa-pill{ padding:6px 8px; }
     .pa-box{ padding:8px 10px; }
-    [data-theme="light"] .pa-pill,[data-theme="light"] .pa-box{
+    [data-theme="light"] .pa-pill, [data-theme="light"] .pa-box{
       background: repeating-linear-gradient(135deg, rgba(239,68,68,.10) 0 8px, rgba(239,68,68,.05) 8px 16px);
       color:#0f172a;
     }
 
-    .pa-suggest { max-width: 100%; inline-size: auto; }
-    .pa-suggest.pa-pill{ display:inline-flex; align-items:center; gap:8px; white-space:nowrap; overflow:auto; min-height:36px; max-inline-size:16ch; scrollbar-width:thin; }
-    .pa-suggest.pa-box{ display:block; min-height:52px; line-height:1.35; white-space:pre-wrap; word-break:break-word; max-inline-size:22ch; max-height:120px; overflow:auto; scrollbar-width:thin; }
+    .pa-suggest { 
+      max-width: 100%;
+      inline-size: auto;
+    }
+
+    .pa-suggest.pa-pill{
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+      padding:6px 8px;
+      white-space:nowrap;
+      overflow:auto;
+      text-overflow:clip;
+      min-height:36px;
+      max-inline-size:16ch;
+      scrollbar-width:thin;
+    }
+    .pa-suggest.pa-pill::-webkit-scrollbar{ height:6px; }
+    .pa-suggest.pa-pill::-webkit-scrollbar-thumb{ background: rgba(255,255,255,.25); border-radius:6px; }
+
+    .pa-suggest.pa-box{
+      display:block;
+      padding:8px 10px;
+      min-height:52px;
+      line-height:1.35;
+      white-space:pre-wrap;
+      word-break:break-word;
+      max-inline-size:22ch;
+      max-height:120px;
+      overflow:auto;
+      scrollbar-width:thin;
+    }
+    .pa-suggest.pa-box::-webkit-scrollbar{ width:8px; }
+    .pa-suggest.pa-box::-webkit-scrollbar-thumb{ background: rgba(0,0,0,.25); border-radius:8px; }
+
     .pa-applied{ opacity:.45; filter: grayscale(.08) saturate(.9); }
 
-    /* Show suggestions after Upload */
+    /* Hide PA suggestions until Upload is clicked */
     .pa-suggest{ opacity:0; visibility:hidden; pointer-events:none; }
     .pa-reveal .pa-suggest{ opacity:1; visibility:visible; pointer-events:auto; }
 
-    /* Indicator + Popover base */
+    /* ======= DIFY BADGE ======= */
+    .badge{
+      display:inline-flex; align-items:center; gap:6px;
+      font-size:.72rem; line-height:1; font-weight:700;
+      padding:4px 8px; border-radius:999px;
+      background: var(--dify-badge-bg); color: var(--dify-badge-text);
+      border:1px solid var(--dify-badge-border);
+    }
+    .badge:hover{ filter:brightness(1.05) }
+
+    /* ======= DERIVED BOX ======= */
+    .box-derived{
+      grid-column:1 / -1;border:1px solid rgba(239,68,68,.45);
+      border-radius:14px;background:linear-gradient(180deg, rgba(239,68,68,.10), rgba(239,68,68,.05));
+      padding:14px;box-shadow:0 0 0 1px rgba(239,68,68,.12) inset, 0 8px 24px rgba(239,68,68,.12)
+    }
+    [data-theme="light"] .box-derived{ background:#fff3f3 }
+    .box-derived__title{display:flex;align-items:center;gap:8px;font-size:.95rem;font-weight:700;color:var(--text-strong);margin:0 0 10px}
+    .box-derived__grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+    @media (max-width:819px){.box-derived__grid{grid-template-columns:1fr}}
+
+    /* Upload panel */
+    .panel--upload{ grid-column:2; position:sticky; top:16px; padding:12px 12px 10px; }
+    .panel--upload h2{ margin-bottom:8px; }
+    .panel--upload .actions{ margin-top:6px; gap:8px; }
+    .panel--upload .hint{ margin-top:4px; font-size:.86rem; }
+    .panel--upload .stepper{ margin-top:8px; gap:8px; }
+    .panel--upload .timing-panel{ margin-top:8px; gap:8px; }
+    .panel--upload .inline-info{ margin-top:4px; }
+
+    /* Left column container */
+    #resultsWrap{ grid-column:1; }
+
+    /* =========================================================
+       COMPACT PA UI
+       ========================================================= */
+    .pa-compact .pair{ grid-template-columns: 1fr; }
+    .pa-compact .pa-suggest{ display:none !important; }
+
     .pa-indicator{
       position:absolute; right:8px; top:50%; transform:translateY(-50%);
       display:inline-flex; align-items:center; gap:6px;
@@ -191,11 +302,17 @@
       padding:3px 8px; cursor:pointer; line-height:1; z-index:2;
       box-shadow:0 0 0 1px rgba(239,68,68,.08) inset; user-select:none;
     }
-    [data-theme="light"] .pa-indicator{ background:rgba(239,68,68,.08); color:#0f172a; }
+    [data-theme="light"] .pa-indicator{
+      background:rgba(239,68,68,.08); color:#0f172a;
+    }
     .pa-indicator[aria-disabled="true"]{ opacity:.4; pointer-events:none; }
-    .pa-indicator__dot{ width:8px;height:8px;border-radius:50%; background: var(--pa); box-shadow:0 0 8px rgba(239,68,68,.45); }
-    .pair.pair--address .pa-indicator{ top:10px; transform:none; }
+    .pa-indicator__dot{
+      width:8px;height:8px;border-radius:50%;
+      background: var(--pa);
+      box-shadow:0 0 8px rgba(239,68,68,.45);
+    }
 
+    /* Floating popover: value only (default under; overridden later) */
     .pa-popover{
       position:absolute; right:8px; top: calc(100% + 6px);
       min-width: 220px; max-width: 360px;
@@ -203,674 +320,1165 @@
       border-radius:10px; box-shadow: var(--panel-shadow);
       padding:8px 10px; color: var(--text); display:none;
     }
-    .pa-popover__val{ font-size:.86rem; line-height:1.35; color:var(--text-strong); word-break:break-word; max-height:160px; overflow:auto; }
+    .pa-popover__val{
+      font-size:.86rem; line-height:1.35; color:var(--text-strong);
+      word-break:break-word; max-height:160px; overflow:auto;
+    }
+
     .pair:has(.pa-indicator:focus) .pa-popover,
     .pair:hover .pa-popover,
-    .pair:focus-within .pa-popover{ display:block; }
+    .pair:focus-within .pa-popover{
+      display:block;
+    }
+
+    .pair.pair--address .pa-indicator{ top: 10px; transform:none; }
   </style>
 </head>
 <body>
-  <div class="wrap">
-    <div class="page-head">
-      <h1><span class="glow-dot"></span> AI Business Card Application Form Filling (v2.0)</h1>
-      <button id="themeToggle" class="theme-toggle" aria-label="Toggle theme">
-        <span class="chip chip--on" id="themeOn">🌙 Dark</span>
-        <span class="chip chip--off" id="themeOff">☀️ Light</span>
-      </button>
-    </div>
-    <div class="subtitle">OCR ➜ PA inline suggestions ➜ Dify fills address ➜ Done</div>
 
-    <div class="layout">
-      <!-- LEFT -->
-      <div id="resultsWrap">
-        <section class="stack">
-          <div class="panel">
-            <div class="actions" style="justify-content:flex-end;margin-bottom:6px">
-              <button id="btnResetBadges" type="button" class="btn-ghost btn-danger">Reset PA badges</button>
+<!-- Progress bar -->
+<div id="topProgress" class="top-progress" aria-hidden="true" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-label="Processing status">
+  <div class="top-progress__track">
+    <div id="topProgressFill" class="top-progress__fill"></div>
+    <div id="topProgressSpark" class="top-progress__spark"></div>
+  </div>
+  <div class="top-progress__hud">
+    <span id="topProgressStage" class="tp__stage">Starting…</span>
+    <span class="tp__sep">•</span>
+    <span id="topProgressPct" class="tp__pct">0%</span>
+    <button id="topProgressCancel" class="tp__cancel" type="button" title="Cancel processing">✕</button>
+  </div>
+</div>
+
+<!-- Lightbox -->
+<div id="imgLightbox" class="img-lightbox" aria-hidden="true" aria-label="Image preview dialog" role="dialog" aria-modal="true">
+  <button id="imgLightboxClose" class="img-lightbox__close" aria-label="Close preview">✕</button>
+  <img id="imgLightboxImg" class="img-lightbox__img" alt="Enlarged preview" />
+</div>
+
+<div class="wrap">
+  <div class="page-head">
+    <h1><span class="glow-dot"></span> AI Business Card Application Form Filling (v2.0)</h1>
+    <button id="themeToggle" class="theme-toggle" aria-label="Toggle theme">
+      <span class="chip chip--on" id="themeOn">🌙 Dark</span>
+      <span class="chip chip--off" id="themeOff">☀️ Light</span>
+    </button>
+  </div>
+  <div class="subtitle">OCR ➜ PA inline suggestions (click to apply) ➜ Dify auto‑fills address ➜ Done</div>
+
+  <div class="layout">
+    <!-- LEFT: Main results -->
+    <div id="resultsWrap">
+      <section class="stack">
+        <div class="panel">
+          <div class="actions" style="justify-content:flex-end;margin-bottom:6px">
+            <button id="btnResetBadges" type="button" class="btn-ghost btn-danger">Reset PA badges</button>
+          </div>
+          <h2><span class="bar"></span>3) Extracted Fields (Editable with PA Suggestions)</h2>
+
+          <div class="form-grid">
+            <!-- English set -->
+            <div class="field">
+              <label for="fullName">Full name <span class="label-badges" data-badges-for="fullName"></span></label>
+              <div class="pair">
+                <input id="fullName" type="text" />
+                <button type="button" class="pa-pill pa-suggest" data-pa="fullName" aria-disabled="true" title="Click to copy PA value">—</button>
+                <!-- Compact indicator & popover injected by JS -->
+              </div>
             </div>
-            <h2><span class="bar"></span>3) Extracted Fields (Editable with PA Suggestions)</h2>
 
-            <div class="form-grid">
-              <!-- ENGLISH -->
-              <div class="field">
-                <label for="fullName">Full name <span class="label-badges" data-badges-for="fullName"></span></label>
-                <div class="pair">
-                  <input id="fullName" type="text" />
-                  <button type="button" class="pa-pill pa-suggest" data-pa="fullName" aria-disabled="true">—</button>
-                </div>
+            <div class="field">
+              <label for="firstName">First name <span class="label-badges" data-badges-for="firstName"></span></label>
+              <div class="pair">
+                <input id="firstName" type="text" />
+                <button type="button" class="pa-pill pa-suggest" data-pa="firstName" aria-disabled="true" title="Click to copy PA value">—</button>
               </div>
+            </div>
 
-              <div class="field">
-                <label for="firstName">First name <span class="label-badges" data-badges-for="firstName"></span></label>
-                <div class="pair">
-                  <input id="firstName" type="text" />
-                  <button type="button" class="pa-pill pa-suggest" data-pa="firstName" aria-disabled="true">—</button>
-                </div>
+            <div class="field">
+              <label for="lastName">Last name <span class="label-badges" data-badges-for="lastName"></span></label>
+              <div class="pair">
+                <input id="lastName" type="text" />
+                <button type="button" class="pa-pill pa-suggest" data-pa="lastName" aria-disabled="true" title="Click to copy PA value">—</button>
               </div>
+            </div>
 
-              <div class="field">
-                <label for="lastName">Last name <span class="label-badges" data-badges-for="lastName"></span></label>
-                <div class="pair">
-                  <input id="lastName" type="text" />
-                  <button type="button" class="pa-pill pa-suggest" data-pa="lastName" aria-disabled="true">—</button>
-                </div>
+            <div class="field">
+              <label for="title">Title <span class="label-badges" data-badges-for="title"></span></label>
+              <div class="pair">
+                <input id="title" type="text" />
+                <button type="button" class="pa-pill pa-suggest" data-pa="title" aria-disabled="true" title="Click to copy PA value">—</button>
               </div>
+            </div>
 
-              <div class="field">
-                <label for="title">Title <span class="label-badges" data-badges-for="title"></span></label>
-                <div class="pair">
-                  <input id="title" type="text" />
-                  <button type="button" class="pa-pill pa-suggest" data-pa="title" aria-disabled="true">—</button>
-                </div>
+            <div class="field">
+              <label for="company">Company <span class="label-badges" data-badges-for="company"></span></label>
+              <div class="pair">
+                <input id="company" type="text" />
+                <button type="button" class="pa-pill pa-suggest" data-pa="company" aria-disabled="true" title="Click to copy PA value">—</button>
               </div>
+            </div>
 
-              <div class="field">
-                <label for="company">Company <span class="label-badges" data-badges-for="company"></span></label>
-                <div class="pair">
-                  <input id="company" type="text" />
-                  <button type="button" class="pa-pill pa-suggest" data-pa="company" aria-disabled="true">—</button>
-                </div>
+            <div class="field">
+              <label for="department">Department <span class="label-badges" data-badges-for="department"></span></label>
+              <div class="pair">
+                <input id="department" type="text" />
+                <button type="button" class="pa-pill pa-suggest" data-pa="department" aria-disabled="true" title="Click to copy PA value">—</button>
               </div>
+            </div>
 
-              <div class="field">
-                <label for="department">Department <span class="label-badges" data-badges-for="department"></span></label>
-                <div class="pair">
-                  <input id="department" type="text" />
-                  <button type="button" class="pa-pill pa-suggest" data-pa="department" aria-disabled="true">—</button>
-                </div>
-              </div>
-
-              <!-- Derived -->
-              <div class="box-derived">
-                <div class="box-derived__title">Derived from PA: Industry / Occupation / Position</div>
-                <div class="box-derived__grid">
-                  <div class="field">
-                    <label for="industry">Industry <span class="label-badges" data-badges-for="industry"></span></label>
-                    <div class="pair">
-                      <input id="industry" type="text" />
-                      <button type="button" class="pa-pill pa-suggest" data-pa="industry" aria-disabled="true">—</button>
-                    </div>
+            <!-- Derived -->
+            <div class="box-derived">
+              <div class="box-derived__title">Derived from PA: Industry / Occupation / Position</div>
+              <div class="box-derived__grid">
+                <div class="field">
+                  <label for="industry">Industry <span class="label-badges" data-badges-for="industry"></span></label>
+                  <div class="pair">
+                    <input id="industry" type="text" />
+                    <button type="button" class="pa-pill pa-suggest" data-pa="industry" aria-disabled="true" title="Click to copy PA value">—</button>
                   </div>
-                  <div class="field">
-                    <label for="occupation">Occupation <span class="label-badges" data-badges-for="occupation"></span></label>
-                    <div class="pair">
-                      <input id="occupation" type="text" />
-                      <button type="button" class="pa-pill pa-suggest" data-pa="occupation" aria-disabled="true">—</button>
-                    </div>
+                </div>
+                <div class="field">
+                  <label for="occupation">Occupation <span class="label-badges" data-badges-for="occupation"></span></label>
+                  <div class="pair">
+                    <input id="occupation" type="text" />
+                    <button type="button" class="pa-pill pa-suggest" data-pa="occupation" aria-disabled="true" title="Click to copy PA value">—</button>
                   </div>
-                  <div class="field">
-                    <label for="position">Position <span class="label-badges" data-badges-for="position"></span></label>
-                    <div class="pair">
-                      <input id="position" type="text" />
-                      <button type="button" class="pa-pill pa-suggest" data-pa="position" aria-disabled="true">—</button>
-                    </div>
+                </div>
+                <div class="field">
+                  <label for="position">Position <span class="label-badges" data-badges-for="position"></span></label>
+                  <div class="pair">
+                    <input id="position" type="text" />
+                    <button type="button" class="pa-pill pa-suggest" data-pa="position" aria-disabled="true" title="Click to copy PA value">—</button>
                   </div>
                 </div>
               </div>
+            </div>
 
-              <div class="field">
-                <label for="workPhone">Work phone <span class="label-badges" data-badges-for="workPhone"></span></label>
-                <div class="pair">
-                  <input id="workPhone" type="text" />
-                  <button type="button" class="pa-pill pa-suggest" data-pa="workPhone" aria-disabled="true">—</button>
-                </div>
+            <div class="field">
+              <label for="workPhone">Work phone <span class="label-badges" data-badges-for="workPhone"></span></label>
+              <div class="pair">
+                <input id="workPhone" type="text" />
+                <button type="button" class="pa-pill pa-suggest" data-pa="workPhone" aria-disabled="true" title="Click to copy PA value">—</button>
               </div>
+            </div>
 
-              <div class="field">
-                <label for="email">Email <span class="label-badges" data-badges-for="email"></span></label>
-                <div class="pair">
-                  <input id="email" type="email" />
-                  <button type="button" class="pa-pill pa-suggest" data-pa="email" aria-disabled="true">—</button>
-                </div>
+            <div class="field">
+              <label for="email">Email <span class="label-badges" data-badges-for="email"></span></label>
+              <div class="pair">
+                <input id="email" type="email" />
+                <button type="button" class="pa-pill pa-suggest" data-pa="email" aria-disabled="true" title="Click to copy PA value">—</button>
               </div>
+            </div>
 
-              <div class="field">
-                <label for="website">Website <span class="label-badges" data-badges-for="website"></span></label>
-                <div class="pair">
-                  <input id="website" type="text" />
-                  <button type="button" class="pa-pill pa-suggest" data-pa="website" aria-disabled="true">—</button>
-                </div>
+            <div class="field">
+              <label for="website">Website <span class="label-badges" data-badges-for="website"></span></label>
+              <div class="pair">
+                <input id="website" type="text" />
+                <button type="button" class="pa-pill pa-suggest" data-pa="website" aria-disabled="true" title="Click to copy PA value">—</button>
               </div>
+            </div>
 
-              <div class="field" style="grid-column:1 / -1">
-                <label for="fullAddress">Full address <span class="label-badges" data-badges-for="fullAddress"></span></label>
-                <div class="pair pair--address">
-                  <textarea id="fullAddress"></textarea>
-                  <div class="pa-box pa-suggest" data-pa="fullAddress" aria-disabled="true">—</div>
-                </div>
+            <div class="field" style="grid-column:1 / -1">
+              <label for="fullAddress">Full address <span class="label-badges" data-badges-for="fullAddress"></span></label>
+              <div class="pair pair--address">
+                <textarea id="fullAddress"></textarea>
+                <div class="pa-box pa-suggest" data-pa="fullAddress" aria-disabled="true" title="Click to copy PA value">—</div>
               </div>
+            </div>
 
-              <!-- Hidden (optional) -->
-              <div style="display:none;">
-                <div class="field"><label for="addressStreet">Street <span class="label-badges" data-badges-for="addressStreet"></span></label><input id="addressStreet" type="text" /></div>
-                <div class="field"><label for="country">Country <span class="label-badges" data-badges-for="country"></span></label><input id="country" type="text" /></div>
+            <!-- Hidden (optional) -->
+            <div style="display:none;">
+              <div class="field"><label for="addressStreet">Street <span class="label-badges" data-badges-for="addressStreet"></span></label><input id="addressStreet" type="text" /></div>
+              <div class="field"><label for="country">Country <span class="label-badges" data-badges-for="country"></span></label><input id="country" type="text" /></div>
+            </div>
+
+            <hr class="hr">
+            <div class="section-caption">Chinese fields (中文)</div>
+
+            <div class="field">
+              <label for="fullName_chi">Full name (中文) <span class="label-badges" data-badges-for="fullName_chi"></span></label>
+              <div class="pair">
+                <input id="fullName_chi" type="text" />
+                <button type="button" class="pa-pill pa-suggest" data-pa="fullName_chi" aria-disabled="true" title="Click to copy PA value">—</button>
               </div>
+            </div>
 
-              <hr class="hr">
-              <div class="section-caption">Chinese fields (中文)</div>
-
-              <div class="field">
-                <label for="fullName_chi">Full name (中文) <span class="label-badges" data-badges-for="fullName_chi"></span></label>
-                <div class="pair">
-                  <input id="fullName_chi" type="text" />
-                  <button type="button" class="pa-pill pa-suggest" data-pa="fullName_chi" aria-disabled="true">—</button>
-                </div>
+            <div class="field">
+              <label for="firstName_chi">First name (中文) <span class="label-badges" data-badges-for="firstName_chi"></span></label>
+              <div class="pair">
+                <input id="firstName_chi" type="text" />
+                <button type="button" class="pa-pill pa-suggest" data-pa="firstName_chi" aria-disabled="true" title="Click to copy PA value">—</button>
               </div>
+            </div>
 
-              <div class="field">
-                <label for="firstName_chi">First name (中文) <span class="label-badges" data-badges-for="firstName_chi"></span></label>
-                <div class="pair">
-                  <input id="firstName_chi" type="text" />
-                  <button type="button" class="pa-pill pa-suggest" data-pa="firstName_chi" aria-disabled="true">—</button>
-                </div>
+            <div class="field">
+              <label for="lastName_chi">Last name (中文) <span class="label-badges" data-badges-for="lastName_chi"></span></label>
+              <div class="pair">
+                <input id="lastName_chi" type="text" />
+                <button type="button" class="pa-pill pa-suggest" data-pa="lastName_chi" aria-disabled="true" title="Click to copy PA value">—</button>
               </div>
+            </div>
 
-              <div class="field">
-                <label for="lastName_chi">Last name (中文) <span class="label-badges" data-badges-for="lastName_chi"></span></label>
-                <div class="pair">
-                  <input id="lastName_chi" type="text" />
-                  <button type="button" class="pa-pill pa-suggest" data-pa="lastName_chi" aria-disabled="true">—</button>
-                </div>
+            <div class="field">
+              <label for="title_chi">Title (中文) <span class="label-badges" data-badges-for="title_chi"></span></label>
+              <div class="pair">
+                <input id="title_chi" type="text" />
+                <button type="button" class="pa-pill pa-suggest" data-pa="title_chi" aria-disabled="true" title="Click to copy PA value">—</button>
               </div>
+            </div>
 
-              <div class="field">
-                <label for="title_chi">Title (中文) <span class="label-badges" data-badges-for="title_chi"></span></label>
-                <div class="pair">
-                  <input id="title_chi" type="text" />
-                  <button type="button" class="pa-pill pa-suggest" data-pa="title_chi" aria-disabled="true">—</button>
-                </div>
+            <div class="field">
+              <label for="company_chi">Company (中文) <span class="label-badges" data-badges-for="company_chi"></span></label>
+              <div class="pair">
+                <input id="company_chi" type="text" />
+                <button type="button" class="pa-pill pa-suggest" data-pa="company_chi" aria-disabled="true" title="Click to copy PA value">—</button>
               </div>
+            </div>
 
-              <div class="field">
-                <label for="company_chi">Company (中文) <span class="label-badges" data-badges-for="company_chi"></span></label>
-                <div class="pair">
-                  <input id="company_chi" type="text" />
-                  <button type="button" class="pa-pill pa-suggest" data-pa="company_chi" aria-disabled="true">—</button>
-                </div>
-              </div>
-
-              <div class="field">
-                <label for="department_chi">Department (中文) <span class="label-badges" data-badges-for="department_chi"></span></label>
-                <div class="pair">
-                  <input id="department_chi" type="text" />
-                  <button type="button" class="pa-pill pa-suggest" data-pa="department_chi" aria-disabled="true">—</button>
-                </div>
+            <div class="field">
+              <label for="department_chi">Department (中文) <span class="label-badges" data-badges-for="department_chi"></span></label>
+              <div class="pair">
+                <input id="department_chi" type="text" />
+                <button type="button" class="pa-pill pa-suggest" data-pa="department_chi" aria-disabled="true" title="Click to copy PA value">—</button>
               </div>
             </div>
           </div>
+        </div>
 
-          <!-- Dify output -->
-          <div class="panel">
-            <h2><span class="bar"></span>Structured Address (<span class="badge">Dify AI</span>)</h2>
-            <div class="form-grid">
-              <div class="field"><label for="difyFlat">Flat / Unit <span class="badge">Dify</span></label><input id="difyFlat" type="text" /></div>
-              <div class="field"><label for="difyFloor">Floor <span class="badge">Dify</span></label><input id="difyFloor" type="text" /></div>
-              <div class="field"><label for="difyBlock">Block <span class="badge">Dify</span></label><input id="difyBlock" type="text" /></div>
-              <div class="field"><label for="difyStreetNumber">Street Number <span class="badge">Dify</span></label><input id="difyStreetNumber" type="text" /></div>
-              <div class="field"><label for="difyStreetName">Street Name <span class="badge">Dify</span></label><input id="difyStreetName" type="text" /></div>
-              <div class="field"><label for="difyBuildingName">Building Name <span class="badge">Dify</span></label><input id="difyBuildingName" type="text" /></div>
-              <div class="field"><label for="difyDistrict">District <span class="badge">Dify</span></label><input id="difyDistrict" type="text" /></div>
-              <div class="field"><label for="difyCountry">Country <span class="badge">Dify</span></label><input id="difyCountry" type="text" /></div>
-            </div>
+        <!-- 4) Dify output panel (auto-fills) -->
+        <div class="panel">
+          <h2><span class="bar"></span>Structured Address (<span class="badge">Dify AI</span>)</h2>
+          <div class="form-grid">
+            <div class="field"><label for="difyFlat">Flat / Unit <span class="badge">Dify</span></label><input id="difyFlat" type="text" /></div>
+            <div class="field"><label for="difyFloor">Floor <span class="badge">Dify</span></label><input id="difyFloor" type="text" /></div>
+            <div class="field"><label for="difyBlock">Block <span class="badge">Dify</span></label><input id="difyBlock" type="text" /></div>
+            <div class="field"><label for="difyStreetNumber">Street Number <span class="badge">Dify</span></label><input id="difyStreetNumber" type="text" /></div>
+            <div class="field"><label for="difyStreetName">Street Name <span class="badge">Dify</span></label><input id="difyStreetName" type="text" /></div>
+            <div class="field"><label for="difyBuildingName">Building Name <span class="badge">Dify</span></label><input id="difyBuildingName" type="text" /></div>
+            <div class="field"><label for="difyDistrict">District <span class="badge">Dify</span></label><input id="difyDistrict" type="text" /></div>
+            <div class="field"><label for="difyCountry">Country <span class="badge">Dify</span></label><input id="difyCountry" type="text" /></div>
           </div>
-        </section>
-      </div>
-
-      <!-- RIGHT -->
-      <section class="panel panel--upload">
-        <h2><span class="bar"></span>Upload Business Card</h2>
-
-        <input id="fileInput" type="file" accept="image/*,.pdf" />
-        <div class="hint">Supported: JPG/JPEG, PNG, BMP, PDF.</div>
-
-        <div class="actions">
-          <button id="analyzeBtn" disabled>Upload</button>
-          <span id="busy" class="status"></span>
-        </div>
-
-        <div id="inlineInfo" class="inline-info" aria-live="polite" style="margin-top:8px">
-          <span class="inline-dot" aria-hidden="true"></span>
-          <span id="inlineText"></span>
-        </div>
-
-        <div style="margin-top:8px">
-          <img id="preview" class="preview" alt="Preview" role="button" tabindex="0" aria-label="Open enlarged preview" />
-          <div class="subtle" style="margin-top:6px">Click to enlarge (images only)</div>
         </div>
       </section>
     </div>
+
+    <!-- RIGHT: Upload Panel -->
+    <section class="panel panel--upload">
+      <h2><span class="bar"></span>Upload Business Card</h2>
+
+      <input id="fileInput" type="file" accept="image/*,.pdf" />
+      <div class="hint">Supported: JPG/JPEG, PNG, BMP, PDF.</div>
+
+      <div class="actions">
+        <button id="analyzeBtn" disabled>Upload</button>
+        <span id="busy" class="status"></span>
+      </div>
+
+      <!-- Stepper -->
+      <div id="stepper" class="stepper" aria-label="Progress">
+        <div class="step step--active" data-step="ocr">
+          <span class="step__icon">🧾</span><span>OCR</span><span class="chip-spinner" aria-hidden="true"></span>
+        </div>
+        <span class="sep">→</span>
+        <div class="step" data-step="pa">
+          <span class="step__icon">🛠️</span><span>PA</span><span class="chip-spinner" aria-hidden="true"></span>
+        </div>
+        <span class="sep">→</span>
+        <div class="step" data-step="dify">
+          <span class="step__icon">🤖</span><span>Dify</span><span class="chip-spinner" aria-hidden="true"></span>
+        </div>
+        <span class="sep">→</span>
+        <div class="step" data-step="done">
+          <span class="step__icon">✅</span><span>Done</span>
+        </div>
+      </div>
+
+      <!-- Inline info -->
+      <div id="inlineInfo" class="inline-info" aria-live="polite">
+        <span class="inline-dot" aria-hidden="true"></span>
+        <span id="inlineText"></span>
+      </div>
+
+      <!-- Timings -->
+      <div id="timingPanel" class="timing-panel" aria-label="Timings">
+        <span class="chip-time chip-pa"><span class="dot"></span> PA: <span id="timPa">0.00</span>s</span>
+        <span class="chip-time chip-dify"><span class="dot"></span> Dify: <span id="timDify">0.00</span>s</span>
+        <span class="chip-time chip-total"><span class="dot"></span> Total: <span id="timTotal">0.00</span>s</span>
+      </div>
+
+      <div style="margin-top:8px">
+        <img id="preview" class="preview" alt="Preview" role="button" tabindex="0" aria-label="Open enlarged preview" />
+        <div class="subtle" style="margin-top:6px">Click to enlarge (images only)</div>
+      </div>
+    </section>
   </div>
+</div>
 
-  <!-- ========= APP SCRIPT (refactored) ========= -->
-  <script>
-    /* ========== THEME ========== */
-    (() => {
-      const root = document.documentElement;
-      const on = document.getElementById('themeOn');
-      const off = document.getElementById('themeOff');
-      function apply(t){ root.setAttribute('data-theme', t); (t==='dark'?on:off).classList.add('chip--on'); (t==='dark'?off:on).classList.remove('chip--on'); localStorage.setItem('theme', t); }
-      apply(localStorage.getItem('theme') || 'dark');
-      document.getElementById('themeToggle').addEventListener('click', () => apply(root.getAttribute('data-theme')==='light'?'dark':'light'));
-    })();
+<script>
+  /* ========= THEME TOGGLE ========= */
+  (function initTheme(){
+    const root = document.documentElement;
+    const saved = localStorage.getItem('theme') || 'dark';
+    root.setAttribute('data-theme', saved);
+    const on = document.getElementById('themeOn');
+    const off = document.getElementById('themeOff');
+    if(saved === 'dark'){ on.classList.add('chip--on'); off.classList.remove('chip--on'); }
+    else { on.classList.remove('chip--on'); off.classList.add('chip--on'); }
+    document.getElementById('themeToggle').addEventListener('click', () => {
+      const current = root.getAttribute('data-theme') === 'light' ? 'dark' : 'light';
+      root.setAttribute('data-theme', current);
+      localStorage.setItem('theme', current);
+      if(current === 'dark'){ on.classList.add('chip--on'); off.classList.remove('chip--on'); }
+      else { on.classList.remove('chip--on'); off.classList.add('chip--on'); }
+    });
+  })();
 
-    /* ========== CONFIG ========== */
-    const FLOW_URL = "https://default82d66b598a9149e39d76abcd7c3c6f.5b.environment.api.powerplatform.com:443/powerautomate/automations/direct/workflows/8db621c1e5b8442f92d1e793bc9802fe/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=q7N6_FOUNYdAUCLL7UdnxcGNHbIjJRWfHzUeGM2zfkk";
-    const DIFY_URL = "https://api.dify.ai/v1/workflows/run";
-    const DIFY_API_KEY = "app-ZIfddptOdaACbwlqSM4Dkwjm";
-    const DIFY_USER_ID = "abc-123";
+  /* ========= CONFIG ========= */
+  const FLOW_URL = "https://default82d66b598a9149e39d76abcd7c3c6f.5b.environment.api.powerplatform.com:443/powerautomate/automations/direct/workflows/8db621c1e5b8442f92d1e793bc9802fe/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=q7N6_FOUNYdAUCLL7UdnxcGNHbIjJRWfHzUeGM2zfkk";
+  const DIFY_URL = "https://api.dify.ai/v1/workflows/run";
+  const DIFY_API_KEY = "app-ZIfddptOdaACbwlqSM4Dkwjm";
+  const DIFY_USER_ID = "abc-123";
 
-    /* ========== DOM REFS ========== */
-    const $ = (s, r=document) => r.querySelector(s);
-    const $$ = (s, r=document) => Array.from(r.querySelectorAll(s));
+  const fileInput=document.getElementById('fileInput');
+  const analyzeBtn=document.getElementById('analyzeBtn');
+  const preview=document.getElementById('preview');
+  const msg=document.getElementById('msg'); // optional container if present
 
-    const fileInput = $('#fileInput');
-    const analyzeBtn = $('#analyzeBtn');
-    const preview = $('#preview');
-    const inlineInfo = $('#inlineInfo');
-    const inlineDot = inlineInfo?.querySelector('.inline-dot');
-    const inlineText = $('#inlineText');
-    const msg = $('#msg'); // optional
+  const imgLightbox=document.getElementById('imgLightbox');
+  const imgLightboxImg=document.getElementById('imgLightboxImg');
+  const imgLightboxClose=document.getElementById('imgLightboxClose');
 
-    /* Fields and sidecars */
-    const fields = Object.fromEntries([
-      'fullName','firstName','lastName','title','company','department',
-      'industry','occupation','position','workPhone','email','website',
-      'fullAddress','addressStreet','country',
-      'fullName_chi','firstName_chi','lastName_chi','title_chi','company_chi','department_chi'
-    ].map(id => [id, $('#'+id)]));
+  const topProgress=document.getElementById('topProgress');
+  const inlineInfo=document.getElementById('inlineInfo');
+  const inlineDot=inlineInfo ? inlineInfo.querySelector('.inline-dot') : null;
+  const inlineText=document.getElementById('inlineText');
 
-    const difyFields = {
-      flat:$('#difyFlat'), floor:$('#difyFloor'), block:$('#difyBlock'),
-      streetNumber:$('#difyStreetNumber'), streetName:$('#difyStreetName'),
-      buildingName:$('#difyBuildingName'), district:$('#difyDistrict'), country:$('#difyCountry')
-    };
+  /* ========= FIELD MAPS ========= */
+  const fields={
+    fullName:document.getElementById('fullName'),
+    firstName:document.getElementById('firstName'),
+    lastName:document.getElementById('lastName'),
+    title:document.getElementById('title'),
+    company:document.getElementById('company'),
+    department:document.getElementById('department'),
+    industry:document.getElementById('industry'),
+    occupation:document.getElementById('occupation'),
+    position:document.getElementById('position'),
+    workPhone:document.getElementById('workPhone'),
+    email:document.getElementById('email'),
+    website:document.getElementById('website'),
+    fullAddress:document.getElementById('fullAddress'),
+    addressStreet:document.getElementById('addressStreet'),
+    country:document.getElementById('country'),
+    fullName_chi:document.getElementById('fullName_chi'),
+    firstName_chi:document.getElementById('firstName_chi'),
+    lastName_chi:document.getElementById('lastName_chi'),
+    title_chi:document.getElementById('title_chi'),
+    company_chi:document.getElementById('company_chi'),
+    department_chi:document.getElementById('department_chi'),
+  };
 
-    const paSidecars = Object.fromEntries($$('[data-pa]').map(el => [el.getAttribute('data-pa'), el]));
-    const LABELS = {
-      fullName:'Full name', firstName:'First name', lastName:'Last name',
-      title:'Title', company:'Company', department:'Department',
-      industry:'Industry (derived)', occupation:'Occupation (derived)', position:'Position (derived)',
-      workPhone:'Work phone', email:'Email', website:'Website',
-      fullAddress:'Full address', addressStreet:'Street', country:'Country',
-      fullName_chi:'Full name (中文)', firstName_chi:'First name (中文)', lastName_chi:'Last name (中文)',
-      title_chi:'Title (中文)', company_chi:'Company (中文)', department_chi:'Department (中文)'
-    };
+  const difyFields={
+    flat:document.getElementById('difyFlat'),
+    floor:document.getElementById('difyFloor'),
+    block:document.getElementById('difyBlock'),
+    streetNumber:document.getElementById('difyStreetNumber'),
+    streetName:document.getElementById('difyStreetName'),
+    buildingName:document.getElementById('difyBuildingName'),
+    district:document.getElementById('difyDistrict'),
+    country:document.getElementById('difyCountry')
+  };
 
-    /* ========== HELPERS ========== */
-    const escapeHtml = s => String(s).replace(/[&<>"'`]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;','`':'&#96;'}[c]));
-    const fileToBase64 = f => new Promise((res,rej)=>{ const r=new FileReader(); r.onload=()=>res(r.result); r.onerror=rej; r.readAsDataURL(f); });
-    const normKey = s => String(s||'').toLowerCase().replace(/[\s_.-]/g,'');
+  /* ========= COLLECT PA SIDECARS ========= */
+  const paSidecars = {};
+  document.querySelectorAll('[data-pa]').forEach(el => {
+    const key = el.getAttribute('data-pa'); paSidecars[key] = el;
+  });
 
-    function showInline(on, text){
-      if(!inlineInfo) return;
-      if(inlineDot) inlineDot.style.display = on ? 'inline-block' : 'none';
-      if(inlineText) inlineText.textContent = on ? (text || 'Processing…') : '';
+  /* ========= HELPERS ========= */
+  function fileToBase64(file){ return new Promise((resolve,reject)=>{ const r=new FileReader(); r.readAsDataURL(file); r.onload=()=>resolve(r.result); r.onerror=reject; }); }
+  function escapeHtml(s){ return String(s).replace(/[&<>"'`]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;','`':'&#96;'}[c])); }
+  function toSec(ms){ return (ms/1000).toFixed(2); }
+  function showInlineInfo(on, text){
+    if(!inlineInfo || !inlineText) return;
+    if(inlineDot) inlineDot.style.display = on ? 'inline-block' : 'none';
+    inlineText.textContent = on ? (text||'Processing…') : '';
+  }
+
+  /* ======= PROGRESS CONTROL ======= */
+  const tp = {
+    root: document.getElementById('topProgress'),
+    fill: document.getElementById('topProgressFill'),
+    spark: document.getElementById('topProgressSpark'),
+    pct: document.getElementById('topProgressPct'),
+    stage: document.getElementById('topProgressStage'),
+    cancelBtn: document.getElementById('topProgressCancel'),
+    show(on){ if(this.root) this.root.setAttribute('aria-hidden', on ? 'false':'true'); },
+    set(percent, label){
+      const p = Math.max(0, Math.min(100, Number(percent)||0));
+      if(this.fill){ this.fill.style.width = p + '%'; }
+      if(this.spark){ this.spark.style.left = p + '%'; }
+      if(this.pct){ this.pct.textContent = `${p}%`; }
+      if(this.root){ this.root.setAttribute('aria-valuenow', String(p)); }
+      if(label && this.stage){ this.stage.textContent = label; }
+    }
+  };
+  if (tp.cancelBtn){
+    tp.cancelBtn.addEventListener('click', () => {
+      try { paController?.abort(); } catch(_) {}
+      try { difyController?.abort(); } catch(_) {}
+      setProcessing(false, '');
+      tp.show(false);
+      if (inlineInfo) { showInlineInfo(false, ''); }
+    });
+  }
+  function showTopProgress(on){
+    tp.show(!!on);
+    if(on){ tp.set(0, 'Starting…'); }
+  }
+  let _tpAnim = null;
+  function _tpAnimateTo(targetPct){
+    cancelAnimationFrame(_tpAnim);
+    const start = parseFloat(tp.fill?.style.width || '0') || 0;
+    const end = Math.max(start, targetPct);
+    const t0 = performance.now(), dur = Math.max(250, 900 * (end - start) / 25);
+    (function frame(now){
+      const k = Math.min(1, (now - t0)/dur);
+      const pct = Math.round(start + (end - start) * (0.2 + 0.8*k));
+      tp.set(pct);
+      if(k < 1) _tpAnim = requestAnimationFrame(frame);
+    })(t0);
+  }
+
+  /* --- key normalizer --- */
+  function _normKey(s){ return String(s || '').toLowerCase().replace(/[\s_\-\.]/g, ''); }
+
+  const timPaEl=document.getElementById('timPa');
+  const timDifyEl=document.getElementById('timDify');
+  const timTotalEl=document.getElementById('timTotal');
+  function updateTimes(pa, dify, total){
+    try{
+      if(typeof pa==='number' && timPaEl) timPaEl.textContent = Number(pa).toFixed(2);
+      if(typeof dify==='number' && timDifyEl) timDifyEl.textContent = Number(dify).toFixed(2);
+      if(typeof total==='number' && timTotalEl) timTotalEl.textContent = Number(total).toFixed(2);
+    }catch{}
+  }
+
+  function setStepState(step, state){
+    const el = document.querySelector(`.step[data-step="${step}"]`);
+    if(!el) return;
+    el.classList.remove('step--active','step--done');
+    if(state==='active') el.classList.add('step--active');
+    if(state==='done') el.classList.add('step--done');
+    const stageName = { ocr:'OCR', pa:'Power Automate', dify:'Dify', done:'Done' }[step] || step;
+    if(state==='active'){ tp.set(undefined, `${stageName}…`); }
+  }
+  function resetStepper(){
+    setStepState('ocr','active');
+    setStepState('pa','idle');
+    setStepState('dify','idle');
+    setStepState('done','idle');
+  }
+
+  /* ========= PROCESSING GUARD ========= */
+  function setProcessing(on, text){
+    if(analyzeBtn) analyzeBtn.disabled = !!on;
+    showTopProgress(!!on);
+    showInlineInfo(!!on, text || (on ? 'Processing…' : ''));
+  }
+
+  /* ========= BADGES (PA applied to inputs) ========= */
+  function addPABadge(fieldId){
+    const slot = document.querySelector(`.label-badges[data-badges-for="${fieldId}"]`);
+    if(!slot) return;
+    if(slot.querySelector('.badge-pa')) return;
+    const b = document.createElement('span');
+    b.className = 'badge-pa';
+    b.textContent = 'PA';
+    slot.appendChild(b);
+  }
+  function clearAllBadges(){
+    document.querySelectorAll('.label-badges').forEach(slot => slot.innerHTML = '');
+  }
+  const btnResetBadges = document.getElementById('btnResetBadges');
+  if(btnResetBadges){
+    btnResetBadges.addEventListener('click', ()=>{
+      clearAllBadges();
+      if(msg) msg.innerHTML = `<span class="ok">PA badges reset.</span>`;
+    });
+  }
+
+  /* ========= INLINE PA SUGGESTIONS ========= */
+  const LABELS = {
+    fullName:'Full name', firstName:'First name', lastName:'Last name',
+    title:'Title', company:'Company', department:'Department',
+    industry:'Industry (derived)', occupation:'Occupation (derived)', position:'Position (derived)',
+    workPhone:'Work phone', email:'Email', website:'Website',
+    fullAddress:'Full address', addressStreet:'Street', country:'Country',
+    fullName_chi:'Full name (中文)', firstName_chi:'First name (中文)', lastName_chi:'Last name (中文)',
+    title_chi:'Title (中文)', company_chi:'Company (中文)', department_chi:'Department (中文)'
+  };
+
+  function getPaValue(paData, key){
+    if (paData == null) return '';
+    const want = _normKey(key);
+
+    if (paData[key] != null) return paData[key];
+
+    const containers = [
+      paData.fields, paData.result, paData.data, paData.body,
+      paData.outputs?.body, paData.outputs, paData.response, paData.payload
+    ].filter(Boolean);
+
+    for (const c of containers){
+      if (c && c[key] != null) return c[key];
+      for (const k in c){ if (_normKey(k) === want) return c[k]; }
     }
 
-    function removePABadge(fieldId){
-      const slot = document.querySelector(`.label-badges[data-badges-for="${fieldId}"]`);
-      if(!slot) return;
-      slot.innerHTML = ''; // remove all 'PA' badges for that field
-    }
+    const arrays = [];
+    if (Array.isArray(paData)) arrays.push(paData);
+    containers.forEach(c => { if (Array.isArray(c)) arrays.push(c); });
 
-    function resetPaSuggestions(){
-      Object.values(fields).forEach(el => el && (el.value = ''));
-      Object.values(difyFields).forEach(el => el && (el.value = ''));
-      Object.values(paSidecars).forEach(el => {
-        el.setAttribute('aria-disabled','true'); el.dataset.value=''; el.textContent='—';
-        el.removeAttribute('title'); el.classList.remove('pa-applied');
-        const host = el.closest('.pair');
-        host?.classList.remove('pa-done');
-        host?.querySelectorAll('.pa-indicator,.pa-popover').forEach(n=>n.remove());
-      });
-      document.querySelectorAll('.badge-pa').forEach(n=>n.remove());
-    }
-
-    /* Value lookup from flow output */
-    function getPaValue(paData, key){
-      if (paData == null) return '';
-      if (paData[key] != null) return paData[key];
-      const want = normKey(key);
-      const containers = [paData.fields, paData.result, paData.data, paData.body, paData.outputs?.body, paData.outputs, paData.response, paData.payload].filter(Boolean);
-      for (const c of containers){ if (c && c[key]!=null) return c[key]; for (const k in c){ if (normKey(k)===want) return c[k]; } }
-      const arrays = []; if (Array.isArray(paData)) arrays.push(paData); containers.forEach(c => { if(Array.isArray(c)) arrays.push(c); });
-      for (const arr of arrays){
-        for (const item of arr){
-          const k = [item?.key, item?.name, item?.field, item?.id].map(normKey);
-          if (k.includes(want)){ return item?.value ?? item?.text ?? item?.val ?? ''; }
+    for (const arr of arrays){
+      for (const item of arr){
+        const k1 = item?.key, k2 = item?.name, k3 = item?.field, k4 = item?.id;
+        if (_normKey(k1) === want || _normKey(k2) === want || _normKey(k3) === want || _normKey(k4) === want){
+          if (item?.value != null) return item.value;
+          if (item?.text  != null) return item.text;
+          if (item?.val   != null) return item.val;
         }
       }
-      for (const k in paData){ if (normKey(k)===want) return paData[k]; }
-      return '';
     }
 
-    /* ========== COMPACT POPOVER (value-only) + INDICATOR ========== */
-    function buildCompactPA(key, value, sidecarEl){
-      const host = sidecarEl.closest('.pair'); if(!host) return;
+    for (const k in paData){ if (_normKey(k) === want) return paData[k]; }
+    return '';
+  }
 
-      // indicator
-      let ind = host.querySelector(`.pa-indicator[data-pa="${key}"]`);
-      if(!ind){
-        ind = document.createElement('button');
-        ind.type='button'; ind.className='pa-indicator'; ind.dataset.pa=key;
-        ind.setAttribute('aria-label', `PA suggestion for ${LABELS[key]||key}`);
-        ind.innerHTML = `<span class="pa-indicator__dot" aria-hidden="true"></span> PA`;
-        host.appendChild(ind);
-      }
-      ind.removeAttribute('aria-disabled'); ind.dataset.value = value;
-
-      // popover (value-only)
-      let pop = host.querySelector(`.pa-popover[data-pa="${key}"]`);
-      if(!pop){
-        pop = document.createElement('div');
-        pop.className='pa-popover'; pop.dataset.pa=key;
-        pop.innerHTML = `<div class="pa-popover__val"></div>`;
-        host.appendChild(pop);
-      }
-      pop.querySelector('.pa-popover__val').textContent = value;
-
-      ind.onclick = () => applyPAValue(key, value, sidecarEl, ind, host);
+  function normalizeValue(v){
+    if(v == null) return '';
+    if(typeof v === 'object') {
+      try { return JSON.stringify(v); } catch { return String(v); }
     }
+    return String(v);
+  }
 
-    /* ========== APPLY VALUE (single path) ========== */
-    function applyPAValue(key, value, sidecarEl, indicatorEl, host){
-      const target = fields[key]; if(!target) return;
-      target.value = value;
+  function resetPaSuggestions(){
+    Object.entries(paSidecars).forEach(([key, el])=>{
+      if (!el) return;
+      el.setAttribute('aria-disabled','true');
+      el.dataset.value = '';
+      el.textContent = '—';
+      el.removeAttribute('title');
+      el.classList.remove('pa-applied');
+    });
+    // Remove indicators/popovers
+    document.querySelectorAll('.pa-indicator').forEach(n => n.remove());
+    document.querySelectorAll('.pa-popover').forEach(n => n.remove());
+    document.querySelectorAll('.pair.pa-done').forEach(n => n.classList.remove('pa-done'));
+  }
 
-      // Remove the "PA" badge next to label once copied (your request)
-      removePABadge(key);
-
-      // Mark applied: dim sidecar & indicator, stop hover; hide popover
-      sidecarEl?.classList.add('pa-applied');
-      indicatorEl?.classList.add('pa-applied');
-      if (host){ host.classList.add('pa-done'); }
-
-      // Remove hover text after copied
-      const pop = host?.querySelector(`.pa-popover[data-pa="${key}"]`);
-      if (pop) pop.remove();
-
-      if(msg) msg.innerHTML = `<span class="ok">Applied ${escapeHtml(LABELS[key] || key)} from PA.</span>`;
-    }
-
-    /* ========== SET SUGGESTIONS ========== */
-    function setPaSuggestion(key, rawVal){
-      const el = paSidecars[key]; if(!el) return;
-      const val = (typeof rawVal==='object') ? JSON.stringify(rawVal) : String(rawVal||'');
+  // Set tooltip to full value for visibility; keep clickable after applied
+  function setPaSuggestion(key, rawVal){
+    const el = paSidecars[key]; if(!el) return;
+    const val = normalizeValue(rawVal).trim();
+    if(!val){
+      el.setAttribute('aria-disabled','true'); 
+      el.dataset.value = ''; 
+      el.textContent = '—'; 
+      el.removeAttribute('title');
+      el.classList.remove('pa-applied');
       const host = el.closest('.pair');
+      const ind = host?.querySelector(`.pa-indicator[data-pa="${key}"]`);
+      if (ind){ ind.setAttribute('aria-disabled','true'); ind.dataset.value = ''; }
+      const pop = host?.querySelector(`.pa-popover[data-pa="${key}"]`);
+      if (pop){ pop.remove(); }
+    }else{
+      el.removeAttribute('aria-disabled'); 
+      el.dataset.value = val; 
+      el.textContent = val; 
+      el.title = val;               
+      el.classList.remove('pa-applied');
+      // Build compact PA (value-only popover)
+      buildCompactPA(key, val, el);
+    }
+  }
 
-      if(!val.trim()){
-        el.setAttribute('aria-disabled','true'); el.dataset.value=''; el.textContent='—'; el.removeAttribute('title'); el.classList.remove('pa-applied');
-        host?.querySelectorAll(`.pa-indicator[data-pa="${key}"], .pa-popover[data-pa="${key}"]`).forEach(n=>n.remove());
+  function populatePaSuggestions(paData){
+    Object.keys(LABELS).forEach(k => { setPaSuggestion(k, getPaValue(paData, k)); });
+  }
+
+  /* Click to apply from PA boxes — DIM after copy */
+  document.addEventListener('click', (e)=>{
+    const el = e.target.closest('[data-pa]');
+    if(!el) return;
+    // ignore clicks on popover container root (handled separately)
+    if (el.classList.contains('pa-popover')) return;
+
+    if(el.getAttribute('aria-disabled') === 'true') return;
+    const key = el.getAttribute('data-pa');
+    const val = el.dataset.value || '';
+    if(!key || !(key in fields) || !val) return;
+    fields[key].value = val;
+    addPABadge(key);
+    // Dim sidecar & indicator
+    const sidecar = paSidecars[key];
+    sidecar?.classList.add('pa-applied');
+    const host = sidecar?.closest('.pair') || document.querySelector(`#${key}`)?.closest('.pair');
+    host?.querySelector(`.pa-indicator[data-pa="${key}"]`)?.classList.add('pa-applied');
+
+    if(msg) msg.innerHTML = `<span class="ok">Applied ${LABELS[key] || key} from PA.</span>`;
+  });
+
+  /* ========= COMPACT PA: indicator + VALUE-ONLY popover ========= */
+  function buildCompactPA(key, value, sidecarEl){
+    const host = sidecarEl.closest('.pair');
+    if(!host) return;
+
+    // 1) Ensure indicator exists
+    let ind = host.querySelector(`.pa-indicator[data-pa="${key}"]`);
+    if(!ind){
+      ind = document.createElement('button');
+      ind.type = 'button';
+      ind.className = 'pa-indicator';
+      ind.setAttribute('data-pa', key);
+      ind.setAttribute('aria-label', `PA suggestion for ${LABELS[key] || key}`);
+      ind.innerHTML = `<span class="pa-indicator__dot" aria-hidden="true"></span> PA`;
+      host.appendChild(ind);
+    }
+    ind.removeAttribute('aria-disabled');
+    ind.dataset.value = value;
+
+    // 2) Ensure VALUE-ONLY popover exists (no title, no hint, no apply)
+    let pop = host.querySelector(`.pa-popover[data-pa="${key}"]`);
+    if(!pop){
+      pop = document.createElement('div');
+      pop.className = 'pa-popover';
+      pop.setAttribute('data-pa', key);
+      pop.innerHTML = `
+        <div class="pa-popover__val"></div>
+      `;
+      host.appendChild(pop);
+    }
+    pop.querySelector('.pa-popover__val').textContent = value;
+
+    // Indicator click still applies the value
+    ind.onclick = () => {
+      if(ind.getAttribute('aria-disabled') === 'true') return;
+      if (fields[key]){
+        fields[key].value = value;
+        addPABadge(key);
+        ind.classList.add('pa-applied');
+        sidecarEl?.classList.add('pa-applied');
+        if(msg) msg.innerHTML = `<span class="ok">Applied ${LABELS[key] || key} from PA.</span>`;
+      }
+    };
+  }
+
+  // Enable compact PA mode globally
+  document.documentElement.classList.add('pa-compact');
+
+  /* ========= DIFY HELPERS ========= */
+  function chooseFullAddressForDify(flowData){
+    const fa=(flowData && typeof flowData.fullAddress==='string' && flowData.fullAddress.trim())? flowData.fullAddress.trim(): '';
+    if(fa) return fa;
+    const parts=[flowData?.addressStreet, flowData?.country].filter(Boolean);
+    return parts.length? parts.join(', '): '';
+  }
+
+  function parseDifyTextToJson(text) {
+    if (!text || typeof text !== 'string') return null;
+    let s = text.replace(/^\uFEFF/, '').trim();
+    try { return JSON.parse(s); } catch (_) {}
+    s = s.replace(/```(?:json|JSON)?\s*([\s\S]*?)\s*```/g, '$1').trim();
+    s = s
+      .replace(/&quot;/g, '"').replace(/&#34;/g, '"')
+      .replace(/&apos;/g, "'").replace(/&#39;/g, "'")
+      .replace(/&amp;/g, '&').replace(/&lt;/g, '<')
+      .replace(/&gt;/g, '>').replace(/&nbsp;/g, ' ');
+    s = s.replace(/[“”]/g, '"').replace(/[‘’]/g, "'");
+    try { return JSON.parse(s); } catch (_) {}
+
+    const openers = ['{', '[']; const closers = { '{': '}', '[': ']' };
+    for (let i = 0; i < s.length; i++) {
+      const ch = s[i]; if (!openers.includes(ch)) continue;
+      const stack = [ch]; let j = i + 1; let inStr = false; let strQuote = null; let escaped = false;
+
+      for (; j < s.length; j++) {
+        const c = s[j];
+        if (inStr) { if (escaped) { escaped = false; } else if (c === '\\') { escaped = true; } else if (c === strQuote) { inStr = false; strQuote = null; } continue; }
+        else { if (c === '"' || c === "'") { inStr = true; strQuote = c; continue; } }
+        if (c === '{' || c === '[') { stack.push(c); continue; }
+        if (c === '}' || c === ']') {
+          const last = stack[stack.length - 1]; if (!last || closers[last] !== c) break;
+          stack.pop();
+          if (stack.length === 0) {
+            let candidate = s.slice(i, j + 1);
+            candidate = candidate.replace(/,\s*}/g, '}').replace(/,\s*]/g, ']');
+            try { return JSON.parse(candidate); } catch {
+              const fixedKeys = candidate.replace(/'([\w\-]+)'\s*:/g, '"$1":');
+              try { return JSON.parse(fixedKeys); } catch {
+                const fixedVals = fixedKeys.replace(/:\s*'([^']*)'/g, ':"$1"');
+                try { return JSON.parse(fixedVals); } catch {}
+              }
+            }
+            break;
+          }
+        }
+      }
+    }
+    return null;
+  }
+
+  /* ========= Request scoping & cancellation ========= */
+  let currentRequestToken = 0;
+  function newRequestToken(){ currentRequestToken += 1; return currentRequestToken; }
+  function isStale(token){ return token !== currentRequestToken; }
+  let paController = null;
+  let difyController = null;
+
+  /* ========= API wrappers ========= */
+  async function callPowerAutomate(pureBase64, signal) {
+    const tStart = performance.now();
+    const payload = { fileName: 'uploaded', fileContent: pureBase64 };
+
+    const res = await fetch(FLOW_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload),
+      signal
+    });
+
+    if (!res.ok && res.status !== 202) {
+      const t = await res.text().catch(() => '');
+      throw new Error(`Power Automate HTTP ${res.status}${t ? ': ' + t : ''}`);
+    }
+
+    let data = null;
+    try { data = await res.json(); }
+    catch { throw new Error('The flow did not return JSON. Ensure the flow ends with a Response action.'); }
+
+    const tEnd = performance.now();
+    return { data, elapsedSec: Number(((tEnd - tStart) / 1000).toFixed(2)) };
+  }
+
+  async function callDifyBlocking(address, signal) {
+    const tStart = performance.now();
+
+    const body = {
+      inputs: { user_query: `Parse this address: ${address}` },
+      response_mode: 'blocking',
+      user: DIFY_USER_ID
+    };
+
+    const resp = await fetch(DIFY_URL, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${DIFY_API_KEY}`,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(body),
+      signal
+    });
+
+    if (!resp.ok) {
+      const txt = await resp.text().catch(() => '');
+      throw new Error(`Dify error ${resp.status}${txt ? ': ' + txt : ''}`);
+    }
+
+    const raw = await resp.json();
+    const textRaw = raw?.data?.outputs?.text || '';
+    const parsed = parseDifyTextToJson(textRaw);
+
+    const tEnd = performance.now();
+    return { parsed, textRaw, elapsedSec: Number(((tEnd - tStart) / 1000).toFixed(2)) };
+  }
+
+  /* ========= File change reset ========= */
+  fileInput.addEventListener('change',()=>{
+    if(analyzeBtn) analyzeBtn.disabled=!fileInput.files||fileInput.files.length===0;
+
+    newRequestToken();
+    try{ paController?.abort(); }catch(_){}
+    try{ difyController?.abort(); }catch(_){}
+    paController = null; difyController = null;
+
+    if(msg) msg.textContent='';
+    Object.values(fields).forEach(el => { if(el) el.value = ''; });
+    Object.values(difyFields).forEach(el => { if(el) el.value = ''; });
+    resetPaSuggestions();
+    updateTimes(0,0,0); resetStepper();
+    setProcessing(false, '');
+
+    const f=fileInput.files && fileInput.files[0];
+    if(!f){ if(preview) preview.src=''; return; }
+    if(f.type.startsWith('image/')){
+      const r=new FileReader(); r.onload=()=>{ if(preview) preview.src=r.result; }; r.readAsDataURL(f);
+    }else{ if(preview) preview.src=''; }
+  });
+
+  /* ========= Main handler ========= */
+  analyzeBtn.addEventListener('click', async ()=>{
+    if(msg) msg.textContent='';
+    Object.values(fields).forEach(el => { if(el) el.value = ''; });
+    Object.values(difyFields).forEach(el => { if(el) el.value = ''; });
+    resetPaSuggestions();
+    updateTimes(0,0,0); resetStepper();
+
+    const file=fileInput.files && fileInput.files[0];
+    if(!file){
+      if(msg) msg.innerHTML='<span class="err">Please choose a file.</span>';
+      return;
+    }
+
+    // Reveal PA suggestions when user clicks Upload
+    document.documentElement.classList.add('pa-reveal');
+
+    const token = newRequestToken();
+    try{ paController?.abort(); }catch(_){}
+    try{ difyController?.abort(); }catch(_){}
+    paController = new AbortController();
+    difyController = null;
+
+    const tAllStart = performance.now();
+    let tPAStart, tPAEnd, tDifyStart, tDifyEnd;
+    let paSec = 0, difySec = 0;
+
+    try{
+      setProcessing(true, 'Preparing file…');
+      tp.set(5, 'Uploading');
+
+      // 0) Base64
+      setStepState('ocr','active');
+      const base64 = await fileToBase64(file);
+      if (isStale(token)) return;
+      const pureBase64=(base64.includes(','))? base64.split(',')[1] : base64;
+      setStepState('ocr','done');
+      tp.set(25, 'OCR complete'); _tpAnimateTo(30);
+
+      // 1) Power Automate — inline suggestions
+      setStepState('pa','active');
+      tp.set(35, 'Extracting via Power Automate…'); _tpAnimateTo(55);
+      showInlineInfo(true,'Extracting fields via Power Automate…');
+      tPAStart = performance.now();
+      const { data, elapsedSec: paElapsed } = await callPowerAutomate(pureBase64, paController.signal);
+      tPAEnd = performance.now();
+      if (isStale(token)) return;
+
+      paSec = paElapsed;
+      populatePaSuggestions(data);
+
+      updateTimes(paSec, undefined, Number(toSec(performance.now()-tAllStart)));
+      setStepState('pa','done');
+      tp.set(60, 'PA suggestions ready');
+
+      // 2) Dify (auto-fill)
+      const paFullAddrEl = paSidecars['fullAddress'];
+      const address = chooseFullAddressForDify(data) || (paFullAddrEl?.dataset?.value || '').trim();
+      if(!address){
+        tp.set(100, 'Completed'); setTimeout(() => tp.show(false), 600);
+        setStepState('dify','done');
+        setStepState('done','done');
+        const tAllEnd = performance.now();
+        updateTimes(paSec, 0, Number(toSec(tAllEnd - tAllStart)));
+        if(msg) msg.innerHTML = `<span class="ok">OCR ready (PA suggestions shown). No address found for Dify.</span>`;
         return;
       }
-      el.removeAttribute('aria-disabled'); el.dataset.value = val; el.textContent = val; el.title = val; el.classList.remove('pa-applied');
 
-      buildCompactPA(key, val, el);     // ensure indicator/popover
-      autosizePa(el);                   // snug width (canvas measure)
-      requestAnimationFrame(()=>autosizePa(el));
+      setStepState('dify','active');
+      tp.set(70, 'Parsing address with Dify…'); _tpAnimateTo(90);
+      showInlineInfo(true,'Parsing address with Dify…');
+      difyController = new AbortController();
+      tDifyStart = performance.now();
+      const { parsed, textRaw, elapsedSec: dElapsed } = await callDifyBlocking(address, difyController.signal);
+      tDifyEnd = performance.now();
+      if (isStale(token)) return;
+
+      difySec = dElapsed;
+
+      if(parsed){
+        if(difyFields.flat) difyFields.flat.value = parsed.flat ?? '';
+        if(difyFields.floor) difyFields.floor.value = parsed.floor ?? '';
+        if(difyFields.block) difyFields.block.value = parsed.block ?? '';
+        if(difyFields.streetNumber) difyFields.streetNumber.value = parsed.streetNumber ?? '';
+        if(difyFields.streetName) difyFields.streetName.value = parsed.streetName ?? '';
+        if(difyFields.buildingName) difyFields.buildingName.value = parsed.buildingName ?? '';
+        if(difyFields.district) difyFields.district.value = parsed.district ?? '';
+        if(difyFields.country) difyFields.country.value = parsed.country ?? '';
+      } else {
+        // Soft parse to avoid empty UI if Dify returns plain text
+        const m = (k, s) => new RegExp(`^\\s*(?:${k})\\s*:\\s*(.+)$`, 'im').exec(s)?.[1]?.trim() || '';
+        const soft = (txt) => txt ? {
+          flat:          m('flat|unit|room', txt),
+          floor:         m('floor', txt),
+          block:         m('block|tower', txt),
+          streetNumber:  m('street\\s*number|no\\.?', txt),
+          streetName:    m('street\\s*name|street', txt),
+          buildingName:  m('building\\s*name|building', txt),
+          district:      m('district|area', txt),
+          country:       m('country|region', txt),
+        } : null;
+
+        const guessed = soft(textRaw || '');
+        if (guessed) {
+          if(difyFields.flat) difyFields.flat.value = guessed.flat;
+          if(difyFields.floor) difyFields.floor.value = guessed.floor;
+          if(difyFields.block) difyFields.block.value = guessed.block;
+          if(difyFields.streetNumber) difyFields.streetNumber.value = guessed.streetNumber;
+          if(difyFields.streetName) difyFields.streetName.value = guessed.streetName;
+          if(difyFields.buildingName) difyFields.buildingName.value = guessed.buildingName;
+          if(difyFields.district) difyFields.district.value = guessed.district;
+          if(difyFields.country) difyFields.country.value = guessed.country;
+        } else {
+          if(msg) msg.innerHTML = `<span class="ok">OCR ready.</span> <span class="err">Dify returned no parsable JSON.</span>`;
+        }
+      }
+
+      tp.set(100, 'Completed'); setTimeout(() => tp.show(false), 600);
+      setStepState('dify','done');
+      setStepState('done','done');
+      const tAllEnd = performance.now();
+      updateTimes(paSec, difySec, Number(toSec(tAllEnd - tAllStart)));
+      if(!msg?.textContent){
+        if(msg) msg.innerHTML = `<span class="ok">OCR ready. PA suggestions available (compact). Dify structured address auto-filled.</span>`;
+      }
+
+    }catch(e){
+      tp.set(100, 'Cancelled / Error'); setTimeout(() => tp.show(false), 1200);
+      const tAllEnd = performance.now();
+      const totalSec = Number(toSec(tAllEnd - tAllStart));
+      const paMeasured = (typeof tPAStart==='number' && typeof tPAEnd==='number') ? Number(toSec(tPAEnd - tPAStart)) : paSec;
+      const difyMeasured = (typeof tDifyStart==='number' && typeof tDifyEnd==='number') ? Number(toSec(tDifyEnd - tDifyStart)) : difySec;
+      updateTimes(paMeasured || 0, difyMeasured || 0, totalSec);
+
+      if (e?.name !== 'AbortError') {
+        console.error(e);
+        if(msg) msg.innerHTML=`<span class="err">Error: ${escapeHtml(e.message)}</span>`;
+      }
+    } finally {
+      if(!isStale(token)) setProcessing(false, '');
     }
+  });
 
-    function populatePaSuggestions(paData){
-      Object.keys(LABELS).forEach(k => setPaSuggestion(k, getPaValue(paData, k)));
-      // post-pass: autosize all visible sidecars
-      $$(`.pa-suggest[aria-disabled="false"]`).forEach(autosizePa);
-      requestAnimationFrame(()=>$$(`.pa-suggest[aria-disabled="false"]`).forEach(autosizePa));
+  /* ========= Optional UX: vertical wheel -> horizontal scroll on pill ========= */
+  document.addEventListener('wheel', (e) => {
+    const target = e.target.closest('.pa-suggest.pa-pill');
+    if (!target) return;
+    if (target.scrollWidth <= target.clientWidth) return; // not overflowing
+    if (Math.abs(e.deltaY) > Math.abs(e.deltaX)) {
+      target.scrollLeft += e.deltaY; // vertical wheel → horizontal scroll
+      e.preventDefault();
     }
+  }, { passive: false });
 
-    /* ========== AUTOSIZE (canvas measure) ========== */
+  /* ========= Lightbox ========= */
+  function openLightbox(){ if(!preview?.src) return; imgLightboxImg.src=preview.src; imgLightbox.setAttribute('aria-hidden','false'); document.body.style.overflow='hidden'; imgLightboxClose.focus(); }
+  function closeLightbox(){ imgLightbox.setAttribute('aria-hidden','true'); document.body.style.overflow=''; imgLightboxImg.removeAttribute('src'); preview.focus(); }
+  if(preview){
+    preview.addEventListener('click',openLightbox);
+    preview.addEventListener('keydown',(e)=>{ if(e.key==='Enter'||e.key===' '){ e.preventDefault(); openLightbox(); }});
+  }
+  if(imgLightboxClose) imgLightboxClose.addEventListener('click',closeLightbox);
+  if(imgLightbox){
+    imgLightbox.addEventListener('click',(e)=>{ if(e.target===imgLightbox) closeLightbox(); });
+  }
+  document.addEventListener('keydown',(e)=>{ if(e.key==='Escape' && imgLightbox.getAttribute('aria-hidden')==='false') closeLightbox(); });
+</script>
+
+<!-- ========= DROP-IN: PA Suggest width = content + smaller font + popover above with colored bg ========= -->
+<style>
+  /* 1) Shrink-wrap the right column to the PA value width */
+  .pair{
+    grid-template-columns: minmax(0, 1fr) max-content !important;
+  }
+  /* Keep responsive single-column on mobile as before */
+  @media (max-width:560px){
+    .pair, .pair.pair--address{ grid-template-columns:1fr !important; }
+  }
+
+  /* 2) PA suggestions: smaller font & content-based width */
+  .pa-suggest{
+    font-size: 0.78rem !important;
+    line-height: 1.25 !important;
+    inline-size: max-content !important;   /* width = content */
+    max-inline-size: none !important;
+    background: #ffffff !important;        /* opaque */
+    color: #0f172a !important;
+    border: 1px solid rgba(239,68,68,0.6) !important;
+    box-shadow: none !important;
+    background-image: none !important;
+  }
+  [data-theme="dark"] .pa-suggest{
+    background: #0f172a !important;
+    color: #e5e7eb !important;
+    border-color: rgba(239,68,68,0.55) !important;
+  }
+
+  /* Pills: compact, single line */
+  .pa-suggest.pa-pill{
+    white-space: nowrap !important;
+    padding: 3px 6px !important;
+    border-radius: 8px !important;
+    min-height: 26px !important;
+  }
+
+  /* Boxes (address): wrap as needed, width = longest line but capped */
+  .pa-suggest.pa-box{
+    white-space: pre-wrap !important;
+    word-break: break-word !important;
+    padding: 6px 8px !important;
+    border-radius: 10px !important;
+    inline-size: max-content !important;
+    max-inline-size: 38ch !important; /* prevent overly long lines from breaking layout */
+  }
+
+  /* Applied state: dim a bit, keep opaque */
+  .pa-applied.pa-suggest{ opacity: .6 !important; filter: none !important; }
+
+  /* Indicator: smaller & opaque to match */
+  .pa-indicator{
+    font-size: 0.7rem !important;
+    padding: 2px 6px !important;
+    border-radius: 6px !important;
+    border: 1px solid rgba(239,68,68,0.6) !important;
+    background: #ffffff !important;
+    color: #0f172a !important;
+  }
+  [data-theme="dark"] .pa-indicator{
+    background:#0f172a !important; color:#e5e7eb !important;
+  }
+
+  /* 3) Popover ABOVE the field + colored background for visual purpose */
+  .pa-popover{
+    right: 8px !important;
+    top: auto !important;
+    bottom: calc(100% + 6px) !important; /* show above */
+    border-radius: 10px !important;
+    padding: 8px 10px !important;
+    border: 1px solid rgba(34,211,238,.45) !important; /* accent border */
+    background: linear-gradient(180deg, rgba(34,211,238,.20), rgba(0,168,255,.18)) !important; /* colored bg */
+    color: var(--text-strong) !important;
+    box-shadow: 0 10px 24px rgba(0,0,0,.25) !important;
+  }
+  [data-theme="light"] .pa-popover{
+    background: linear-gradient(180deg, rgba(34,211,238,.16), rgba(0,168,255,.12)) !important;
+    border-color: rgba(34,211,238,.55) !important;
+  }
+  .pa-popover__val{
+    font-size: 0.84rem !important;
+    line-height: 1.35 !important;
+  }
+
+  /* After applying a value: hide popover & disable hover */
+  .pair.pa-done .pa-popover{ display: none !important; }
+  .pair.pa-done .pa-indicator{ opacity: 0.45 !important; pointer-events: none !important; }
+  .pair.pa-done .pa-suggest{ pointer-events: none !important; } /* optional hard-disable */
+</style>
+
+<script>
+  (function enhancePaSizingAndPopover(){
+    /* Pixel-accurate width: measure text with canvas and set width to text + padding + border */
     function autosizePa(el){
       if(!el) return;
-      el.style.fontSize = '0.78rem';
       const value = el.textContent || '';
       const cs = getComputedStyle(el);
       const font = `${cs.fontStyle} ${cs.fontVariant} ${cs.fontWeight} ${cs.fontSize} / ${cs.lineHeight} ${cs.fontFamily}`;
       const padX = (parseFloat(cs.paddingLeft)||0) + (parseFloat(cs.paddingRight)||0);
       const borderX = (parseFloat(cs.borderLeftWidth)||0) + (parseFloat(cs.borderRightWidth)||0);
+
       const canvas = autosizePa._c || (autosizePa._c = document.createElement('canvas'));
       const ctx = autosizePa._ctx || (autosizePa._ctx = canvas.getContext('2d'));
       ctx.font = font;
+
       if (el.classList.contains('pa-box')){
-        const maxLine = value.split(/\r?\n/).reduce((m, line)=>Math.max(m, ctx.measureText(line).width), 0);
-        el.style.width = Math.ceil(maxLine + padX + borderX) + 'px';
+        const lines = value.split(/\r?\n/);
+        const maxLinePx = lines.reduce((m, line)=>Math.max(m, ctx.measureText(line).width), 0);
+        el.style.width = Math.ceil(maxLinePx + padX + borderX) + 'px';
       } else {
-        el.style.width = Math.ceil(ctx.measureText(value).width + padX + borderX) + 'px';
+        const w = ctx.measureText(value).width;
+        el.style.width = Math.ceil(w + padX + borderX) + 'px';
       }
     }
 
-    /* ========== API ========== */
-    async function callPowerAutomate(pureBase64, signal){
-      const payload = { fileName: 'uploaded', fileContent: pureBase64 };
-      const res = await fetch(FLOW_URL, { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(payload), signal });
-      if (!res.ok && res.status !== 202) throw new Error(`Power Automate HTTP ${res.status}: ${await res.text().catch(()=> '')}`);
-      try { return await res.json(); } catch { throw new Error('Flow did not return JSON'); }
-    }
-
-    function parseDifyTextToJson(text){
-      if(!text || typeof text!=='string') return null;
-      let s = text.replace(/^\uFEFF/, '').trim();
-      try { return JSON.parse(s); } catch {}
-      s = s.replace(/```(?:json|JSON)?\s*([\s\S]*?)\s*```/g, '$1').trim()
-           .replace(/&quot;/g,'"').replace(/&#34;/g,'"').replace(/&apos;/g,"'").replace(/&#39;/g,"'")
-           .replace(/&amp;/g,'&').replace(/&lt;/g,'<').replace(/&gt;/g,'>').replace(/&nbsp;/g,' ')
-           .replace(/[“”]/g,'"').replace(/[‘’]/g,"'");
-      try { return JSON.parse(s); } catch {}
-      const openers=['{','['], closers={ '{':'}', '[':']' };
-      for(let i=0;i<s.length;i++){
-        const ch=s[i]; if(!openers.includes(ch)) continue;
-        const stack=[ch]; let j=i+1, inStr=false, q=null, esc=false;
-        for(; j<s.length; j++){
-          const c=s[j];
-          if(inStr){ if(esc) esc=false; else if(c==='\\') esc=true; else if(c===q){ inStr=false; q=null; } continue; }
-          else if(c==='\"' || c=="'"){ inStr=true; q=c; continue; }
-          if(c==='{'||c==='[') stack.push(c);
-          if(c==='}'||c===']'){ const last=stack.at(-1); if(!last||closers[last]!==c) break; stack.pop(); if(!stack.length){
-            let cand=s.slice(i,j+1).replace(/,\s*}/g,'}').replace(/,\s*]/g,']');
-            try { return JSON.parse(cand); } catch {
-              cand = cand.replace(/'([\w\-]+)'\s*:/g, '"$1":').replace(/:\s*'([^']*)'/g, ':"$1"');
-              try { return JSON.parse(cand); } catch {}
-            }
-            break;
-          }}
-        }
-      }
-      return null;
-    }
-
-    async function callDifyBlocking(address, signal){
-      const body = { inputs:{ user_query:`Parse this address: ${address}` }, response_mode:'blocking', user: DIFY_USER_ID };
-      const resp = await fetch(DIFY_URL, { method:'POST', headers:{'Authorization':`Bearer ${DIFY_API_KEY}`,'Content-Type':'application/json'}, body:JSON.stringify(body), signal });
-      if(!resp.ok) throw new Error(`Dify error ${resp.status}: ${await resp.text().catch(()=> '')}`);
-      const raw = await resp.json();
-      return { parsed: parseDifyTextToJson(raw?.data?.outputs?.text || ''), textRaw: raw?.data?.outputs?.text || '' };
-    }
-
-    /* ========== ORCHESTRATION ========== */
-    let paController=null, difyController=null, reqToken=0;
-    const newToken = () => (++reqToken);
-
-    function chooseFullAddressForDify(flowData){
-      const fa = (flowData && typeof flowData.fullAddress==='string' && flowData.fullAddress.trim()) ? flowData.fullAddress.trim() : '';
-      if(fa) return fa;
-      const parts=[flowData?.addressStreet, flowData?.country].filter(Boolean);
-      return parts.length ? parts.join(', ') : '';
-    }
-
-    fileInput.addEventListener('change', ()=>{
-      analyzeBtn.disabled = !fileInput.files || fileInput.files.length===0;
-      try{ paController?.abort(); difyController?.abort(); }catch{}
-      resetPaSuggestions(); showInline(false,'');
-      const f=fileInput.files?.[0]; if(!f){ preview.src=''; return; }
-      if(f.type.startsWith('image/')){ const r=new FileReader(); r.onload=()=>preview.src=r.result; r.readAsDataURL(f); } else { preview.src=''; }
-    });
-
-    analyzeBtn.addEventListener('click', async ()=>{
-      const file = fileInput.files?.[0];
-      if(!file){ if(msg) msg.innerHTML='<span class="err">Please choose a file.</span>'; return; }
-
-      // Reveal PA suggestions
-      document.documentElement.classList.add('pa-reveal');
-
-      // Reset state
-      try{ paController?.abort(); difyController?.abort(); }catch{}
-      resetPaSuggestions(); showInline(true,'Preparing file…');
-      const token = newToken(); paController = new AbortController();
-
+    // Mark a pair "done" so popover is removed/disabled after copy
+    function markPairDone(key){
       try{
-        // Upload & OCR (Power Automate)
-        const base64 = await fileToBase64(file);
-        if (token !== reqToken) return;
-        const pure = base64.includes(',') ? base64.split(',')[1] : base64;
-
-        showInline(true,'Extracting fields via Power Automate…');
-        const paData = await callPowerAutomate(pure, paController.signal);
-        if (token !== reqToken) return;
-        populatePaSuggestions(paData);
-
-        // Dify address
-        const address = chooseFullAddressForDify(paData) || (paSidecars['fullAddress']?.dataset?.value || '').trim();
-        if(!address){
-          showInline(false,''); return;
+        const sidecar = document.querySelector(`[data-pa="${key}"].pa-suggest`);
+        const host = sidecar ? sidecar.closest('.pair')
+                             : document.querySelector(`#${key}`)?.closest('.pair');
+        if (host && !host.classList.contains('pa-done')) {
+          host.classList.add('pa-done');
+          const ind = host.querySelector(`.pa-indicator[data-pa="${key}"]`);
+          if (ind) { ind.setAttribute('aria-disabled','true'); ind.classList.add('pa-applied'); }
         }
+      }catch(_){}
+    }
 
-        showInline(true,'Parsing address with Dify…'); difyController = new AbortController();
-        const { parsed, textRaw } = await callDifyBlocking(address, difyController.signal);
-        if (token !== reqToken) return;
-
-        const out = parsed || (()=>{ // soft parse fallback
-          const m=(k,s)=> new RegExp(`^\\s*(?:${k})\\s*:\\s*(.+)$`, 'im').exec(s)?.[1]?.trim() || '';
-          return textRaw ? {
-            flat:m('flat|unit|room',textRaw), floor:m('floor',textRaw), block:m('block|tower',textRaw),
-            streetNumber:m('street\\s*number|no\\.?',textRaw), streetName:m('street\\s*name|street',textRaw),
-            buildingName:m('building\\s*name|building',textRaw), district:m('district|area',textRaw), country:m('country|region',textRaw)
-          } : null;
-        })();
-
-        if(out){
-          Object.entries({flat:'flat',floor:'floor',block:'block',streetNumber:'streetNumber',streetName:'streetName',buildingName:'buildingName',district:'district',country:'country'})
-            .forEach(([k, id]) => { if(difyFields[id]) difyFields[id].value = out[k] ?? ''; });
+    // Hook setPaSuggestion to apply smaller font & autosize on every value change
+    const originalSet = window.setPaSuggestion;
+    if (typeof originalSet === 'function') {
+      window.setPaSuggestion = function(key, rawVal){
+        originalSet(key, rawVal);
+        const el = document.querySelector(`[data-pa="${key}"]`);
+        if (el && el.getAttribute('aria-disabled') !== 'true') {
+          el.style.fontSize = '0.78rem';
+          autosizePa(el);
+          requestAnimationFrame(() => autosizePa(el));
         }
-        showInline(false,'');
+      };
+    }
 
-      }catch(e){
-        if (e?.name !== 'AbortError'){
-          console.error(e);
-          if(msg) msg.innerHTML = `<span class="err">Error: ${escapeHtml(e.message)}</span>`;
-        }
-        showInline(false,'');
-      }
+    // Hook populatePaSuggestions: autosize all active suggests after bulk fill
+    const originalPopulate = window.populatePaSuggestions;
+    if (typeof originalPopulate === 'function') {
+      window.populatePaSuggestions = function(data){
+        originalPopulate(data);
+        document.querySelectorAll('.pa-suggest[aria-disabled="false"]').forEach(el => {
+          el.style.fontSize = '0.78rem';
+          autosizePa(el);
+        });
+        requestAnimationFrame(() => {
+          document.querySelectorAll('.pa-suggest[aria-disabled="false"]').forEach(autosizePa);
+        });
+      };
+    }
+
+    // After a click (copy), if input value equals PA value, mark pair done to remove hover text
+    document.addEventListener('click', function(e){
+      const clickable = e.target.closest('[data-pa]');
+      if(!clickable) return;
+      setTimeout(() => {
+        try{
+          const key = clickable.getAttribute('data-pa');
+          const val = clickable.dataset.value || '';
+          const target = document.getElementById(key);
+          if (target && val && target.value === val) {
+            markPairDone(key);
+          }
+        }catch(_){}
+      }, 0);
+    }, true);
+
+    // Ensure any dynamically created .pa-popover stays ABOVE the field
+    const mo = new MutationObserver((muts)=>{
+      muts.forEach(m => {
+        m.addedNodes.forEach(n => {
+          if (!(n instanceof HTMLElement)) return;
+          if (n.classList && n.classList.contains('pa-popover')) {
+            n.style.top = 'auto';
+            n.style.bottom = 'calc(100% + 6px)';
+          }
+          if (n.matches && n.matches('.pa-suggest')) {
+            n.style.fontSize = '0.78rem';
+            autosizePa(n);
+          }
+        });
+      });
     });
-
-    /* Global click to apply from sidecar or popover/indicator */
-    document.addEventListener('click', (e)=>{
-      const el = e.target.closest('[data-pa]'); if(!el) return;
-      if(el.classList.contains('pa-popover')) return; // container click ignore
-      if(el.getAttribute('aria-disabled')==='true') return;
-      const key = el.getAttribute('data-pa'), val = el.dataset.value || '';
-      if(!key || !fields[key] || !val) return;
-      const host = el.closest('.pair');
-      const ind = host?.querySelector(`.pa-indicator[data-pa="${key}"]`);
-      applyPAValue(key, val, paSidecars[key], ind, host);
-    });
-
-    /* Reset badges (kept for convenience) */
-    $('#btnResetBadges')?.addEventListener('click', ()=>{
-      document.querySelectorAll('.label-badges').forEach(slot => slot.innerHTML = '');
-      msg && (msg.innerHTML = `<span class="ok">PA badges reset.</span>`);
-    });
-  </script>
-
-  <!-- ========= DROP-IN: Opaque popover, no label overlap, capped width ========= -->
-  <style>
-    /* 1) Opaque popover ABOVE the input, with arrow */
-    .pa-popover{
-      right: 8px !important;
-      top: auto !important;
-      bottom: calc(100% + 8px) !important;
-      z-index: 30 !important;
-      border-radius: 10px !important;
-      padding: 8px 10px !important;
-      border: 1px solid rgba(34,211,238,.55) !important;
-      background: #ffffff !important;
-      color: #0f172a !important;
-      box-shadow: 0 10px 24px rgba(0,0,0,.28) !important;
-      background-image: linear-gradient(180deg, rgba(34,211,238,.08), rgba(0,168,255,.06)) !important;
-      max-width: min(78vw, 420px) !important;
-    }
-    [data-theme="dark"] .pa-popover{
-      background: #0b1020 !important;
-      color: #e5e7eb !important;
-      border-color: rgba(34,211,238,.45) !important;
-      background-image: linear-gradient(180deg, rgba(34,211,238,.10), rgba(0,168,255,.08)) !important;
-    }
-    .pa-popover__val{ font-size:0.84rem !important; line-height:1.35 !important; }
-
-    .pa-popover::after{
-      content:""; position:absolute; right:16px; top:100%;
-      border-width:8px 8px 0 8px; border-style:solid;
-      border-color: rgba(34,211,238,.55) transparent transparent transparent;
-      filter: drop-shadow(0 2px 2px rgba(0,0,0,.18));
-    }
-    .pa-popover::before{
-      content:""; position:absolute; right:16px; top:calc(100% - 1px);
-      border-width:7px 7px 0 7px; border-style:solid;
-      border-color:#ffffff transparent transparent transparent;
-    }
-    [data-theme="dark"] .pa-popover::before{ border-color:#0b1020 transparent transparent transparent; }
-
-    /* 2) Add clearance under label only while popover is visible (no overlap) */
-    .field { --popover-clearance: 0px; }
-    .field > label{ display:inline-flex; align-items:center; gap:8px; margin-bottom: var(--popover-clearance); }
-    .field:has(.pair:hover .pa-popover),
-    .field:has(.pair:focus-within .pa-popover),
-    .field:has(.pair .pa-indicator:focus){ --popover-clearance: 28px; }
-
-    /* 3) Shrink-wrap sidecar column, but cap width to avoid over-long boxes */
-    .pair{ grid-template-columns: minmax(0, 1fr) max-content !important; }
-    @media (max-width:560px){ .pair, .pair.pair--address{ grid-template-columns:1fr !important; } }
-
-    .pa-suggest{
-      font-size: 0.78rem !important;
-      line-height: 1.25 !important;
-      inline-size: max-content !important;
-      max-inline-size: none !important;
-      background: #ffffff !important; color:#0f172a !important;
-      border: 1px solid rgba(239,68,68,0.6) !important;
-      box-shadow: none !important; background-image: none !important;
-    }
-    [data-theme="dark"] .pa-suggest{ background:#0f172a !important; color:#e5e7eb !important; border-color: rgba(239,68,68,0.55) !important; }
-
-    .pa-suggest.pa-pill{
-      white-space: nowrap !important; padding: 3px 6px !important; border-radius: 8px !important; min-height:26px !important;
-      max-inline-size: clamp(12ch, 24vw, 28ch) !important; overflow-x:auto;
-    }
-
-    .pa-suggest.pa-box{
-      white-space: pre-wrap !important; word-break: break-word !important; hyphens: auto !important;
-      padding: 6px 8px !important; border-radius: 10px !important;
-      inline-size: max-content !important; max-inline-size: clamp(22ch, 46vw, 34ch) !important;
-      max-height: 140px !important; overflow: auto !important;
-    }
-
-    /* After applying a value, hide popover and disable hover */
-    .pair.pa-done .pa-popover{ display:none !important; }
-    .pair.pa-done .pa-indicator{ opacity:.45 !important; pointer-events:none !important; }
-    .pair.pa-done .pa-suggest{ pointer-events:none !important; }
-  </style>
-
-  <!-- :has() polyfill for label clearance (older browsers) -->
-  <script>
-    (function polyfillHasForPopover(){
-      const supportsHas = CSS && CSS.supports && CSS.supports('selector(:has(*))');
-      if (supportsHas) return;
-      const set = (f,on)=> f && f.classList.toggle('showing-popover',!!on);
-      const fieldOf = el => el?.closest('.field');
-      document.addEventListener('mouseover', e => { const p=e.target.closest('.pair'); if(!p) return; set(fieldOf(p),true); });
-      document.addEventListener('mouseout',  e => { const p=e.target.closest('.pair'); if(!p) return; set(fieldOf(p),false); });
-      document.addEventListener('focusin',   e => { const p=e.target.closest('.pair'); if(!p) return; set(fieldOf(p),true); });
-      document.addEventListener('focusout',  e => { const p=e.target.closest('.pair'); if(!p) return; set(fieldOf(p),false); });
-    })();
-  </script>
-  <style>.field.showing-popover{ --popover-clearance: 28px; }</style>
+    try { mo.observe(document.body, { childList: true, subtree: true }); } catch(_){}
+  })();
+</script>
+<!-- ========= END DROP-IN ========= -->
 
 </body>
 </html>
