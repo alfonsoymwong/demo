@@ -499,6 +499,24 @@
               </div>
             </div>
 
+            <!-- NEW: Account No. -->
+            <div class="field">
+              <label for="bankAccountNo">Account No. <span class="label-badges" data-badges-for="bankAccountNo"></span></label>
+              <div class="pair">
+                <input id="bankAccountNo" type="text" />
+                <button type="button" class="pa-pill pa-suggest" data-pa="bankAccountNo" aria-disabled="true" title="Click to copy PA value">—</button>
+              </div>
+            </div>
+
+            <!-- NEW: Statement Date -->
+            <div class="field">
+              <label for="statementDate">Statement Date <span class="label-badges" data-badges-for="statementDate"></span></label>
+              <div class="pair">
+                <input id="statementDate" type="text" />
+                <button type="button" class="pa-pill pa-suggest" data-pa="statementDate" aria-disabled="true" title="Click to copy PA value">—</button>
+              </div>
+            </div>
+
             <div class="field" style="grid-column:1 / -1">
               <label for="fullAddress">Full address <span class="label-badges" data-badges-for="fullAddress"></span></label>
               <div class="pair pair--address">
@@ -688,9 +706,14 @@
     workPhone:document.getElementById('workPhone'),
     email:document.getElementById('email'),
     website:document.getElementById('website'),
+    /* NEW FIELDS */
+    bankAccountNo:document.getElementById('bankAccountNo'),
+    statementDate:document.getElementById('statementDate'),
+    /* Address */
     fullAddress:document.getElementById('fullAddress'),
     addressStreet:document.getElementById('addressStreet'),
     country:document.getElementById('country'),
+    /* Chinese */
     fullName_chi:document.getElementById('fullName_chi'),
     firstName_chi:document.getElementById('firstName_chi'),
     lastName_chi:document.getElementById('lastName_chi'),
@@ -835,6 +858,8 @@
     title:'Title', company:'Company', department:'Department',
     industry:'Industry (derived)', occupation:'Occupation (derived)', position:'Position (derived)',
     workPhone:'Work phone', email:'Email', website:'Website',
+    /* NEW LABELS */
+    bankAccountNo:'Account No.', statementDate:'Statement Date',
     fullAddress:'Full address', addressStreet:'Street', country:'Country',
     fullName_chi:'Full name (中文)', firstName_chi:'First name (中文)', lastName_chi:'Last name (中文)',
     title_chi:'Title (中文)', company_chi:'Company (中文)', department_chi:'Department (中文)'
@@ -1203,7 +1228,7 @@
       setStepState('pa','done');
       tp.set(60, 'PA suggestions ready');
 
-      // 2) Dify (auto-fill)
+      // 2) Dify (auto-fill) - address only if available
       const paFullAddrEl = paSidecars['fullAddress'];
       const address = chooseFullAddressForDify(data) || (paFullAddrEl?.dataset?.value || '').trim();
       if(!address){
